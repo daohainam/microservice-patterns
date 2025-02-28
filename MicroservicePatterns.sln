@@ -1,0 +1,56 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.13.35825.156 d17.13
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MicroservicePatterns.AppHost", "MicroservicePatterns.AppHost\MicroservicePatterns.AppHost.csproj", "{A7D30E64-73FC-4ACA-AB09-6DEF4942A848}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MicroservicePatterns.ServiceDefaults", "MicroservicePatterns.ServiceDefaults\MicroservicePatterns.ServiceDefaults.csproj", "{96348D5C-63D6-9C18-23C0-E0A9D8938CA0}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "patterns", "patterns", "{02EA681E-C7D8-13C7-8484-4AC65E1B71E8}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "CQRS", "CQRS", "{F5EC37D1-C448-4E41-A13B-AA45835291FC}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CQRS.Library.BorrowerApi", "patterns\CQRS\CQRS.Library.BorrowerApi\CQRS.Library.BorrowerApi.csproj", "{2E08388B-0FAD-B9C1-BD7E-FB18BD96C3B6}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventBus", "EventBus\EventBus.csproj", "{AF9E387D-9019-4750-B67C-E883E21B7B95}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventBus.Kafka", "EventBus.Kafka\EventBus.Kafka.csproj", "{B36C74D5-D1DB-428D-8DCC-76C5A5D44EAA}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{A7D30E64-73FC-4ACA-AB09-6DEF4942A848}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A7D30E64-73FC-4ACA-AB09-6DEF4942A848}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A7D30E64-73FC-4ACA-AB09-6DEF4942A848}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A7D30E64-73FC-4ACA-AB09-6DEF4942A848}.Release|Any CPU.Build.0 = Release|Any CPU
+		{96348D5C-63D6-9C18-23C0-E0A9D8938CA0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{96348D5C-63D6-9C18-23C0-E0A9D8938CA0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{96348D5C-63D6-9C18-23C0-E0A9D8938CA0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{96348D5C-63D6-9C18-23C0-E0A9D8938CA0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2E08388B-0FAD-B9C1-BD7E-FB18BD96C3B6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2E08388B-0FAD-B9C1-BD7E-FB18BD96C3B6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2E08388B-0FAD-B9C1-BD7E-FB18BD96C3B6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2E08388B-0FAD-B9C1-BD7E-FB18BD96C3B6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AF9E387D-9019-4750-B67C-E883E21B7B95}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AF9E387D-9019-4750-B67C-E883E21B7B95}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AF9E387D-9019-4750-B67C-E883E21B7B95}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AF9E387D-9019-4750-B67C-E883E21B7B95}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B36C74D5-D1DB-428D-8DCC-76C5A5D44EAA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B36C74D5-D1DB-428D-8DCC-76C5A5D44EAA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B36C74D5-D1DB-428D-8DCC-76C5A5D44EAA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B36C74D5-D1DB-428D-8DCC-76C5A5D44EAA}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{F5EC37D1-C448-4E41-A13B-AA45835291FC} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
+		{2E08388B-0FAD-B9C1-BD7E-FB18BD96C3B6} = {F5EC37D1-C448-4E41-A13B-AA45835291FC}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {2A6D38EF-43A8-421A-9D76-87B6E1656DF5}
+	EndGlobalSection
+EndGlobal
