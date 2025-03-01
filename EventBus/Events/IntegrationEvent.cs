@@ -1,11 +1,11 @@
 ﻿namespace EventBus.Events;
-public record IntegrationEvent
+public class IntegrationEvent
 {
-    public Guid Id { get; private set; }
+    public Guid EventId { get; private set; }
     public DateTime CreationDate { get; private set; }
     public IntegrationEvent()
     {
-        Id = Guid.CreateVersion7();
+        EventId = Guid.CreateVersion7();
         CreationDate = DateTime.UtcNow;
     }
 }

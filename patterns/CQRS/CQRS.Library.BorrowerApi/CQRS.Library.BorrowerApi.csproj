@@ -17,8 +17,4 @@
     <ProjectReference Include="..\..\..\MicroservicePatterns.ServiceDefaults\MicroservicePatterns.ServiceDefaults.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="IntegrationEvents\" />
-  </ItemGroup>
-
 </Project>

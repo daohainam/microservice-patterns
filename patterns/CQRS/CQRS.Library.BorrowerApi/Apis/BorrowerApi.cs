@@ -1,4 +1,5 @@
-﻿using CQRS.Library.BorrowerApi.Infrastructure.Entity;
+﻿using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.Mvc;
 
 namespace CQRS.Library.BorrowerApi.Apis;
 public static class BorrowerApi
@@ -24,25 +25,59 @@ public static class BorrowerApi
             return await services.DbContext.Borrowers.FindAsync(id);
         });
 
-        group.MapPost("borrowers", async ([AsParameters] ApiServices services, Borrower borrower) =>
-        {
-            services.DbContext.Borrowers.Add(borrower);
-            await services.DbContext.SaveChangesAsync();
-            return borrower;
-        });
+        group.MapPost("borrowers", CreateBorrower);
 
-        group.MapPut("borrowers/{id:guid}", async ([AsParameters] ApiServices services, Guid id, Borrower borrower) =>
-        {
-            if (id != borrower.Id)
-            {
-                throw new InvalidOperationException("Id mismatch");
-            }
-
-            services.DbContext.Borrowers.Update(borrower);
-            await services.DbContext.SaveChangesAsync();
-            return borrower;
-        });
+        group.MapPut("borrowers/{id:guid}", UpdateBorrower);
 
         return group;
+    }
+
+    private static async Task<Results<Ok<Borrower>, BadRequest>> CreateBorrower([AsParameters] ApiServices services, Borrower borrower)
+    {
+        if (borrower == null) {
+            return TypedResults.BadRequest();
+        }
+
+        borrower.Id = Guid.CreateVersion7();
+
+        await services.DbContext.Borrowers.AddAsync(borrower);
+        await services.DbContext.SaveChangesAsync();
+
+        await services.EventPublisher.PublishAsync(new BorrowerCreatedIntegrationEvent()
+        {
+            BorrowerId = borrower.Id,
+            Name = borrower.Name,
+            Address = borrower.Address,
+            PhoneNumber = borrower.PhoneNumber,
+            Email = borrower.Email
+        });
+
+        return TypedResults.Ok(borrower);
+    }
+
+    private static async Task<Results<NotFound, Ok>> UpdateBorrower([AsParameters] ApiServices services, Guid id, Borrower borrower)
+    {
+        var existingBorrower = await services.DbContext.Borrowers.FindAsync(id);
+        if (existingBorrower == null)
+        {
+            return TypedResults.NotFound();
+        }
+        existingBorrower.Name = borrower.Name;
+        existingBorrower.Address = borrower.Address;
+        existingBorrower.PhoneNumber = borrower.PhoneNumber;
+        existingBorrower.Email = borrower.Email;
+        services.DbContext.Borrowers.Update(existingBorrower);
+
+        await services.DbContext.SaveChangesAsync();
+        await services.EventPublisher.PublishAsync(new BorrowerUpdatedIntegrationEvent()
+        {
+            BorrowerId = existingBorrower.Id,
+            Name = existingBorrower.Name,
+            Address = existingBorrower.Address,
+            PhoneNumber = existingBorrower.PhoneNumber,
+            Email = existingBorrower.Email
+        });
+
+        return TypedResults.Ok();
     }
 }
