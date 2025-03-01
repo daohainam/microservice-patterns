@@ -36,6 +36,13 @@ public static class ExternalServiceRegistrationExtentions
             .WaitFor(borrowingDb)
             .WaitFor(kafka);
 
+        var borrowingHistoryDb = postgres.AddDatabase("cqrs-borrowing-history-db");
+        builder.AddProject<Projects.CQRS_Library_BorrowingHistoryApi>("cqrs-library-borrowing-history-api")
+            .WithReference(kafka)
+            .WithReference(borrowingHistoryDb)
+            .WaitFor(borrowingHistoryDb)
+            .WaitFor(kafka);
+
         return builder;
     }
 }

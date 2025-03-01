@@ -1,4 +1,4 @@
-﻿namespace CQRS.Library.BorrowerApi.Infrastructure.Entity;
+﻿namespace CQRS.Library.BorrowingHistoryApi.Infrastructure.Entity;
 public class Borrower
 {
     public Guid Id { get; set; }

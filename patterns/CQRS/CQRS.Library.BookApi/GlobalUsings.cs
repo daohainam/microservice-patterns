@@ -1,9 +1,11 @@
-﻿global using CQRS.Library.BookApi.Infrastructure.Data;
+﻿global using CQRS.Library.BookApi.Apis;
+global using CQRS.Library.BookApi.Bootstraping;
+global using CQRS.Library.BookApi.Infrastructure.Data;
 global using CQRS.Library.BookApi.Infrastructure.Entity;
+global using CQRS.Library.BookApi.IntegrationEvents;
 global using EventBus.Events;
 global using EventBus.Kafka;
-global using Microsoft.EntityFrameworkCore;
-global using CQRS.Library.BookApi.IntegrationEvents;
-global using CQRS.Library.BookApi.Apis;
-global using CQRS.Library.BookApi.Bootstraping;
 global using Microsoft.AspNetCore.Http.HttpResults;
+global using Microsoft.EntityFrameworkCore;
+global using Microsoft.EntityFrameworkCore.Infrastructure;
+global using Microsoft.EntityFrameworkCore.Storage;
