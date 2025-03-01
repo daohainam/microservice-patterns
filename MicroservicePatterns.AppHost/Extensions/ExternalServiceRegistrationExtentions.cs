@@ -16,12 +16,25 @@ public static class ExternalServiceRegistrationExtentions
         var postgres = builder.AddPostgres("postgresql").WithPgWeb().WithDataVolume();
         
         var borrowerDb = postgres.AddDatabase("cqrs-borrower-db");
-        var borrowerApi = builder.AddProject<Projects.CQRS_Library_BorrowerApi>("cqrs-borrower-api")
+        var borrowerApi = builder.AddProject<Projects.CQRS_Library_BorrowerApi>("cqrs-library-borrower-api")
             .WithReference(kafka)
             .WithReference(borrowerDb)
             .WaitFor(borrowerDb)
-            .WaitFor(kafka)
-            ;
+            .WaitFor(kafka);
+
+        var bookDb = postgres.AddDatabase("cqrs-book-db");
+        builder.AddProject<Projects.CQRS_Library_BookApi>("cqrs-library-book-api")
+            .WithReference(kafka)
+            .WithReference(bookDb)
+            .WaitFor(bookDb)
+            .WaitFor(kafka);
+
+        var borrowingDb = postgres.AddDatabase("cqrs-borrowing-db");
+        builder.AddProject<Projects.CQRS_Library_BorrowingApi>("cqrs-library-borrowing-api")
+            .WithReference(kafka)
+            .WithReference(borrowingDb)
+            .WaitFor(borrowingDb)
+            .WaitFor(kafka);
 
         return builder;
     }

@@ -1,7 +1,9 @@
-﻿using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Storage;
+﻿using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore;
+using System.Threading;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 
-namespace CQRS.Library.BorrowerApi.Bootstraping;
+namespace CQRS.Library.BorrowingApi.Bootstraping;
 public static class DbContextMigrationExtensions
 {
     public static async Task<IHost> MigrateDbContextAsync<TContext>(this IHost host, CancellationToken cancellationToken = default) where TContext : DbContext
@@ -44,7 +46,7 @@ public static class DbContextMigrationExtensions
 
     public static async Task<IHost> MigrateApiDbContextAsync(this IHost host, CancellationToken cancellationToken = default) 
     {
-        await host.MigrateDbContextAsync<BorrowerDbContext>(cancellationToken: cancellationToken);
+        await host.MigrateDbContextAsync<BorrowingDbContext>(cancellationToken: cancellationToken);
         return host;
     }
 }

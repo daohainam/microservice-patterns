@@ -12,7 +12,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-app.MapBorrowerApi();
+app.MapBorrowingApi();
 
 await app.MigrateApiDbContextAsync();
 

@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Http.HttpResults;
-using Microsoft.AspNetCore.Mvc;
 
 namespace CQRS.Library.BorrowerApi.Apis;
 public static class BorrowerApi

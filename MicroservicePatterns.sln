@@ -1,6 +1,6 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.13.35825.156 d17.13
+VisualStudioVersion = 17.13.35825.156
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MicroservicePatterns.AppHost", "MicroservicePatterns.AppHost\MicroservicePatterns.AppHost.csproj", "{A7D30E64-73FC-4ACA-AB09-6DEF4942A848}"
 EndProject
@@ -15,6 +15,10 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventBus", "EventBus\EventBus.csproj", "{AF9E387D-9019-4750-B67C-E883E21B7B95}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventBus.Kafka", "EventBus.Kafka\EventBus.Kafka.csproj", "{B36C74D5-D1DB-428D-8DCC-76C5A5D44EAA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CQRS.Library.BookApi", "patterns\CQRS\CQRS.Library.BookApi\CQRS.Library.BookApi.csproj", "{5D5986C4-A60F-48A2-BB82-808C94F4205C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CQRS.Library.BorrowingApi", "patterns\CQRS\CQRS.Library.BorrowingApi\CQRS.Library.BorrowingApi.csproj", "{9E4BD21A-5E9E-42B6-9746-D6AC685DF65F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -42,6 +46,14 @@ Global
 		{B36C74D5-D1DB-428D-8DCC-76C5A5D44EAA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B36C74D5-D1DB-428D-8DCC-76C5A5D44EAA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B36C74D5-D1DB-428D-8DCC-76C5A5D44EAA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5D5986C4-A60F-48A2-BB82-808C94F4205C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5D5986C4-A60F-48A2-BB82-808C94F4205C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5D5986C4-A60F-48A2-BB82-808C94F4205C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5D5986C4-A60F-48A2-BB82-808C94F4205C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9E4BD21A-5E9E-42B6-9746-D6AC685DF65F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9E4BD21A-5E9E-42B6-9746-D6AC685DF65F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9E4BD21A-5E9E-42B6-9746-D6AC685DF65F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9E4BD21A-5E9E-42B6-9746-D6AC685DF65F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -49,6 +61,8 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{F5EC37D1-C448-4E41-A13B-AA45835291FC} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
 		{2E08388B-0FAD-B9C1-BD7E-FB18BD96C3B6} = {F5EC37D1-C448-4E41-A13B-AA45835291FC}
+		{5D5986C4-A60F-48A2-BB82-808C94F4205C} = {F5EC37D1-C448-4E41-A13B-AA45835291FC}
+		{9E4BD21A-5E9E-42B6-9746-D6AC685DF65F} = {F5EC37D1-C448-4E41-A13B-AA45835291FC}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {2A6D38EF-43A8-421A-9D76-87B6E1656DF5}

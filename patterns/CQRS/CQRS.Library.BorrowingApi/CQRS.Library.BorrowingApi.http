@@ -1,0 +1,6 @@
+@CQRS.Library.BorrowingApi_HostAddress = https://localhost:7070
+
+GET {{CQRS.Library.BorrowingApi_HostAddress}}/api/cqrs/v1/borrowings
+Accept: application/json
+
+###
