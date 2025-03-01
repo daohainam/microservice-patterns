@@ -23,6 +23,7 @@
     <ProjectReference Include="..\patterns\CQRS\CQRS.Library.BookApi\CQRS.Library.BookApi.csproj" />
     <ProjectReference Include="..\patterns\CQRS\CQRS.Library.BorrowerApi\CQRS.Library.BorrowerApi.csproj" />
     <ProjectReference Include="..\patterns\CQRS\CQRS.Library.BorrowingApi\CQRS.Library.BorrowingApi.csproj" />
+    <ProjectReference Include="..\patterns\CQRS\CQRS.Library.BorrowingHistoryApi\CQRS.Library.BorrowingHistoryApi.csproj" />
   </ItemGroup>
 
 </Project>
