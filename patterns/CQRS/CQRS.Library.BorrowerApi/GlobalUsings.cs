@@ -5,3 +5,4 @@ global using EventBus.Kafka;
 global using Microsoft.EntityFrameworkCore;
 global using CQRS.Library.BorrowerApi.IntegrationEvents;
 global using CQRS.Library.BorrowerApi.Apis;
+global using CQRS.Library.BorrowerApi.Bootstraping;

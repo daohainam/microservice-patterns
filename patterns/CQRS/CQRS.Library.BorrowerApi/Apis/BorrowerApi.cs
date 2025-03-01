@@ -38,7 +38,8 @@ public static class BorrowerApi
             return TypedResults.BadRequest();
         }
 
-        borrower.Id = Guid.CreateVersion7();
+        if (borrower.Id == Guid.Empty)
+            borrower.Id = Guid.CreateVersion7();
 
         await services.DbContext.Borrowers.AddAsync(borrower);
         await services.DbContext.SaveChangesAsync();

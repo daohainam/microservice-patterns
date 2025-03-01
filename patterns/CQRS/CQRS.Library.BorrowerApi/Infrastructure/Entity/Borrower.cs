@@ -1,4 +1,4 @@
-﻿namespace CQRS.Library.BorrowerApi.Infrastructure.Data
+﻿namespace CQRS.Library.BorrowerApi.Infrastructure.Entity
 {
     public class Borrower
     {

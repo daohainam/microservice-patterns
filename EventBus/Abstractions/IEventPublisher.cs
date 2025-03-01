@@ -3,5 +3,5 @@
 namespace EventBus.Abstractions;
 public interface IEventPublisher
 {
-    Task PublishAsync(IntegrationEvent @event);
+    Task PublishAsync<TEvent>(TEvent @event) where TEvent: IntegrationEvent;
 }

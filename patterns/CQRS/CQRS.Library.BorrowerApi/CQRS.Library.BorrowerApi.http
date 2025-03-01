@@ -1,6 +1,30 @@
-@CQRS.Library.BorrowerApi_HostAddress = http://localhost:5251
+@CQRS.Library.BorrowerApi_HostAddress = https://localhost:7288
 
-GET {{CQRS.Library.BorrowerApi_HostAddress}}/weatherforecast/
+GET {{CQRS.Library.BorrowerApi_HostAddress}}/api/cqrs/v1/borrowers HTTP/1.1
 Accept: application/json
 
 ###
+
+POST {{CQRS.Library.BorrowerApi_HostAddress}}/api/cqrs/v1/borrowers HTTP/1.1
+Content-Type: application/json
+
+{
+  "Id": "5DC3DB95-181E-4804-9F59-C526BF0064A5",
+  "Name": "John Doe",
+  "Address": "123 Main St",
+  "PhoneNumber": "555-555-5555",
+  "Email": "john.doe@microservice-patterns.com"
+}
+
+###
+
+POST {{CQRS.Library.BorrowerApi_HostAddress}}/api/cqrs/v1/borrowers HTTP/1.1
+Content-Type: application/json
+
+{
+  "Id": "00000000-0000-0000-0000-000000000000",
+  "Name": "John Doe",
+  "Address": "123 Main St",
+  "PhoneNumber": "000-000-0000",
+  "Email": "john.doe@microservice-patterns.com"
+}

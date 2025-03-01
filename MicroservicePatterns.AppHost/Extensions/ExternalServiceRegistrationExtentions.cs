@@ -15,10 +15,13 @@ public static class ExternalServiceRegistrationExtentions
         var mongoDb = builder.AddMongoDB("mongodb").WithMongoExpress().WithDataVolume(); // here we use MongoDB for both read/write model, but we can use different databases using replicas
         var postgres = builder.AddPostgres("postgresql").WithPgWeb().WithDataVolume();
         
-        var borrowerDb = postgres.AddDatabase("cqrs-borrower");
+        var borrowerDb = postgres.AddDatabase("cqrs-borrower-db");
         var borrowerApi = builder.AddProject<Projects.CQRS_Library_BorrowerApi>("cqrs-borrower-api")
             .WithReference(kafka)
-            .WithReference(borrowerDb);
+            .WithReference(borrowerDb)
+            .WaitFor(borrowerDb)
+            .WaitFor(kafka)
+            ;
 
         return builder;
     }

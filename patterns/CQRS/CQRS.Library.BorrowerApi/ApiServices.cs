@@ -1,5 +1,4 @@
-﻿using CQRS.Library.BorrowerApi.Infrastructure.Entity;
-using EventBus.Abstractions;
+﻿using EventBus.Abstractions;
 
 namespace CQRS.Library.BorrowerApi;
 public class ApiServices(
