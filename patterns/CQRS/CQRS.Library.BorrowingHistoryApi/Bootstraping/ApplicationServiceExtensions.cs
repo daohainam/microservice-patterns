@@ -14,6 +14,8 @@ public static class ApplicationServiceExtensions
 
     private static IHostApplicationBuilder AddEventConsumer(this IHostApplicationBuilder builder)
     {
+        builder.AddKafkaConsumer<string, string>("kafka");
+        builder.Services.AddSingleton(new EventHandlingWorkerOptions());
         builder.Services.AddHostedService<EventHandlingWorker>();
         return builder;
     }
