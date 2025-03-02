@@ -22,12 +22,10 @@ public static class BorrowingHistoryApi
 
     private static async Task<Results<Ok<PaginatedResult<BorrowingHistoryItem>>, BadRequest>> FindBorrowingHistory(
         [AsParameters] ApiServices services,
-        PaginationRequest? pagination,
-        FindBorrowingHistoryFilters? filters,
+        [FromQuery] PaginationRequest pagination,
+        [FromQuery] FindBorrowingHistoryFilters filters,
         string? sortBy)
     {
-        pagination ??= new PaginationRequest();
-        filters ??= new FindBorrowingHistoryFilters();
         ValidityStatus validityStatus = ValidityStatus.GetValidityStatus(filters.ValidityStatus);
 
         var query = services.DbContext.BorrowingHistoryItems
