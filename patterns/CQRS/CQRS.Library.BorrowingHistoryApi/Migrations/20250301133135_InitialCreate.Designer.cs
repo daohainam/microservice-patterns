@@ -11,7 +11,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace CQRS.Library.BorrowingHistoryApi.Migrations
 {
-    [DbContext(typeof(BorrowingDbContext))]
+    [DbContext(typeof(BorrowingHistoryDbContext))]
     [Migration("20250301133135_InitialCreate")]
     partial class InitialCreate
     {

@@ -2,8 +2,8 @@
 
 namespace CQRS.Library.BorrowingHistoryApi;
 public class ApiServices(
-    BorrowingDbContext dbContext)
+    BorrowingHistoryDbContext dbContext)
 {
-    public BorrowingDbContext DbContext => dbContext;
+    public BorrowingHistoryDbContext DbContext => dbContext;
 
 }

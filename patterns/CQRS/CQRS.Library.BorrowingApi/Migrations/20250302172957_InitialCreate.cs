@@ -21,7 +21,7 @@ namespace CQRS.Library.BorrowingApi.Migrations
                     BorrowedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     ReturnedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     ValidUntil = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    IsReturned = table.Column<bool>(type: "boolean", nullable: false)
+                    HasReturned = table.Column<bool>(type: "boolean", nullable: false)
                 },
                 constraints: table =>
                 {

@@ -9,7 +9,7 @@ POST {{CQRS.Library.BookApi_HostAddress}}/api/cqrs/v1/books HTTP/1.1
 Content-Type: application/json
 
 {
-  "Id": "00000000-0000-0000-0000-000000000000",
+  "Id": "019557EE-978C-7CE8-9152-73637B6DC9F5",
   "Title": "The Fellowship of the Ring",
   "Author": "J. R. R. Tolkien"
 }

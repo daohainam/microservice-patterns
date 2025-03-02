@@ -37,7 +37,7 @@ namespace CQRS.Library.BorrowingApi.Migrations
                     b.Property<Guid>("BorrowerId")
                         .HasColumnType("uuid");
 
-                    b.Property<bool>("IsReturned")
+                    b.Property<bool>("HasReturned")
                         .HasColumnType("boolean");
 
                     b.Property<DateTime?>("ReturnedAt")

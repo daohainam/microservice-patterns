@@ -10,6 +10,6 @@ global using Microsoft.EntityFrameworkCore;
 global using Microsoft.EntityFrameworkCore.Infrastructure;
 global using Microsoft.EntityFrameworkCore.Storage;
 global using CQRS.Library.IntegrationEvents;
-global using Microsoft.Extensions.Options;
+global using MediatR;
 global using System.Reflection;
 global using System.Text.Json;

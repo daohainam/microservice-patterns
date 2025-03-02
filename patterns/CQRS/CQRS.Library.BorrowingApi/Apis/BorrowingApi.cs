@@ -36,7 +36,7 @@ public static class BorrowingApi
         borrowing.Id = Guid.CreateVersion7();
         borrowing.BorrowedAt = DateTime.UtcNow;
         borrowing.ValidUntil = borrowing.ValidUntil.ToUniversalTime();
-        borrowing.IsReturned = false;
+        borrowing.HasReturned = false;
 
         await services.DbContext.Borrowings.AddAsync(borrowing);
         await services.DbContext.SaveChangesAsync();
@@ -62,7 +62,7 @@ public static class BorrowingApi
         }
 
         borrowing.ReturnedAt = DateTime.UtcNow;
-        borrowing.IsReturned = true;
+        borrowing.HasReturned = true;
         await services.DbContext.SaveChangesAsync();
 
         await services.EventPublisher.PublishAsync(new BookReturnedIntegrationEvent()

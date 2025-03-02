@@ -41,7 +41,7 @@ public static class DbContextMigrationExtensions
 
     public static async Task<IHost> MigrateApiDbContextAsync(this IHost host, CancellationToken cancellationToken = default) 
     {
-        await host.MigrateDbContextAsync<BorrowingDbContext>(cancellationToken: cancellationToken);
+        await host.MigrateDbContextAsync<BorrowingHistoryDbContext>(cancellationToken: cancellationToken);
         return host;
     }
 }

@@ -8,6 +8,6 @@
         public DateTime BorrowedAt { get; set; }
         public DateTime? ReturnedAt { get; set; }
         public DateTime ValidUntil { get; set; }
-        public bool IsReturned { get; set; }
+        public bool HasReturned { get; set; }
     }
 }

@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace CQRS.Library.BorrowingApi.Migrations
 {
     [DbContext(typeof(BorrowingDbContext))]
-    [Migration("20250301104706_InitialCreate")]
+    [Migration("20250302172957_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -40,7 +40,7 @@ namespace CQRS.Library.BorrowingApi.Migrations
                     b.Property<Guid>("BorrowerId")
                         .HasColumnType("uuid");
 
-                    b.Property<bool>("IsReturned")
+                    b.Property<bool>("HasReturned")
                         .HasColumnType("boolean");
 
                     b.Property<DateTime?>("ReturnedAt")

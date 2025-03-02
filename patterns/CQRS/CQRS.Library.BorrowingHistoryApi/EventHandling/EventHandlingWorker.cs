@@ -7,7 +7,8 @@ namespace CQRS.Library.BorrowingHistoryApi.EventHandling;
 public class EventHandlingWorker(IConsumer<string, MessageEnvelop> consumer,
     EventHandlingWorkerOptions options,
     IIntegrationEventFactory integrationEventFactory,
-    IMediator mediator,
+    IServiceScopeFactory serviceScopeFactory,
+    //IMediator mediator,
     ILogger<EventHandlingWorker> logger) : BackgroundService
 {
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -52,7 +53,10 @@ public class EventHandlingWorker(IConsumer<string, MessageEnvelop> consumer,
 
         if (@event is not null)
         {
-            await mediator.Publish(@event, cancellationToken);
+            // here we must use a scope to resolve the mediator since a background service is registered as a singleton service
+            using IServiceScope scope = serviceScopeFactory.CreateScope();
+            var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+            await mediator.Send(@event, cancellationToken);
         }
         else
         {

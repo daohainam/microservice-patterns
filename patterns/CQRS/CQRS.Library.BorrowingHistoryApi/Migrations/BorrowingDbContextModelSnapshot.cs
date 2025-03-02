@@ -10,7 +10,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace CQRS.Library.BorrowingHistoryApi.Migrations
 {
-    [DbContext(typeof(BorrowingDbContext))]
+    [DbContext(typeof(BorrowingHistoryDbContext))]
     partial class BorrowingDbContextModelSnapshot : ModelSnapshot
     {
         protected override void BuildModel(ModelBuilder modelBuilder)
