@@ -33,11 +33,6 @@ public static class BorrowingApi
             return TypedResults.BadRequest("BookId is required");
         }
 
-        if (borrowing.ValidUntil < DateTime.UtcNow)
-        {
-            return TypedResults.BadRequest("ValidUntil is invalid");
-        }
-
         borrowing.Id = Guid.CreateVersion7();
         borrowing.BorrowedAt = DateTime.UtcNow;
         borrowing.ValidUntil = borrowing.ValidUntil.ToUniversalTime();

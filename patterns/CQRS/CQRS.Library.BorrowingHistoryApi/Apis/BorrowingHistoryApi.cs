@@ -22,8 +22,8 @@ public static class BorrowingHistoryApi
 
     private static async Task<Results<Ok<PaginatedResult<BorrowingHistoryItem>>, BadRequest>> FindBorrowingHistory(
         [AsParameters] ApiServices services,
-        [FromQuery] PaginationRequest? pagination,
-        [FromQuery] FindBorrowingHistoryFilters? filters,
+        PaginationRequest? pagination,
+        FindBorrowingHistoryFilters? filters,
         string? sortBy)
     {
         pagination ??= new PaginationRequest();

@@ -29,23 +29,26 @@ public static class BookApi
         return group;
     }
 
-    private static async Task<Results<Ok<Book>, BadRequest>> CreateBorrower([AsParameters] ApiServices services, Book borrower)
+    private static async Task<Results<Ok<Book>, BadRequest>> CreateBorrower([AsParameters] ApiServices services, Book book)
     {
-        if (borrower == null) {
+        if (book == null) {
             return TypedResults.BadRequest();
         }
 
-        if (borrower.Id == Guid.Empty)
-            borrower.Id = Guid.CreateVersion7();
+        if (book.Id == Guid.Empty)
+            book.Id = Guid.CreateVersion7();
 
-        await services.DbContext.Books.AddAsync(borrower);
+        await services.DbContext.Books.AddAsync(book);
         await services.DbContext.SaveChangesAsync();
 
         await services.EventPublisher.PublishAsync(new BookCreatedIntegrationEvent()
         {
+            BookId = book.Id,
+            Title = book.Title,
+            Author = book.Author,
         });
 
-        return TypedResults.Ok(borrower);
+        return TypedResults.Ok(book);
     }
 
     private static async Task<Results<NotFound, Ok>> UpdateBook([AsParameters] ApiServices services, Guid id, Book borrower)
