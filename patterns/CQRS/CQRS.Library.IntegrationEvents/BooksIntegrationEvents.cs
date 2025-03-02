@@ -1,4 +1,6 @@
-﻿namespace CQRS.Library.BookApi.IntegrationEvents;
+﻿using EventBus.Events;
+
+namespace CQRS.Library.IntegrationEvents;
 public class BookCreatedIntegrationEvent: IntegrationEvent
 {
     public Guid BookId { get; set; }

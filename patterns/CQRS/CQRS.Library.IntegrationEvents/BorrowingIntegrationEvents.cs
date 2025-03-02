@@ -1,4 +1,6 @@
-﻿namespace CQRS.Library.BorrowingApi.IntegrationEvents;
+﻿using EventBus.Events;
+
+namespace CQRS.Library.IntegrationEvents;
 public class BookBorrowedIntegrationEvent: IntegrationEvent
 {
     public Guid BorrowingId { get; set; }

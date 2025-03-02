@@ -1,4 +1,6 @@
-﻿namespace CQRS.Library.BorrowerApi.IntegrationEvents;
+﻿using EventBus.Events;
+
+namespace CQRS.Library.IntegrationEvents;
 public class BorrowerCreatedIntegrationEvent: IntegrationEvent
 {
     public Guid BorrowerId { get; set; }

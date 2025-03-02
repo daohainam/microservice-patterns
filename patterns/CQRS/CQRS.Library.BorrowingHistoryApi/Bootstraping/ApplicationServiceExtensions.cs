@@ -1,4 +1,5 @@
 ﻿using Confluent.Kafka;
+using CQRS.Library.BorrowingHistoryApi.EventHandling;
 using EventBus.Abstractions;
 using System.Text.Json;
 
@@ -10,7 +11,9 @@ public static class ApplicationServiceExtensions
         builder.AddServiceDefaults();
         builder.Services.AddOpenApi();
         builder.AddNpgsqlDbContext<BorrowingDbContext>("cqrs-borrowing-history-db");
-        
+        builder.Services.AddMediatR(cfg => {
+            cfg.RegisterServicesFromAssembly(typeof(Program).Assembly);
+        });
         builder.AddEventConsumer();
 
         return builder;
@@ -20,6 +23,7 @@ public static class ApplicationServiceExtensions
     {
         builder.AddKafkaMessageEnvelopConsumer("cqrs-library");
         builder.Services.AddSingleton(new EventHandlingWorkerOptions());
+        builder.Services.AddSingleton<IIntegrationEventFactory, IntegrationEventFactory>();
         builder.Services.AddHostedService<EventHandlingWorker>();
         return builder;
     }

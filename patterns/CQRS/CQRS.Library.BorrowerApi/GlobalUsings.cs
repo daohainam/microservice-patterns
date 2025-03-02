@@ -2,7 +2,7 @@
 global using CQRS.Library.BorrowerApi.Bootstraping;
 global using CQRS.Library.BorrowerApi.Infrastructure.Data;
 global using CQRS.Library.BorrowerApi.Infrastructure.Entity;
-global using CQRS.Library.BorrowerApi.IntegrationEvents;
+global using CQRS.Library.IntegrationEvents;
 global using EventBus.Events;
 global using EventBus.Kafka;
 global using Microsoft.AspNetCore.Http.HttpResults;

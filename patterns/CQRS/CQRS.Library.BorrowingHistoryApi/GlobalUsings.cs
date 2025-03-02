@@ -1,6 +1,5 @@
 ﻿global using CQRS.Library.BorrowingHistoryApi.Apis;
 global using CQRS.Library.BorrowingHistoryApi.Bootstraping;
-global using CQRS.Library.BorrowingHistoryApi.EventHandlers;
 global using CQRS.Library.BorrowingHistoryApi.Infrastructure.Data;
 global using CQRS.Library.BorrowingHistoryApi.Infrastructure.Entity;
 global using EventBus.Events;
