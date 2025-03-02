@@ -9,7 +9,7 @@ POST {{CQRS.Library.BookApi_HostAddress}}/api/cqrs/v1/books HTTP/1.1
 Content-Type: application/json
 
 {
-  "Id": "4FA7AFAC-0F41-4F37-B61E-BE6C8F3A3ED0",
+  "Id": "00000000-0000-0000-0000-000000000000",
   "Title": "The Fellowship of the Ring",
   "Author": "J. R. R. Tolkien"
 }
@@ -20,7 +20,7 @@ POST {{CQRS.Library.BookApi_HostAddress}}/api/cqrs/v1/books HTTP/1.1
 Content-Type: application/json
 
 {
-  "Id": "64BA5CC8-ECDA-489E-85A1-356BD7B2FACF",
+  "Id": "00000000-0000-0000-0000-000000000000",
   "Title": "Harry Potter and the Philosopher's Stone",
   "Author": "J. K. Rowling"
 }

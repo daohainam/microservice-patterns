@@ -1,4 +1,6 @@
 ﻿
+using Microsoft.AspNetCore.Mvc;
+
 namespace CQRS.Library.BorrowingHistoryApi.Apis;
 public static class BorrowingHistoryApi
 {
@@ -20,10 +22,12 @@ public static class BorrowingHistoryApi
 
     private static async Task<Results<Ok<PaginatedResult<BorrowingHistoryItem>>, BadRequest>> FindBorrowingHistory(
         [AsParameters] ApiServices services,
-        PaginationRequest pagination,
-        FindBorrowingHistoryFilters filters,
-        string sortBy)
+        [FromQuery] PaginationRequest? pagination,
+        [FromQuery] FindBorrowingHistoryFilters? filters,
+        string? sortBy)
     {
+        pagination ??= new PaginationRequest();
+        filters ??= new FindBorrowingHistoryFilters();
         ValidityStatus validityStatus = ValidityStatus.GetValidityStatus(filters.ValidityStatus);
 
         var query = services.DbContext.BorrowingHistoryItems
@@ -110,7 +114,7 @@ public static class BorrowingHistoryApi
     }
 }
 
-public record FindBorrowingHistoryFilters(Guid? BorrowerId, Guid? BookId, string Query, string ValidityStatus = "all", bool BorrowingOnly = false);
+public record FindBorrowingHistoryFilters(Guid? BorrowerId = null, Guid? BookId = null, string Query = "", string ValidityStatus = "all", bool BorrowingOnly = false);
 
 public class ValidityStatus(string id)
 {

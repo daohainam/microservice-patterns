@@ -2,10 +2,8 @@
 
 namespace CQRS.Library.BorrowingHistoryApi;
 public class ApiServices(
-    BorrowingDbContext dbContext,
-    IEventPublisher eventPublisher)
+    BorrowingDbContext dbContext)
 {
     public BorrowingDbContext DbContext => dbContext;
-    public IEventPublisher EventPublisher => eventPublisher;
 
 }

@@ -40,6 +40,7 @@ public static class BorrowingApi
 
         borrowing.Id = Guid.CreateVersion7();
         borrowing.BorrowedAt = DateTime.UtcNow;
+        borrowing.ValidUntil = borrowing.ValidUntil.ToUniversalTime();
         borrowing.IsReturned = false;
 
         await services.DbContext.Borrowings.AddAsync(borrowing);

@@ -4,3 +4,13 @@ GET {{CQRS.Library.BorrowingApi_HostAddress}}/api/cqrs/v1/borrowings
 Accept: application/json
 
 ###
+
+POST {{CQRS.Library.BorrowingApi_HostAddress}}/api/cqrs/v1/borrowings HTTP/1.1
+Content-Type: application/json
+
+{
+  "Id": "00000000-0000-0000-0000-000000000000",
+  "BorrowerId": "23201453-B2F9-47B1-B1B4-DC6D62C774E8",
+  "BookId": "B821F1C7-B68B-4356-85BE-94D45C104855",
+  "ValidUntil": "2025-09-01T00:00:00Z"
+}

@@ -1,4 +1,8 @@
-﻿namespace CQRS.Library.BorrowingHistoryApi.Bootstraping;
+﻿using Confluent.Kafka;
+using EventBus.Abstractions;
+using System.Text.Json;
+
+namespace CQRS.Library.BorrowingHistoryApi.Bootstraping;
 public static class ApplicationServiceExtensions
 {
     public static IHostApplicationBuilder AddApplicationServices(this IHostApplicationBuilder builder)
@@ -14,9 +18,10 @@ public static class ApplicationServiceExtensions
 
     private static IHostApplicationBuilder AddEventConsumer(this IHostApplicationBuilder builder)
     {
-        builder.AddKafkaConsumer<string, string>("kafka");
+        builder.AddKafkaMessageEnvelopConsumer("cqrs-library");
         builder.Services.AddSingleton(new EventHandlingWorkerOptions());
         builder.Services.AddHostedService<EventHandlingWorker>();
         return builder;
     }
 }
+

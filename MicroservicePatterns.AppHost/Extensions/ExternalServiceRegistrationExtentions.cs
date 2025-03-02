@@ -4,17 +4,48 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Aspire.Hosting;
+using Confluent.Kafka.Admin;
+using Confluent.Kafka;
+using MongoDB.Driver;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 namespace MicroservicePatterns.AppHost.Extensions;
 public static class ExternalServiceRegistrationExtentions
 {
     public static IDistributedApplicationBuilder AddApplicationServices(this IDistributedApplicationBuilder builder)
     {
-        var cache = builder.AddRedis("redis").WithRedisInsight();
-        var kafka = builder.AddKafka("kafka").WithKafkaUI();
-        var mongoDb = builder.AddMongoDB("mongodb").WithMongoExpress().WithDataVolume(); // here we use MongoDB for both read/write model, but we can use different databases using replicas
-        var postgres = builder.AddPostgres("postgresql").WithPgWeb().WithDataVolume();
-        
+        var cache = builder.AddRedis("redis").WithLifetime(ContainerLifetime.Persistent).WithRedisInsight();
+        var kafka = builder.AddKafka("kafka").WithLifetime(ContainerLifetime.Persistent).WithKafkaUI();
+        var mongoDb = builder.AddMongoDB("mongodb").WithLifetime(ContainerLifetime.Persistent).WithMongoExpress().WithDataVolume(); // here we use MongoDB for both read/write model, but we can use different databases using replicas
+        var postgres = builder.AddPostgres("postgresql").WithLifetime(ContainerLifetime.Persistent).WithPgWeb().WithDataVolume();
+
+        builder.Eventing.Subscribe<ResourceReadyEvent>(kafka.Resource, async (@event, ct) =>
+        {
+            var logger = @event.Services.GetRequiredService<ILogger<Program>>();
+            logger.LogInformation("Creating topics...");
+
+            var connectionString = await kafka.Resource.ConnectionStringExpression.GetValueAsync(ct);
+            using var adminClient = new AdminClientBuilder(new AdminClientConfig() {
+                BootstrapServers = connectionString,
+            }).Build();
+            try
+            {
+                await adminClient.CreateTopicsAsync(
+                [
+                new() { Name = "book", NumPartitions = 1, ReplicationFactor = 1 },
+                new() { Name = "borrower", NumPartitions = 1, ReplicationFactor = 1 },
+                new() { Name = "borrowing", NumPartitions = 1, ReplicationFactor = 1 }
+                ]);
+            }
+            catch (CreateTopicsException)
+            {
+                logger.LogError("An error occurred creating topics");
+
+                throw;
+            }
+        });
+
         var borrowerDb = postgres.AddDatabase("cqrs-borrower-db");
         var borrowerApi = builder.AddProject<Projects.CQRS_Library_BorrowerApi>("cqrs-library-borrower-api")
             .WithReference(kafka)
