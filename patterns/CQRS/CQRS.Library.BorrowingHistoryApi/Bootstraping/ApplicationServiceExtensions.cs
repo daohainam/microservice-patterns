@@ -24,7 +24,7 @@ public static class ApplicationServiceExtensions
         builder.AddKafkaMessageEnvelopConsumer("cqrs-library");
         builder.Services.AddSingleton(new EventHandlingWorkerOptions());
         builder.Services.AddSingleton<IIntegrationEventFactory, IntegrationEventFactory>();
-        builder.Services.AddHostedService<EventHandlingWorker>();
+        builder.Services.AddHostedService<EventHandlingService>();
         return builder;
     }
 }

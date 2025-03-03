@@ -1,16 +1,11 @@
-﻿using Confluent.Kafka;
-using EventBus.Abstractions;
-using MediatR;
-using System.Net.NetworkInformation;
-
-namespace CQRS.Library.BorrowingHistoryApi.EventHandling;
-public class EventHandlingWorker(IConsumer<string, MessageEnvelop> consumer,
+﻿namespace CQRS.Library.BorrowingHistoryApi.EventHandling;
+public class EventHandlingService(IConsumer<string, MessageEnvelop> consumer,
     EventHandlingWorkerOptions options,
     IIntegrationEventFactory integrationEventFactory,
     IServiceScopeFactory serviceScopeFactory,
-    //IMediator mediator,
-    ILogger<EventHandlingWorker> logger) : BackgroundService
+    ILogger<EventHandlingService> logger) : BackgroundService
 {
+
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         logger.LogInformation("Subcribing to topics ...");
@@ -25,11 +20,15 @@ public class EventHandlingWorker(IConsumer<string, MessageEnvelop> consumer,
                 {
                     try
                     {
-                        var consumeResult = consumer.Consume(stoppingToken);
+                        var consumeResult = consumer.Consume(200);
 
                         if (consumeResult != null)
                         {
                             await ProcessMessageAsync(consumeResult.Message.Value, stoppingToken);
+                        }
+                        else
+                        {
+                            await Task.Delay(200, stoppingToken);
                         }
                     }
                     catch (Exception ex)
@@ -42,7 +41,10 @@ public class EventHandlingWorker(IConsumer<string, MessageEnvelop> consumer,
             {
                 logger.LogError(ex, "Error subscribing to topics");
             }
+
+            await Task.Delay(1000, stoppingToken);
         }
+
     }
 
     private async Task ProcessMessageAsync(MessageEnvelop message, CancellationToken cancellationToken)
