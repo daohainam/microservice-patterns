@@ -1,11 +1,6 @@
 @CQRS.Library.BorrowingHistoryApi_HostAddress = https://localhost:7204
 
-GET {{CQRS.Library.BorrowingHistoryApi_HostAddress}}/api/cqrs/v1/history/items/
+GET {{CQRS.Library.BorrowingHistoryApi_HostAddress}}/api/cqrs/v1/history/items?pageSize=10&pageIndex=0&query=Fellowship
 Accept: application/json
-
-{
-  "pageSize": 10,
-  "pageIndex": 1,
-}
 
 ###
