@@ -1,0 +1,11 @@
+﻿global using CQRS.Library.BorrowerService.Apis;
+global using CQRS.Library.BorrowerService.Bootstraping;
+global using CQRS.Library.BorrowerService.Infrastructure.Data;
+global using CQRS.Library.BorrowerService.Infrastructure.Entity;
+global using CQRS.Library.IntegrationEvents;
+global using EventBus.Events;
+global using EventBus.Kafka;
+global using Microsoft.AspNetCore.Http.HttpResults;
+global using Microsoft.EntityFrameworkCore;
+global using Microsoft.EntityFrameworkCore.Infrastructure;
+global using Microsoft.EntityFrameworkCore.Storage;

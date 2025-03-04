@@ -47,28 +47,28 @@ public static class ExternalServiceRegistrationExtentions
         });
 
         var borrowerDb = postgres.AddDatabase("cqrs-borrower-db");
-        var borrowerApi = builder.AddProject<Projects.CQRS_Library_BorrowerApi>("cqrs-library-borrower-api")
+        var borrowerApi = builder.AddProject<Projects.CQRS_Library_BorrowerService>("cqrs-library-borrower-service")
             .WithReference(kafka)
             .WithReference(borrowerDb)
             .WaitFor(borrowerDb)
             .WaitFor(kafka);
 
         var bookDb = postgres.AddDatabase("cqrs-book-db");
-        builder.AddProject<Projects.CQRS_Library_BookApi>("cqrs-library-book-api")
+        builder.AddProject<Projects.CQRS_Library_BookService>("cqrs-library-book-service")
             .WithReference(kafka)
             .WithReference(bookDb)
             .WaitFor(bookDb)
             .WaitFor(kafka);
 
         var borrowingDb = postgres.AddDatabase("cqrs-borrowing-db");
-        builder.AddProject<Projects.CQRS_Library_BorrowingApi>("cqrs-library-borrowing-api")
+        builder.AddProject<Projects.CQRS_Library_BorrowingService>("cqrs-library-borrowing-service")
             .WithReference(kafka)
             .WithReference(borrowingDb)
             .WaitFor(borrowingDb)
             .WaitFor(kafka);
 
         var borrowingHistoryDb = postgres.AddDatabase("cqrs-borrowing-history-db");
-        builder.AddProject<Projects.CQRS_Library_BorrowingHistoryApi>("cqrs-library-borrowing-history-api")
+        builder.AddProject<Projects.CQRS_Library_BorrowingHistoryService>("cqrs-library-borrowing-history-service")
             .WithReference(kafka)
             .WithReference(borrowingHistoryDb)
             .WaitFor(borrowingHistoryDb)

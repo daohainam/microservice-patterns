@@ -10,21 +10,23 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "patterns", "patterns", "{02
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "CQRS", "CQRS", "{F5EC37D1-C448-4E41-A13B-AA45835291FC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CQRS.Library.BorrowerApi", "patterns\CQRS\CQRS.Library.BorrowerApi\CQRS.Library.BorrowerApi.csproj", "{2E08388B-0FAD-B9C1-BD7E-FB18BD96C3B6}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CQRS.Library.BorrowerService", "patterns\CQRS\CQRS.Library.BorrowerService\CQRS.Library.BorrowerService.csproj", "{2E08388B-0FAD-B9C1-BD7E-FB18BD96C3B6}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventBus", "EventBus\EventBus.csproj", "{AF9E387D-9019-4750-B67C-E883E21B7B95}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventBus.Kafka", "EventBus.Kafka\EventBus.Kafka.csproj", "{B36C74D5-D1DB-428D-8DCC-76C5A5D44EAA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CQRS.Library.BookApi", "patterns\CQRS\CQRS.Library.BookApi\CQRS.Library.BookApi.csproj", "{5D5986C4-A60F-48A2-BB82-808C94F4205C}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CQRS.Library.BookService", "patterns\CQRS\CQRS.Library.BookService\CQRS.Library.BookService.csproj", "{5D5986C4-A60F-48A2-BB82-808C94F4205C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CQRS.Library.BorrowingApi", "patterns\CQRS\CQRS.Library.BorrowingApi\CQRS.Library.BorrowingApi.csproj", "{9E4BD21A-5E9E-42B6-9746-D6AC685DF65F}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CQRS.Library.BorrowingService", "patterns\CQRS\CQRS.Library.BorrowingService\CQRS.Library.BorrowingService.csproj", "{9E4BD21A-5E9E-42B6-9746-D6AC685DF65F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CQRS.Library.BorrowingHistoryApi", "patterns\CQRS\CQRS.Library.BorrowingHistoryApi\CQRS.Library.BorrowingHistoryApi.csproj", "{D73F2B02-70D0-47F7-8373-3A8AFB0E2BF5}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CQRS.Library.BorrowingHistoryService", "patterns\CQRS\CQRS.Library.BorrowingHistoryService\CQRS.Library.BorrowingHistoryService.csproj", "{D73F2B02-70D0-47F7-8373-3A8AFB0E2BF5}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MicroservicePatterns.Shared", "MicroservicePatterns.Shared\MicroservicePatterns.Shared.csproj", "{B12A0ACC-99C9-48AA-82C6-228CE4CACA84}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CQRS.Library.IntegrationEvents", "patterns\CQRS\CQRS.Library.IntegrationEvents\CQRS.Library.IntegrationEvents.csproj", "{5E8A0457-5BC8-4492-941E-55C6B5A7541C}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Saga", "Saga", "{34650080-5C06-4A32-A233-762F74E439C6}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -83,6 +85,7 @@ Global
 		{9E4BD21A-5E9E-42B6-9746-D6AC685DF65F} = {F5EC37D1-C448-4E41-A13B-AA45835291FC}
 		{D73F2B02-70D0-47F7-8373-3A8AFB0E2BF5} = {F5EC37D1-C448-4E41-A13B-AA45835291FC}
 		{5E8A0457-5BC8-4492-941E-55C6B5A7541C} = {F5EC37D1-C448-4E41-A13B-AA45835291FC}
+		{34650080-5C06-4A32-A233-762F74E439C6} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {2A6D38EF-43A8-421A-9D76-87B6E1656DF5}

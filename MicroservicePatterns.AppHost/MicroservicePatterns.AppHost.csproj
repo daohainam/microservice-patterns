@@ -20,10 +20,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\patterns\CQRS\CQRS.Library.BookApi\CQRS.Library.BookApi.csproj" />
-    <ProjectReference Include="..\patterns\CQRS\CQRS.Library.BorrowerApi\CQRS.Library.BorrowerApi.csproj" />
-    <ProjectReference Include="..\patterns\CQRS\CQRS.Library.BorrowingApi\CQRS.Library.BorrowingApi.csproj" />
-    <ProjectReference Include="..\patterns\CQRS\CQRS.Library.BorrowingHistoryApi\CQRS.Library.BorrowingHistoryApi.csproj" />
+    <ProjectReference Include="..\patterns\CQRS\CQRS.Library.BookService\CQRS.Library.BookService.csproj" />
+    <ProjectReference Include="..\patterns\CQRS\CQRS.Library.BorrowerService\CQRS.Library.BorrowerService.csproj" />
+    <ProjectReference Include="..\patterns\CQRS\CQRS.Library.BorrowingService\CQRS.Library.BorrowingService.csproj" />
+    <ProjectReference Include="..\patterns\CQRS\CQRS.Library.BorrowingHistoryService\CQRS.Library.BorrowingHistoryService.csproj" />
   </ItemGroup>
 
 </Project>

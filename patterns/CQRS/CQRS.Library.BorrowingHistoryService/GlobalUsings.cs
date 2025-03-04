@@ -1,0 +1,17 @@
+﻿global using Confluent.Kafka;
+global using CQRS.Library.BorrowingHistoryService.Apis;
+global using CQRS.Library.BorrowingHistoryService.Bootstraping;
+global using CQRS.Library.BorrowingHistoryService.Infrastructure.Data;
+global using CQRS.Library.BorrowingHistoryService.Infrastructure.Entity;
+global using CQRS.Library.IntegrationEvents;
+global using EventBus.Abstractions;
+global using EventBus.Events;
+global using EventBus.Kafka;
+global using MediatR;
+global using MicroservicePatterns.Shared.Pagination;
+global using Microsoft.AspNetCore.Http.HttpResults;
+global using Microsoft.EntityFrameworkCore;
+global using Microsoft.EntityFrameworkCore.Infrastructure;
+global using Microsoft.EntityFrameworkCore.Storage;
+global using System.Reflection;
+global using System.Text.Json;
