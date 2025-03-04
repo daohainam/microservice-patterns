@@ -1,18 +1,15 @@
-﻿using Confluent.Kafka;
-using CQRS.Library.BorrowingHistoryService.EventHandling;
-using CQRS.Library.BorrowingHistoryService.Infrastructure.Data;
-using EventBus;
-using EventBus.Abstractions;
-using System.Text.Json;
+﻿using Saga.OnlineStore.IntegrationEvents;
 
-namespace CQRS.Library.BorrowingHistoryService.Bootstraping;
+namespace Saga.OnlineStore.InventoryService.Bootstraping;
 public static class ApplicationServiceExtensions
 {
     public static IHostApplicationBuilder AddApplicationServices(this IHostApplicationBuilder builder)
     {
         builder.AddServiceDefaults();
         builder.Services.AddOpenApi();
-        builder.AddNpgsqlDbContext<BorrowingHistoryDbContext>("cqrs-borrowing-history-db");
+        builder.AddNpgsqlDbContext<InventoryDbContext>("saga-onlinestore-inventory-db");
+        builder.AddKafkaEventPublisher("kafka");
+        builder.Services.AddKafkaEventPublisher("saga-onlinestore-inventory");
         builder.Services.AddMediatR(cfg => {
             cfg.RegisterServicesFromAssembly(typeof(Program).Assembly);
         });
@@ -23,11 +20,11 @@ public static class ApplicationServiceExtensions
 
     private static IHostApplicationBuilder AddEventConsumer(this IHostApplicationBuilder builder)
     {
-        builder.AddKafkaMessageEnvelopConsumer("cqrs-library");
+        builder.AddKafkaMessageEnvelopConsumer("saga-onlinestore");
         builder.Services.AddSingleton(new EventHandlingWorkerOptions());
-        builder.Services.AddSingleton<IIntegrationEventFactory, IntegrationEventFactory<BookCreatedIntegrationEvent>>();
+        builder.Services.AddSingleton<IIntegrationEventFactory, IntegrationEventFactory<ItemRestockedIntegrationEvent>>();
         builder.Services.AddHostedService<EventHandlingService>();
         return builder;
     }
-}
 
+}

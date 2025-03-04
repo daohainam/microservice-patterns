@@ -1,6 +1,3 @@
-using CQRS.Library.BookService.Apis;
-using CQRS.Library.BookService.Bootstraping;
-
 var builder = WebApplication.CreateBuilder(args);
 
 builder.AddApplicationServices();

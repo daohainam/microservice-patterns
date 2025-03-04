@@ -4,6 +4,7 @@ global using CQRS.Library.BorrowingHistoryService.Bootstraping;
 global using CQRS.Library.BorrowingHistoryService.Infrastructure.Data;
 global using CQRS.Library.BorrowingHistoryService.Infrastructure.Entity;
 global using CQRS.Library.IntegrationEvents;
+global using EventBus;
 global using EventBus.Abstractions;
 global using EventBus.Events;
 global using EventBus.Kafka;

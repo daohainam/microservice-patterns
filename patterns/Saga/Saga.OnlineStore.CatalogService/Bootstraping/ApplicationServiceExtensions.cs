@@ -1,15 +1,15 @@
-﻿using CQRS.Library.BookService.Infrastructure.Data;
+﻿using Saga.OnlineStore.CatalogService.Infrastructure.Data;
 
-namespace CQRS.Library.BookService.Bootstraping;
+namespace Saga.OnlineStore.CatalogService.Bootstraping;
 public static class ApplicationServiceExtensions
 {
     public static IHostApplicationBuilder AddApplicationServices(this IHostApplicationBuilder builder)
     {
         builder.AddServiceDefaults();
         builder.Services.AddOpenApi();
-        builder.AddNpgsqlDbContext<BookDbContext>("cqrs-library-book-db");
+        builder.AddNpgsqlDbContext<ProductDbContext>("saga-onlinestore-catalog-db");
         builder.AddKafkaEventPublisher("kafka");
-        builder.Services.AddKafkaEventPublisher("cqrs-library-book");
+        builder.Services.AddKafkaEventPublisher("saga-onlinestore-catalog");
 
         return builder;
     }

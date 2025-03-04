@@ -1,6 +1,4 @@
-﻿using CQRS.Library.BookService.Infrastructure.Entity;
-
-namespace CQRS.Library.BookService.Apis;
+﻿namespace CQRS.Library.BookService.Apis;
 public static class BookApi
 {
     public static IEndpointRouteBuilder MapBorrowerApi(this IEndpointRouteBuilder builder)
@@ -24,14 +22,14 @@ public static class BookApi
             return await services.DbContext.Books.FindAsync(id);
         });
 
-        group.MapPost("books", CreateBorrower);
+        group.MapPost("books", CreateBook);
 
         group.MapPut("books/{id:guid}", UpdateBook);
 
         return group;
     }
 
-    private static async Task<Results<Ok<Book>, BadRequest>> CreateBorrower([AsParameters] ApiServices services, Book book)
+    private static async Task<Results<Ok<Book>, BadRequest>> CreateBook([AsParameters] ApiServices services, Book book)
     {
         if (book == null) {
             return TypedResults.BadRequest();
@@ -53,15 +51,15 @@ public static class BookApi
         return TypedResults.Ok(book);
     }
 
-    private static async Task<Results<NotFound, Ok>> UpdateBook([AsParameters] ApiServices services, Guid id, Book borrower)
+    private static async Task<Results<NotFound, Ok>> UpdateBook([AsParameters] ApiServices services, Guid id, Book book)
     {
         var existingBook = await services.DbContext.Books.FindAsync(id);
         if (existingBook == null)
         {
             return TypedResults.NotFound();
         }
-        existingBook.Title = borrower.Title;
-        existingBook.Author = borrower.Author;
+        existingBook.Title = book.Title;
+        existingBook.Author = book.Author;
         services.DbContext.Books.Update(existingBook);
 
         await services.DbContext.SaveChangesAsync();

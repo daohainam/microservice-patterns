@@ -1,6 +1,4 @@
-﻿using EventBus;
-
-namespace CQRS.Library.BorrowingHistoryService.EventHandling;
+﻿namespace Saga.OnlineStore.InventoryService.EventHandling;
 public class EventHandlingService(IConsumer<string, MessageEnvelop> consumer,
     EventHandlingWorkerOptions options,
     IIntegrationEventFactory integrationEventFactory,
@@ -16,7 +14,7 @@ public class EventHandlingService(IConsumer<string, MessageEnvelop> consumer,
         {
             try
             {
-                consumer.Subscribe([options.BookTopic, options.BorrowingTopic, options.BorrowerTopic]);
+                consumer.Subscribe([options.Topic]);
 
                 while (!stoppingToken.IsCancellationRequested)
                 {
@@ -71,7 +69,5 @@ public class EventHandlingService(IConsumer<string, MessageEnvelop> consumer,
 
 public class EventHandlingWorkerOptions
 {
-    public string BookTopic { get; set; } = "cqrs-library-book";
-    public string BorrowerTopic { get; set; } = "cqrs-library-borrower";
-    public string BorrowingTopic { get; set; } = "cqrs-library-borrowing";
+    public List<string> Topics { get; set; } = [];
 }
