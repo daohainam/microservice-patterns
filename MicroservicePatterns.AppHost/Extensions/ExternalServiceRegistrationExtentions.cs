@@ -23,7 +23,14 @@ public static class ExternalServiceRegistrationExtentions
         builder.Eventing.Subscribe<ResourceReadyEvent>(kafka.Resource, async (@event, ct) =>
         {
             var logger = @event.Services.GetRequiredService<ILogger<Program>>();
-            logger.LogInformation("Creating topics...");
+
+            TopicSpecification[] topics = [
+                new() { Name = "cqrs-library-book", NumPartitions = 1, ReplicationFactor = 1 },
+                new() { Name = "cqrs-library-borrower", NumPartitions = 1, ReplicationFactor = 1 },
+                new() { Name = "cqrs-library-borrowing", NumPartitions = 1, ReplicationFactor = 1 }
+                ];
+
+            logger.LogInformation("Creating topics: {topics} ...", string.Join(", ", topics.Select(t => t.Name).ToArray()));
 
             var connectionString = await kafka.Resource.ConnectionStringExpression.GetValueAsync(ct);
             using var adminClient = new AdminClientBuilder(new AdminClientConfig() {
@@ -31,12 +38,7 @@ public static class ExternalServiceRegistrationExtentions
             }).Build();
             try
             {
-                await adminClient.CreateTopicsAsync(
-                [
-                new() { Name = "book", NumPartitions = 1, ReplicationFactor = 1 },
-                new() { Name = "borrower", NumPartitions = 1, ReplicationFactor = 1 },
-                new() { Name = "borrowing", NumPartitions = 1, ReplicationFactor = 1 }
-                ]);
+                await adminClient.CreateTopicsAsync(topics);
             }
             catch (CreateTopicsException)
             {
@@ -46,28 +48,28 @@ public static class ExternalServiceRegistrationExtentions
             }
         });
 
-        var borrowerDb = postgres.AddDatabase("cqrs-borrower-db");
+        var borrowerDb = postgres.AddDatabase("cqrs-library-borrower-db");
         var borrowerApi = builder.AddProject<Projects.CQRS_Library_BorrowerService>("cqrs-library-borrower-service")
             .WithReference(kafka)
             .WithReference(borrowerDb)
             .WaitFor(borrowerDb)
             .WaitFor(kafka);
 
-        var bookDb = postgres.AddDatabase("cqrs-book-db");
+        var bookDb = postgres.AddDatabase("cqrs-library-book-db");
         builder.AddProject<Projects.CQRS_Library_BookService>("cqrs-library-book-service")
             .WithReference(kafka)
             .WithReference(bookDb)
             .WaitFor(bookDb)
             .WaitFor(kafka);
 
-        var borrowingDb = postgres.AddDatabase("cqrs-borrowing-db");
+        var borrowingDb = postgres.AddDatabase("cqrs-library-borrowing-db");
         builder.AddProject<Projects.CQRS_Library_BorrowingService>("cqrs-library-borrowing-service")
             .WithReference(kafka)
             .WithReference(borrowingDb)
             .WaitFor(borrowingDb)
             .WaitFor(kafka);
 
-        var borrowingHistoryDb = postgres.AddDatabase("cqrs-borrowing-history-db");
+        var borrowingHistoryDb = postgres.AddDatabase("cqrs-library-borrowing-history-db");
         builder.AddProject<Projects.CQRS_Library_BorrowingHistoryService>("cqrs-library-borrowing-history-service")
             .WithReference(kafka)
             .WithReference(borrowingHistoryDb)

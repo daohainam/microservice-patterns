@@ -5,7 +5,7 @@ public static class ApplicationServiceExtensions
     {
         builder.AddServiceDefaults();
         builder.Services.AddOpenApi();
-        builder.AddNpgsqlDbContext<BorrowingHistoryDbContext>("cqrs-borrowing-history-db");
+        builder.AddNpgsqlDbContext<BorrowingHistoryDbContext>("cqrs-library-borrowing-history-db");
         builder.Services.AddMediatR(cfg => {
             cfg.RegisterServicesFromAssembly(typeof(Program).Assembly);
         });
