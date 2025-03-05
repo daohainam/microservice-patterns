@@ -1,16 +1,4 @@
-﻿using Confluent.Kafka;
-using EventBus.Abstractions;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Text.Json;
-using System.Threading.Tasks;
-
-namespace EventBus.Kafka;
+﻿namespace EventBus.Kafka;
 public static class KafkaEventBusExtensions
 {
     public static IHostApplicationBuilder AddKafkaEventPublisher(this IHostApplicationBuilder builder, string connectionName)
@@ -50,6 +38,19 @@ public static class KafkaEventBusExtensions
 
         return builder;
     }
+
+    public static IHostApplicationBuilder AddKafkaEventConsumer(this IHostApplicationBuilder builder, Action<EventHandlingWorkerOptions>? configureOptions = null)
+    {
+        var options = new EventHandlingWorkerOptions();
+        configureOptions?.Invoke(options);
+
+        builder.AddKafkaMessageEnvelopConsumer("cqrs-library");
+        builder.Services.AddSingleton(options);
+        builder.Services.AddSingleton(services => options.IntegrationEventFactory);
+        builder.Services.AddHostedService<EventHandlingService>();
+        return builder;
+    }
+
 }
 
 internal class MessageEnvelopDeserializer : IDeserializer<MessageEnvelop>

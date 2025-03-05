@@ -7,7 +7,7 @@ public static class ApplicationServiceExtensions
     {
         builder.AddServiceDefaults();
         builder.Services.AddOpenApi();
-        builder.AddNpgsqlDbContext<ProductDbContext>("saga-onlinestore-catalog-db");
+        builder.AddNpgsqlDbContext<CatalogDbContext>("saga-onlinestore-catalog-db");
         builder.AddKafkaEventPublisher("kafka");
         builder.Services.AddKafkaEventPublisher("saga-onlinestore-catalog");
 

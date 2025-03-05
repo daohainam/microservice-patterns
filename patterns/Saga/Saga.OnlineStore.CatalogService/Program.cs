@@ -1,3 +1,6 @@
+using Microsoft.Extensions.Hosting;
+using System.Threading;
+
 var builder = WebApplication.CreateBuilder(args);
 
 builder.AddApplicationServices();
@@ -11,10 +14,9 @@ if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
 }
-
 app.UseHttpsRedirection();
 app.MapCatalogApi();
 
-await app.MigrateApiDbContextAsync();
+await app.MigrateDbContextAsync<CatalogDbContext>();
 
 app.Run();

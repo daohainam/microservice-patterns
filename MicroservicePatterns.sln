@@ -34,6 +34,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Saga.OnlineStore.Integratio
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Saga.OnlineStore.InventoryService", "patterns\Saga\Saga.OnlineStore.InventoryService\Saga.OnlineStore.InventoryService.csproj", "{BC6AC2DC-5561-877D-D8ED-6F56835F9CE9}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MicroservicePatterns.DatabaseMigrationHelpers", "MicroservicePatterns.DatabaseMigrationHelpers\MicroservicePatterns.DatabaseMigrationHelpers.csproj", "{BD3FBB88-B240-47B8-B630-A7B8B2799280}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -92,6 +94,10 @@ Global
 		{BC6AC2DC-5561-877D-D8ED-6F56835F9CE9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BC6AC2DC-5561-877D-D8ED-6F56835F9CE9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BC6AC2DC-5561-877D-D8ED-6F56835F9CE9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BD3FBB88-B240-47B8-B630-A7B8B2799280}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BD3FBB88-B240-47B8-B630-A7B8B2799280}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BD3FBB88-B240-47B8-B630-A7B8B2799280}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BD3FBB88-B240-47B8-B630-A7B8B2799280}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -1,4 +1,12 @@
-﻿namespace Saga.OnlineStore.InventoryService.Bootstraping;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
+
+namespace MicroservicePatterns.DatabaseMigrationHelpers;
+
 public static class DbContextMigrationExtensions
 {
     public static async Task<IHost> MigrateDbContextAsync<TContext>(this IHost host, CancellationToken cancellationToken = default) where TContext : DbContext
@@ -36,12 +44,6 @@ public static class DbContextMigrationExtensions
                 logger.LogError(ex, "An error occurred while migrating the database used on context {DbContextName}", typeof(TContext).Name);
             }
         }
-        return host;
-    }
-
-    public static async Task<IHost> MigrateApiDbContextAsync(this IHost host, CancellationToken cancellationToken = default) 
-    {
-        await host.MigrateDbContextAsync<InventoryDbContext>(cancellationToken: cancellationToken);
         return host;
     }
 }

@@ -1,5 +1,5 @@
 ﻿namespace Saga.OnlineStore.CatalogService.Infrastructure.Data;
-public class ProductDbContext(DbContextOptions<ProductDbContext> options) : DbContext(options)
+public class CatalogDbContext(DbContextOptions<CatalogDbContext> options) : DbContext(options)
 {
     public DbSet<Product> Products { get; set; } = default!;
 }

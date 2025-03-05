@@ -1,4 +1,5 @@
 ﻿using EventBus.Events;
+using System.ComponentModel;
 using System.Reflection;
 using System.Text.Json;
 
@@ -21,6 +22,8 @@ public class IntegrationEventFactory : IIntegrationEventFactory
             .SelectMany(a => a.GetTypes())
             .FirstOrDefault(t => t.FullName == type);
     }
+
+    public static readonly IntegrationEventFactory Instance = new();
 }
 
 public class IntegrationEventFactory<TEvent> : IIntegrationEventFactory
@@ -43,4 +46,6 @@ public class IntegrationEventFactory<TEvent> : IIntegrationEventFactory
             .SelectMany(a => a.GetTypes())
             .FirstOrDefault(t => t.FullName == type);
     }
+
+    public static readonly IntegrationEventFactory<TEvent> Instance = new();
 }

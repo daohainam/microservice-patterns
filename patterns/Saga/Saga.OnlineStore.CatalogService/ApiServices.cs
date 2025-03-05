@@ -3,10 +3,10 @@ using Saga.OnlineStore.CatalogService.Infrastructure.Data;
 
 namespace Saga.OnlineStore.CatalogService;
 public class ApiServices(
-    ProductDbContext dbContext,
+    CatalogDbContext dbContext,
     IEventPublisher eventPublisher)
 {
-    public ProductDbContext DbContext => dbContext;
+    public CatalogDbContext DbContext => dbContext;
     public IEventPublisher EventPublisher => eventPublisher;
 
 }

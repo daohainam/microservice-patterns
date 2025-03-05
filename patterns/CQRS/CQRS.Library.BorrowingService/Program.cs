@@ -1,5 +1,7 @@
 using CQRS.Library.BorrowingService.Apis;
 using CQRS.Library.BorrowingService.Bootstraping;
+using Microsoft.Extensions.Hosting;
+using System.Threading;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -13,10 +15,9 @@ if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
 }
-
 app.UseHttpsRedirection();
 app.MapBorrowingApi();
 
-await app.MigrateApiDbContextAsync();
+await app.MigrateDbContextAsync<BorrowingDbContext>();
 
 app.Run();

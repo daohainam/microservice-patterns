@@ -18,6 +18,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\..\EventBus.Kafka\EventBus.Kafka.csproj" />
     <ProjectReference Include="..\..\..\EventBus\EventBus.csproj" />
+    <ProjectReference Include="..\..\..\MicroservicePatterns.DatabaseMigrationHelpers\MicroservicePatterns.DatabaseMigrationHelpers.csproj" />
     <ProjectReference Include="..\..\..\MicroservicePatterns.ServiceDefaults\MicroservicePatterns.ServiceDefaults.csproj" />
     <ProjectReference Include="..\Saga.OnlineStore.IntegrationEvents\Saga.OnlineStore.IntegrationEvents.csproj" />
   </ItemGroup>

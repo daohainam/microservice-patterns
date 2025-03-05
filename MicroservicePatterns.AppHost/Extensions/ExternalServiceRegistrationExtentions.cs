@@ -74,6 +74,21 @@ public static class ExternalServiceRegistrationExtentions
             .WaitFor(borrowingHistoryDb)
             .WaitFor(kafka);
 
+        var sagaCatalogDb = postgres.AddDatabase("saga-onlinestore-catalog-db");
+        builder.AddProject<Projects.Saga_OnlineStore_CatalogService>("saga-onlinestore-catalog-service")
+            .WithReference(kafka)
+            .WithReference(sagaCatalogDb)
+            .WaitFor(sagaCatalogDb)
+            .WaitFor(kafka);
+
+        var sagaInventoryDb = postgres.AddDatabase("saga-onlinestore-inventory-db");
+        builder.AddProject<Projects.Saga_OnlineStore_InventoryService>("saga-onlinestore-inventory-service")
+            .WithReference(kafka)
+            .WithReference(sagaInventoryDb)
+            .WaitFor(sagaInventoryDb)
+            .WaitFor(kafka);
+
+
         return builder;
     }
 }

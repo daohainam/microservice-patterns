@@ -1,11 +1,4 @@
-﻿using Confluent.Kafka;
-using CQRS.Library.BorrowingHistoryService.EventHandling;
-using CQRS.Library.BorrowingHistoryService.Infrastructure.Data;
-using EventBus;
-using EventBus.Abstractions;
-using System.Text.Json;
-
-namespace CQRS.Library.BorrowingHistoryService.Bootstraping;
+﻿namespace CQRS.Library.BorrowingHistoryService.Bootstraping;
 public static class ApplicationServiceExtensions
 {
     public static IHostApplicationBuilder AddApplicationServices(this IHostApplicationBuilder builder)
@@ -16,17 +9,14 @@ public static class ApplicationServiceExtensions
         builder.Services.AddMediatR(cfg => {
             cfg.RegisterServicesFromAssembly(typeof(Program).Assembly);
         });
-        builder.AddEventConsumer();
+        builder.AddKafkaEventConsumer(options => {
+            options.Topics.Add("cqrs-library-book");
+            options.Topics.Add("cqrs-library-borrower");
+            options.Topics.Add("cqrs-library-borrowing");
 
-        return builder;
-    }
+            options.IntegrationEventFactory = IntegrationEventFactory<BookCreatedIntegrationEvent>.Instance;
+        });
 
-    private static IHostApplicationBuilder AddEventConsumer(this IHostApplicationBuilder builder)
-    {
-        builder.AddKafkaMessageEnvelopConsumer("cqrs-library");
-        builder.Services.AddSingleton(new EventHandlingWorkerOptions());
-        builder.Services.AddSingleton<IIntegrationEventFactory, IntegrationEventFactory<BookCreatedIntegrationEvent>>();
-        builder.Services.AddHostedService<EventHandlingService>();
         return builder;
     }
 }

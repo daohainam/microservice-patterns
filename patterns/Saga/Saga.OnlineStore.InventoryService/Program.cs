@@ -11,10 +11,9 @@ if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
 }
-
 app.UseHttpsRedirection();
 app.MapInventoryApi();
 
-await app.MigrateApiDbContextAsync();
+await app.MigrateDbContextAsync<InventoryDbContext>();
 
 app.Run();

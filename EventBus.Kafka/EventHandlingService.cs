@@ -1,4 +1,4 @@
-﻿namespace Saga.OnlineStore.InventoryService.EventHandling;
+﻿namespace EventBus.Kafka;
 public class EventHandlingService(IConsumer<string, MessageEnvelop> consumer,
     EventHandlingWorkerOptions options,
     IIntegrationEventFactory integrationEventFactory,
@@ -14,7 +14,7 @@ public class EventHandlingService(IConsumer<string, MessageEnvelop> consumer,
         {
             try
             {
-                consumer.Subscribe([options.Topic]);
+                consumer.Subscribe(options.Topics);
 
                 while (!stoppingToken.IsCancellationRequested)
                 {
@@ -70,4 +70,5 @@ public class EventHandlingService(IConsumer<string, MessageEnvelop> consumer,
 public class EventHandlingWorkerOptions
 {
     public List<string> Topics { get; set; } = [];
+    public IIntegrationEventFactory IntegrationEventFactory { get; set; } = EventBus.IntegrationEventFactory.Instance;
 }
