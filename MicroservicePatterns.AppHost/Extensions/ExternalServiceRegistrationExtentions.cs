@@ -15,30 +15,7 @@ public static class ExternalServiceRegistrationExtentions
 
         builder.Eventing.Subscribe<ResourceReadyEvent>(kafka.Resource, async (@event, ct) =>
         {
-            var logger = @event.Services.GetRequiredService<ILogger<Program>>();
-
-            TopicSpecification[] topics = [
-                new() { Name = "cqrs-library-book", NumPartitions = 1, ReplicationFactor = 1 },
-                new() { Name = "cqrs-library-borrower", NumPartitions = 1, ReplicationFactor = 1 },
-                new() { Name = "cqrs-library-borrowing", NumPartitions = 1, ReplicationFactor = 1 }
-                ];
-
-            logger.LogInformation("Creating topics: {topics} ...", string.Join(", ", topics.Select(t => t.Name).ToArray()));
-
-            var connectionString = await kafka.Resource.ConnectionStringExpression.GetValueAsync(ct);
-            using var adminClient = new AdminClientBuilder(new AdminClientConfig() {
-                BootstrapServers = connectionString,
-            }).Build();
-            try
-            {
-                await adminClient.CreateTopicsAsync(topics);
-            }
-            catch (CreateTopicsException)
-            {
-                logger.LogError("An error occurred creating topics");
-
-                throw;
-            }
+            await CreateKafkaTopics(@event, kafka.Resource, ct);
         });
 
         var borrowerDb = postgres.AddDatabase("cqrs-library-borrower-db");
@@ -83,7 +60,45 @@ public static class ExternalServiceRegistrationExtentions
             .WaitFor(sagaInventoryDb)
             .WaitFor(kafka);
 
+        var sagaBankCardDb = postgres.AddDatabase("saga-onlinestore-bankcard-db");
+        builder.AddProject<Projects.Saga_OnlineStore_BankCardService>("saga-onlinestore-bankcard-service")
+            .WithReference(kafka)
+            .WithReference(sagaBankCardDb)
+            .WaitFor(sagaBankCardDb)
+            .WaitFor(kafka);
 
         return builder;
+    }
+
+    private static async Task CreateKafkaTopics(ResourceReadyEvent @event, KafkaServerResource kafkaResource, CancellationToken ct)
+    {
+        var logger = @event.Services.GetRequiredService<ILogger<Program>>();
+
+        TopicSpecification[] topics = [
+            new() { Name = "cqrs-library-book", NumPartitions = 1, ReplicationFactor = 1 },
+                    new() { Name = "cqrs-library-borrower", NumPartitions = 1, ReplicationFactor = 1 },
+                    new() { Name = "cqrs-library-borrowing", NumPartitions = 1, ReplicationFactor = 1 },
+                    new() { Name = "saga-onlinestore-catalog", NumPartitions = 1, ReplicationFactor = 1 },
+                    new() { Name = "saga-onlinestore-inventory", NumPartitions = 1, ReplicationFactor = 1 },
+                    new() { Name = "saga-onlinestore-bankcard", NumPartitions = 1, ReplicationFactor = 1 }
+        ];
+
+        logger.LogInformation("Creating topics: {topics} ...", string.Join(", ", topics.Select(t => t.Name).ToArray()));
+
+        var connectionString = await kafkaResource.ConnectionStringExpression.GetValueAsync(ct);
+        using var adminClient = new AdminClientBuilder(new AdminClientConfig()
+        {
+            BootstrapServers = connectionString,
+        }).Build();
+        try
+        {
+            await adminClient.CreateTopicsAsync(topics);
+        }
+        catch (CreateTopicsException)
+        {
+            logger.LogError("An error occurred creating topics");
+
+            throw;
+        }
     }
 }
