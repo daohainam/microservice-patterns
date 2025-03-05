@@ -12,8 +12,8 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
 }
 app.UseHttpsRedirection();
-app.MapCatalogApi();
+app.MapBankCardApi();
 
-await app.MigrateDbContextAsync<CatalogDbContext>();
+await app.MigrateDbContextAsync<BankCardDbContext>();
 
 app.Run();

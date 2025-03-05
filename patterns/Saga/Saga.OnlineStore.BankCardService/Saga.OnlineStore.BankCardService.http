@@ -1,0 +1,6 @@
+@Saga.OnlineStore.BankCardService_HostAddress = http://localhost:5174
+
+GET {{Saga.OnlineStore.BankCardService_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

@@ -36,6 +36,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Saga.OnlineStore.InventoryS
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MicroservicePatterns.DatabaseMigrationHelpers", "MicroservicePatterns.DatabaseMigrationHelpers\MicroservicePatterns.DatabaseMigrationHelpers.csproj", "{BD3FBB88-B240-47B8-B630-A7B8B2799280}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Saga.OnlineStore.BankCardService", "patterns\Saga\Saga.OnlineStore.BankCardService\Saga.OnlineStore.BankCardService.csproj", "{FD8FECEE-7C5D-45A9-985E-E2AFFAA40F66}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -98,6 +100,10 @@ Global
 		{BD3FBB88-B240-47B8-B630-A7B8B2799280}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BD3FBB88-B240-47B8-B630-A7B8B2799280}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BD3FBB88-B240-47B8-B630-A7B8B2799280}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FD8FECEE-7C5D-45A9-985E-E2AFFAA40F66}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FD8FECEE-7C5D-45A9-985E-E2AFFAA40F66}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FD8FECEE-7C5D-45A9-985E-E2AFFAA40F66}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FD8FECEE-7C5D-45A9-985E-E2AFFAA40F66}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -113,6 +119,7 @@ Global
 		{55111346-F33E-BDBD-FB9A-33A01BA4098E} = {34650080-5C06-4A32-A233-762F74E439C6}
 		{A6FCF5EF-B48A-4793-AB1F-CD1727E94D16} = {34650080-5C06-4A32-A233-762F74E439C6}
 		{BC6AC2DC-5561-877D-D8ED-6F56835F9CE9} = {34650080-5C06-4A32-A233-762F74E439C6}
+		{FD8FECEE-7C5D-45A9-985E-E2AFFAA40F66} = {34650080-5C06-4A32-A233-762F74E439C6}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {2A6D38EF-43A8-421A-9D76-87B6E1656DF5}

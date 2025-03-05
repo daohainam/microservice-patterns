@@ -1,12 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Aspire.Hosting;
+﻿using Confluent.Kafka;
 using Confluent.Kafka.Admin;
-using Confluent.Kafka;
-using MongoDB.Driver;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
