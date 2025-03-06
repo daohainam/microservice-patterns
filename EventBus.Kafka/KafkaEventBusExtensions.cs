@@ -17,13 +17,14 @@ public static class KafkaEventBusExtensions
 
     public static void AddKafkaEventPublisher(this IServiceCollection services, string? topic)
     {
-        ArgumentNullException.ThrowIfNull(topic, nameof(topic));
-
-        services.AddTransient<IEventPublisher>(services => new KafkaEventPublisher(
-            topic,
-            services.GetRequiredService<IProducer<string, MessageEnvelop>>(),
-            services.GetRequiredService<ILogger<KafkaEventPublisher>>()
-            ));
+        if (!string.IsNullOrWhiteSpace(topic))
+        {
+            services.AddTransient<IEventPublisher>(services => new KafkaEventPublisher(
+                topic,
+                services.GetRequiredService<IProducer<string, MessageEnvelop>>(),
+                services.GetRequiredService<ILogger<KafkaEventPublisher>>()
+                ));
+        }
     }
 
     //public static void AddKafkaEventPublisher<>(this IServiceCollection services)

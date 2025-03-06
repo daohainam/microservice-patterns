@@ -1,0 +1,29 @@
+@Saga.OnlineStore.OrderService_HostAddress = https://localhost:7284
+
+POST {{Saga.OnlineStore.OrderService_HostAddress}}/api/saga/v1/orders
+Content-Type: application/json
+
+{
+  "orderId": "00000000-0000-0000-0000-000000000000",
+  "customerId": "8A168D02-E235-41F5-A22C-DBDEF71A6D0A",
+  "customerName": "John Doe",
+  "customerPhone": "+1234567890",
+  "shippingAddress": "123 Main St, Springfield, IL 62701",
+  "paymentCardNumber": "1234567890123456",
+  "paymentCardName": "John Doe",
+  "paymentCardExpiration": "12/24",
+  "paymentCardCvv": "123",
+  "items": [
+    {
+      "productId": "3EEA74EC-35CA-4DAE-A58E-E87FFB91A48F",
+      "quantity": 1,
+      "unitPrice": 9.99
+    },
+    {
+      "productId": "56248ECF-4077-4EFD-94E7-1A230785E429",
+      "quantity": 5,
+      "unitPrice": 19.99
+    }  
+  ]
+}
+###

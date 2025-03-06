@@ -16,6 +16,7 @@ public static class ExternalServiceRegistrationExtentions
             await CreateKafkaTopics(@event, kafka.Resource, ct);
         });
 
+        #region CQRS Library
         var borrowerDb = postgres.AddDefaultDatabase<Projects.CQRS_Library_BorrowerService>();
         var borrowerApi = builder.AddProject<Projects.CQRS_Library_BorrowerService>()
             .WithEnvironment(EnvKafkaTopic, GetTopicName<Projects.CQRS_Library_BorrowerService>())
@@ -53,7 +54,9 @@ public static class ExternalServiceRegistrationExtentions
             .WithReference(borrowingHistoryDb, DefaultDatabase)
             .WaitFor(borrowingHistoryDb)
             .WaitFor(kafka);
+        #endregion CQRS Library
 
+        #region Saga Online Store
         var sagaCatalogDb = postgres.AddDefaultDatabase<Projects.Saga_OnlineStore_CatalogService>();
         builder.AddProject<Projects.Saga_OnlineStore_CatalogService>()
             .WithEnvironment(EnvKafkaTopic, GetTopicName<Projects.Saga_OnlineStore_CatalogService>())
@@ -79,6 +82,16 @@ public static class ExternalServiceRegistrationExtentions
             .WaitFor(sagaBankCardDb)
             .WaitFor(kafka);
 
+        var sagaOrderDb = postgres.AddDefaultDatabase<Projects.Saga_OnlineStore_OrderService>();
+        builder.AddProject<Projects.Saga_OnlineStore_OrderService>()
+            .WithEnvironment(EnvKafkaTopic, GetTopicName<Projects.Saga_OnlineStore_OrderService>())
+            .WithReference(kafka)
+            .WithReference(sagaOrderDb, DefaultDatabase)
+            .WaitFor(sagaOrderDb)
+            .WaitFor(kafka);
+
+        #endregion
+
         return builder;
     }
 
@@ -92,7 +105,8 @@ public static class ExternalServiceRegistrationExtentions
             new() { Name = GetTopicName<Projects.CQRS_Library_BorrowingService>(), NumPartitions = 1, ReplicationFactor = 1 },
             new() { Name = GetTopicName<Projects.Saga_OnlineStore_CatalogService>(), NumPartitions = 1, ReplicationFactor = 1 },
             new() { Name = GetTopicName<Projects.Saga_OnlineStore_BankCardService>(), NumPartitions = 1, ReplicationFactor = 1 },
-            new() { Name = GetTopicName<Projects.Saga_OnlineStore_InventoryService>(), NumPartitions = 1, ReplicationFactor = 1 }
+            new() { Name = GetTopicName<Projects.Saga_OnlineStore_InventoryService>(), NumPartitions = 1, ReplicationFactor = 1 },
+            new() { Name = GetTopicName<Projects.Saga_OnlineStore_OrderService>(), NumPartitions = 1, ReplicationFactor = 1 }
         ];
 
         logger.LogInformation("Creating topics: {topics} ...", string.Join(", ", topics.Select(t => t.Name).ToArray()));
