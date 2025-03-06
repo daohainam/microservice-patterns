@@ -11,13 +11,22 @@ public static class ApplicationServiceExtensions
         builder.Services.AddMediatR(cfg => {
             cfg.RegisterServicesFromAssembly(typeof(Program).Assembly);
         });
-        builder.AddKafkaEventConsumer(options => {
-            options.Topics.Add("cqrs-library-book");
-            options.Topics.Add("cqrs-library-borrower");
-            options.Topics.Add("cqrs-library-borrowing");
 
-            options.IntegrationEventFactory = IntegrationEventFactory<BookCreatedIntegrationEvent>.Instance;
-        });
+        var topicNames = builder.Configuration.GetValue<string>("KAFKA_INCOMMING_TOPICS");
+        if (!string.IsNullOrEmpty(topicNames))
+        {
+            var topics = topicNames.Split(',');
+
+            builder.AddKafkaEventConsumer(options => {
+                options.Topics.AddRange(topics);
+
+                options.IntegrationEventFactory = IntegrationEventFactory<BookCreatedIntegrationEvent>.Instance;
+            });
+        }
+        else
+        {
+
+        }
 
         return builder;
     }

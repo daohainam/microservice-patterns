@@ -1,4 +1,4 @@
-﻿namespace MicroservicePatterns.Shared;
+﻿namespace MicroservicePatterns.AppHost.Extensions;
 public static class ResourceExtensions
 {
     public static IResourceBuilder<PostgresDatabaseResource> AddDefaultDatabase<TProject>(this IResourceBuilder<PostgresServerResource> builder)

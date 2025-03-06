@@ -10,7 +10,7 @@ public static class ApplicationServiceExtensions
         builder.Services.AddOpenApi();
         builder.AddNpgsqlDbContext<BorrowingDbContext>(Consts.DefaultDatabase);
         builder.AddKafkaEventPublisher("kafka");
-        builder.Services.AddKafkaEventPublisher("cqrs-library-borrowing");
+        builder.Services.AddKafkaEventPublisher(builder.Configuration.GetValue<string>(Consts.EnvKafkaTopic));
 
         return builder;
     }

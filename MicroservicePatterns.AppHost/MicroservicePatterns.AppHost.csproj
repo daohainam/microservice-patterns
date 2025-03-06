@@ -20,6 +20,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\MicroservicePatterns.Shared\MicroservicePatterns.Shared.csproj" />
     <ProjectReference Include="..\patterns\CQRS\CQRS.Library.BookService\CQRS.Library.BookService.csproj" />
     <ProjectReference Include="..\patterns\CQRS\CQRS.Library.BorrowerService\CQRS.Library.BorrowerService.csproj" />
     <ProjectReference Include="..\patterns\CQRS\CQRS.Library.BorrowingService\CQRS.Library.BorrowingService.csproj" />

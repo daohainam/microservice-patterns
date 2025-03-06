@@ -15,14 +15,21 @@ public static class KafkaEventBusExtensions
         return builder;
     }
 
-    public static void AddKafkaEventPublisher(this IServiceCollection services, string topic)
+    public static void AddKafkaEventPublisher(this IServiceCollection services, string? topic)
     {
+        ArgumentNullException.ThrowIfNull(topic, nameof(topic));
+
         services.AddTransient<IEventPublisher>(services => new KafkaEventPublisher(
             topic,
             services.GetRequiredService<IProducer<string, MessageEnvelop>>(),
             services.GetRequiredService<ILogger<KafkaEventPublisher>>()
             ));
     }
+
+    //public static void AddKafkaEventPublisher<>(this IServiceCollection services)
+    //{
+
+    //}
 
     public static IHostApplicationBuilder AddKafkaMessageEnvelopConsumer(this IHostApplicationBuilder builder, string groupId, string connectionName = "kafka")
     {

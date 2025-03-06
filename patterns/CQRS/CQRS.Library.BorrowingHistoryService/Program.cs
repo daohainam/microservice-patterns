@@ -1,6 +1,3 @@
-using Microsoft.Extensions.Hosting;
-using System.Threading;
-
 var builder = WebApplication.CreateBuilder(args);
 
 builder.AddApplicationServices();

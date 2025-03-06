@@ -7,7 +7,7 @@ public static class ApplicationServiceExtensions
         builder.Services.AddOpenApi();
         builder.AddNpgsqlDbContext<BookDbContext>(Consts.DefaultDatabase);
         builder.AddKafkaEventPublisher("kafka");
-        builder.Services.AddKafkaEventPublisher("cqrs-library-book");
+        builder.Services.AddKafkaEventPublisher(builder.Configuration.GetValue<string>(Consts.EnvKafkaTopic));
 
         return builder;
     }

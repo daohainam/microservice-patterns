@@ -2,6 +2,7 @@
 public static class ExternalServiceRegistrationExtentions
 {
     private const string DefaultDatabase = "DefaultDatabase";
+    private const string EnvKafkaTopic = "KAFKA_TOPIC";
 
     public static IDistributedApplicationBuilder AddApplicationServices(this IDistributedApplicationBuilder builder)
     {
@@ -17,6 +18,7 @@ public static class ExternalServiceRegistrationExtentions
 
         var borrowerDb = postgres.AddDefaultDatabase<Projects.CQRS_Library_BorrowerService>();
         var borrowerApi = builder.AddProject<Projects.CQRS_Library_BorrowerService>()
+            .WithEnvironment(EnvKafkaTopic, GetTopicName<Projects.CQRS_Library_BorrowerService>())
             .WithReference(kafka)
             .WithReference(borrowerDb, DefaultDatabase)
             .WaitFor(borrowerDb)
@@ -24,6 +26,7 @@ public static class ExternalServiceRegistrationExtentions
 
         var bookDb = postgres.AddDefaultDatabase<Projects.CQRS_Library_BookService>();
         builder.AddProject<Projects.CQRS_Library_BookService>()
+            .WithEnvironment(EnvKafkaTopic, GetTopicName<Projects.CQRS_Library_BookService>())
             .WithReference(kafka)
             .WithReference(bookDb, DefaultDatabase)
             .WaitFor(bookDb)
@@ -31,6 +34,7 @@ public static class ExternalServiceRegistrationExtentions
 
         var borrowingDb = postgres.AddDefaultDatabase<Projects.CQRS_Library_BorrowingService>();
         builder.AddProject<Projects.CQRS_Library_BorrowingService>()
+            .WithEnvironment(EnvKafkaTopic, GetTopicName<Projects.CQRS_Library_BorrowingService>())
             .WithReference(kafka)
             .WithReference(borrowingDb, DefaultDatabase)
             .WaitFor(borrowingDb)
@@ -38,6 +42,13 @@ public static class ExternalServiceRegistrationExtentions
 
         var borrowingHistoryDb = postgres.AddDefaultDatabase<Projects.CQRS_Library_BorrowingHistoryService>();
         builder.AddProject<Projects.CQRS_Library_BorrowingHistoryService>()
+            .WithEnvironment("KAFKA_INCOMMING_TOPICS", 
+                string.Join(',', 
+                    GetTopicName<Projects.CQRS_Library_BorrowerService>(),
+                    GetTopicName<Projects.CQRS_Library_BookService>(),
+                    GetTopicName<Projects.CQRS_Library_BorrowingService>()
+                    )
+                )
             .WithReference(kafka)
             .WithReference(borrowingHistoryDb, DefaultDatabase)
             .WaitFor(borrowingHistoryDb)
@@ -45,6 +56,7 @@ public static class ExternalServiceRegistrationExtentions
 
         var sagaCatalogDb = postgres.AddDefaultDatabase<Projects.Saga_OnlineStore_CatalogService>();
         builder.AddProject<Projects.Saga_OnlineStore_CatalogService>()
+            .WithEnvironment(EnvKafkaTopic, GetTopicName<Projects.Saga_OnlineStore_CatalogService>())
             .WithReference(kafka)
             .WithReference(sagaCatalogDb, DefaultDatabase)
             .WaitFor(sagaCatalogDb)
@@ -52,6 +64,8 @@ public static class ExternalServiceRegistrationExtentions
 
         var sagaInventoryDb = postgres.AddDefaultDatabase<Projects.Saga_OnlineStore_InventoryService>();
         builder.AddProject<Projects.Saga_OnlineStore_InventoryService>()
+            .WithEnvironment(EnvKafkaTopic, GetTopicName<Projects.Saga_OnlineStore_InventoryService>())
+            .WithEnvironment("KAFKA_CATALOG_TOPIC", GetTopicName<Projects.Saga_OnlineStore_CatalogService>())
             .WithReference(kafka)
             .WithReference(sagaInventoryDb, DefaultDatabase)
             .WaitFor(sagaInventoryDb)
@@ -59,6 +73,7 @@ public static class ExternalServiceRegistrationExtentions
 
         var sagaBankCardDb = postgres.AddDefaultDatabase<Projects.Saga_OnlineStore_BankCardService>();
         builder.AddProject<Projects.Saga_OnlineStore_BankCardService>()
+            .WithEnvironment(EnvKafkaTopic, GetTopicName<Projects.Saga_OnlineStore_BankCardService>())
             .WithReference(kafka)
             .WithReference(sagaBankCardDb, DefaultDatabase)
             .WaitFor(sagaBankCardDb)
@@ -72,12 +87,12 @@ public static class ExternalServiceRegistrationExtentions
         var logger = @event.Services.GetRequiredService<ILogger<Program>>();
 
         TopicSpecification[] topics = [
-            new() { Name = "cqrs-library-book", NumPartitions = 1, ReplicationFactor = 1 },
-                    new() { Name = "cqrs-library-borrower", NumPartitions = 1, ReplicationFactor = 1 },
-                    new() { Name = "cqrs-library-borrowing", NumPartitions = 1, ReplicationFactor = 1 },
-                    new() { Name = "saga-onlinestore-catalog", NumPartitions = 1, ReplicationFactor = 1 },
-                    new() { Name = "saga-onlinestore-inventory", NumPartitions = 1, ReplicationFactor = 1 },
-                    new() { Name = "saga-onlinestore-bankcard", NumPartitions = 1, ReplicationFactor = 1 }
+            new() { Name = GetTopicName<Projects.CQRS_Library_BookService>(), NumPartitions = 1, ReplicationFactor = 1 },
+            new() { Name = GetTopicName<Projects.CQRS_Library_BorrowerService>(), NumPartitions = 1, ReplicationFactor = 1 },
+            new() { Name = GetTopicName<Projects.CQRS_Library_BorrowingService>(), NumPartitions = 1, ReplicationFactor = 1 },
+            new() { Name = GetTopicName<Projects.Saga_OnlineStore_CatalogService>(), NumPartitions = 1, ReplicationFactor = 1 },
+            new() { Name = GetTopicName<Projects.Saga_OnlineStore_BankCardService>(), NumPartitions = 1, ReplicationFactor = 1 },
+            new() { Name = GetTopicName<Projects.Saga_OnlineStore_InventoryService>(), NumPartitions = 1, ReplicationFactor = 1 }
         ];
 
         logger.LogInformation("Creating topics: {topics} ...", string.Join(", ", topics.Select(t => t.Name).ToArray()));
@@ -98,4 +113,6 @@ public static class ExternalServiceRegistrationExtentions
             throw;
         }
     }
+
+    private static string GetTopicName<TProject>() => typeof(TProject).Name.Replace('_', '-');
 }

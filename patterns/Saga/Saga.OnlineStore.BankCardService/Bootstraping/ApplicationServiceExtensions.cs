@@ -10,7 +10,7 @@ public static class ApplicationServiceExtensions
         builder.Services.AddOpenApi();
         builder.AddNpgsqlDbContext<BankCardDbContext>(Consts.DefaultDatabase);
         builder.AddKafkaEventPublisher("kafka");
-        builder.Services.AddKafkaEventPublisher("saga-onlinestore-bankcard");
+        builder.Services.AddKafkaEventPublisher(builder.Configuration.GetValue<string>(Consts.EnvKafkaTopic));
 
         return builder;
     }
