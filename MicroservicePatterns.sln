@@ -38,6 +38,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MicroservicePatterns.Databa
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Saga.OnlineStore.BankCardService", "patterns\Saga\Saga.OnlineStore.BankCardService\Saga.OnlineStore.BankCardService.csproj", "{FD8FECEE-7C5D-45A9-985E-E2AFFAA40F66}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{C813FA6F-4F99-42E6-9520-4C1BA4BBBF76}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IntegrationTests", "tests\IntegrationTests\IntegrationTests.csproj", "{D531943A-52D9-4D1C-9F6B-6150E23CC187}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -104,6 +108,10 @@ Global
 		{FD8FECEE-7C5D-45A9-985E-E2AFFAA40F66}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FD8FECEE-7C5D-45A9-985E-E2AFFAA40F66}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FD8FECEE-7C5D-45A9-985E-E2AFFAA40F66}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D531943A-52D9-4D1C-9F6B-6150E23CC187}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D531943A-52D9-4D1C-9F6B-6150E23CC187}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D531943A-52D9-4D1C-9F6B-6150E23CC187}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D531943A-52D9-4D1C-9F6B-6150E23CC187}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -120,6 +128,7 @@ Global
 		{A6FCF5EF-B48A-4793-AB1F-CD1727E94D16} = {34650080-5C06-4A32-A233-762F74E439C6}
 		{BC6AC2DC-5561-877D-D8ED-6F56835F9CE9} = {34650080-5C06-4A32-A233-762F74E439C6}
 		{FD8FECEE-7C5D-45A9-985E-E2AFFAA40F66} = {34650080-5C06-4A32-A233-762F74E439C6}
+		{D531943A-52D9-4D1C-9F6B-6150E23CC187} = {C813FA6F-4F99-42E6-9520-4C1BA4BBBF76}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {2A6D38EF-43A8-421A-9D76-87B6E1656DF5}
