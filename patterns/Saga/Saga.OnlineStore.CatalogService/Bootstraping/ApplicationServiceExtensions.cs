@@ -1,4 +1,5 @@
-﻿using Saga.OnlineStore.CatalogService.Infrastructure.Data;
+﻿using MicroservicePatterns.Shared;
+using Saga.OnlineStore.CatalogService.Infrastructure.Data;
 
 namespace Saga.OnlineStore.CatalogService.Bootstraping;
 public static class ApplicationServiceExtensions
@@ -7,7 +8,7 @@ public static class ApplicationServiceExtensions
     {
         builder.AddServiceDefaults();
         builder.Services.AddOpenApi();
-        builder.AddNpgsqlDbContext<CatalogDbContext>("saga-onlinestore-catalog-db");
+        builder.AddNpgsqlDbContext<CatalogDbContext>(Consts.DefaultDatabase);
         builder.AddKafkaEventPublisher("kafka");
         builder.Services.AddKafkaEventPublisher("saga-onlinestore-catalog");
 

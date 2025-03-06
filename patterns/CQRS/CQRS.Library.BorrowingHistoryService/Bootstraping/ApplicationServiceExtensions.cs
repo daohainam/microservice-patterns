@@ -1,11 +1,13 @@
-﻿namespace CQRS.Library.BorrowingHistoryService.Bootstraping;
+﻿using MicroservicePatterns.Shared;
+
+namespace CQRS.Library.BorrowingHistoryService.Bootstraping;
 public static class ApplicationServiceExtensions
 {
     public static IHostApplicationBuilder AddApplicationServices(this IHostApplicationBuilder builder)
     {
         builder.AddServiceDefaults();
         builder.Services.AddOpenApi();
-        builder.AddNpgsqlDbContext<BorrowingHistoryDbContext>("cqrs-library-borrowing-history-db");
+        builder.AddNpgsqlDbContext<BorrowingHistoryDbContext>(Consts.DefaultDatabase);
         builder.Services.AddMediatR(cfg => {
             cfg.RegisterServicesFromAssembly(typeof(Program).Assembly);
         });

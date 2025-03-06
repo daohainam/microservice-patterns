@@ -1,11 +1,8 @@
-﻿using Confluent.Kafka;
-using Confluent.Kafka.Admin;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-
-namespace MicroservicePatterns.AppHost.Extensions;
+﻿namespace MicroservicePatterns.AppHost.Extensions;
 public static class ExternalServiceRegistrationExtentions
 {
+    private const string DefaultDatabase = "DefaultDatabase";
+
     public static IDistributedApplicationBuilder AddApplicationServices(this IDistributedApplicationBuilder builder)
     {
         var cache = builder.AddRedis("redis").WithLifetime(ContainerLifetime.Persistent).WithRedisInsight();
@@ -18,52 +15,52 @@ public static class ExternalServiceRegistrationExtentions
             await CreateKafkaTopics(@event, kafka.Resource, ct);
         });
 
-        var borrowerDb = postgres.AddDatabase("cqrs-library-borrower-db");
-        var borrowerApi = builder.AddProject<Projects.CQRS_Library_BorrowerService>("cqrs-library-borrower-service")
+        var borrowerDb = postgres.AddDefaultDatabase<Projects.CQRS_Library_BorrowerService>();
+        var borrowerApi = builder.AddProject<Projects.CQRS_Library_BorrowerService>()
             .WithReference(kafka)
-            .WithReference(borrowerDb)
+            .WithReference(borrowerDb, DefaultDatabase)
             .WaitFor(borrowerDb)
             .WaitFor(kafka);
 
-        var bookDb = postgres.AddDatabase("cqrs-library-book-db");
-        builder.AddProject<Projects.CQRS_Library_BookService>("cqrs-library-book-service")
+        var bookDb = postgres.AddDefaultDatabase<Projects.CQRS_Library_BookService>();
+        builder.AddProject<Projects.CQRS_Library_BookService>()
             .WithReference(kafka)
-            .WithReference(bookDb)
+            .WithReference(bookDb, DefaultDatabase)
             .WaitFor(bookDb)
             .WaitFor(kafka);
 
-        var borrowingDb = postgres.AddDatabase("cqrs-library-borrowing-db");
-        builder.AddProject<Projects.CQRS_Library_BorrowingService>("cqrs-library-borrowing-service")
+        var borrowingDb = postgres.AddDefaultDatabase<Projects.CQRS_Library_BorrowingService>();
+        builder.AddProject<Projects.CQRS_Library_BorrowingService>()
             .WithReference(kafka)
-            .WithReference(borrowingDb)
+            .WithReference(borrowingDb, DefaultDatabase)
             .WaitFor(borrowingDb)
             .WaitFor(kafka);
 
-        var borrowingHistoryDb = postgres.AddDatabase("cqrs-library-borrowing-history-db");
-        builder.AddProject<Projects.CQRS_Library_BorrowingHistoryService>("cqrs-library-borrowing-history-service")
+        var borrowingHistoryDb = postgres.AddDefaultDatabase<Projects.CQRS_Library_BorrowingHistoryService>();
+        builder.AddProject<Projects.CQRS_Library_BorrowingHistoryService>()
             .WithReference(kafka)
-            .WithReference(borrowingHistoryDb)
+            .WithReference(borrowingHistoryDb, DefaultDatabase)
             .WaitFor(borrowingHistoryDb)
             .WaitFor(kafka);
 
-        var sagaCatalogDb = postgres.AddDatabase("saga-onlinestore-catalog-db");
-        builder.AddProject<Projects.Saga_OnlineStore_CatalogService>("saga-onlinestore-catalog-service")
+        var sagaCatalogDb = postgres.AddDefaultDatabase<Projects.Saga_OnlineStore_CatalogService>();
+        builder.AddProject<Projects.Saga_OnlineStore_CatalogService>()
             .WithReference(kafka)
-            .WithReference(sagaCatalogDb)
+            .WithReference(sagaCatalogDb, DefaultDatabase)
             .WaitFor(sagaCatalogDb)
             .WaitFor(kafka);
 
-        var sagaInventoryDb = postgres.AddDatabase("saga-onlinestore-inventory-db");
-        builder.AddProject<Projects.Saga_OnlineStore_InventoryService>("saga-onlinestore-inventory-service")
+        var sagaInventoryDb = postgres.AddDefaultDatabase<Projects.Saga_OnlineStore_InventoryService>();
+        builder.AddProject<Projects.Saga_OnlineStore_InventoryService>()
             .WithReference(kafka)
-            .WithReference(sagaInventoryDb)
+            .WithReference(sagaInventoryDb, DefaultDatabase)
             .WaitFor(sagaInventoryDb)
             .WaitFor(kafka);
 
-        var sagaBankCardDb = postgres.AddDatabase("saga-onlinestore-bankcard-db");
-        builder.AddProject<Projects.Saga_OnlineStore_BankCardService>("saga-onlinestore-bankcard-service")
+        var sagaBankCardDb = postgres.AddDefaultDatabase<Projects.Saga_OnlineStore_BankCardService>();
+        builder.AddProject<Projects.Saga_OnlineStore_BankCardService>()
             .WithReference(kafka)
-            .WithReference(sagaBankCardDb)
+            .WithReference(sagaBankCardDb, DefaultDatabase)
             .WaitFor(sagaBankCardDb)
             .WaitFor(kafka);
 

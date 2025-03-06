@@ -20,6 +20,7 @@
     <ProjectReference Include="..\..\..\EventBus\EventBus.csproj" />
     <ProjectReference Include="..\..\..\MicroservicePatterns.DatabaseMigrationHelpers\MicroservicePatterns.DatabaseMigrationHelpers.csproj" />
     <ProjectReference Include="..\..\..\MicroservicePatterns.ServiceDefaults\MicroservicePatterns.ServiceDefaults.csproj" />
+    <ProjectReference Include="..\..\..\MicroservicePatterns.Shared\MicroservicePatterns.Shared.csproj" />
     <ProjectReference Include="..\CQRS.Library.IntegrationEvents\CQRS.Library.IntegrationEvents.csproj" />
   </ItemGroup>
 

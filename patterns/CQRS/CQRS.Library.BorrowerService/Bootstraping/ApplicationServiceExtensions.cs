@@ -1,4 +1,4 @@
-﻿using CQRS.Library.BorrowerService.Infrastructure.Data;
+﻿using MicroservicePatterns.Shared;
 
 namespace CQRS.Library.BorrowerService.Bootstraping;
 public static class ApplicationServiceExtensions
@@ -7,7 +7,7 @@ public static class ApplicationServiceExtensions
     {
         builder.AddServiceDefaults();
         builder.Services.AddOpenApi();
-        builder.AddNpgsqlDbContext<BorrowerDbContext>("cqrs-library-borrower-db");
+        builder.AddNpgsqlDbContext<BorrowerDbContext>(Consts.DefaultDatabase);
         builder.AddKafkaEventPublisher("kafka");
         builder.Services.AddKafkaEventPublisher("cqrs-library-borrower");
 

@@ -1,4 +1,5 @@
 ﻿using EventBus;
+using MicroservicePatterns.Shared;
 using Saga.OnlineStore.IntegrationEvents;
 
 namespace Saga.OnlineStore.InventoryService.Bootstraping;
@@ -8,7 +9,7 @@ public static class ApplicationServiceExtensions
     {
         builder.AddServiceDefaults();
         builder.Services.AddOpenApi();
-        builder.AddNpgsqlDbContext<InventoryDbContext>("saga-onlinestore-inventory-db");
+        builder.AddNpgsqlDbContext<InventoryDbContext>(Consts.DefaultDatabase);
         builder.AddKafkaEventPublisher("kafka");
         builder.Services.AddKafkaEventPublisher("saga-onlinestore-inventory");
         builder.Services.AddMediatR(cfg => {
