@@ -1,15 +1,23 @@
-﻿namespace MicroservicePatterns.AppHost.Extensions;
+﻿using MicroservicePatterns.Shared;
+using Microsoft.Extensions.Configuration;
+
+namespace MicroservicePatterns.AppHost.Extensions;
 public static class ExternalServiceRegistrationExtentions
 {
-    private const string DefaultDatabase = "DefaultDatabase";
-    private const string EnvKafkaTopic = "KAFKA_TOPIC";
-
     public static IDistributedApplicationBuilder AddApplicationServices(this IDistributedApplicationBuilder builder)
     {
-        var cache = builder.AddRedis("redis").WithLifetime(ContainerLifetime.Persistent).WithRedisInsight();
-        var kafka = builder.AddKafka("kafka").WithLifetime(ContainerLifetime.Persistent).WithKafkaUI();
-        var mongoDb = builder.AddMongoDB("mongodb").WithLifetime(ContainerLifetime.Persistent).WithMongoExpress().WithDataVolume(); // here we use MongoDB for both read/write model, but we can use different databases using replicas
-        var postgres = builder.AddPostgres("postgresql").WithLifetime(ContainerLifetime.Persistent).WithPgWeb().WithDataVolume();
+        var cache = builder.AddRedis("redis");
+        var kafka = builder.AddKafka("kafka");
+        var mongoDb = builder.AddMongoDB("mongodb"); 
+        var postgres = builder.AddPostgres("postgresql");
+
+        if (!builder.Configuration.GetValue("IsTest", false))
+        {
+            cache = cache.WithLifetime(ContainerLifetime.Persistent).WithDataVolume().WithRedisInsight();
+            kafka = kafka.WithLifetime(ContainerLifetime.Persistent).WithDataVolume().WithKafkaUI();
+            mongoDb = mongoDb.WithLifetime(ContainerLifetime.Persistent).WithDataVolume().WithMongoExpress();
+            postgres = postgres.WithLifetime(ContainerLifetime.Persistent).WithDataVolume().WithPgWeb();
+        }
 
         builder.Eventing.Subscribe<ResourceReadyEvent>(kafka.Resource, async (@event, ct) =>
         {
@@ -19,31 +27,31 @@ public static class ExternalServiceRegistrationExtentions
         #region CQRS Library
         var borrowerDb = postgres.AddDefaultDatabase<Projects.CQRS_Library_BorrowerService>();
         var borrowerApi = builder.AddProject<Projects.CQRS_Library_BorrowerService>()
-            .WithEnvironment(EnvKafkaTopic, GetTopicName<Projects.CQRS_Library_BorrowerService>())
+            .WithEnvironment(Consts.Env_EventPublishingTopics, GetTopicName<Projects.CQRS_Library_BorrowerService>())
             .WithReference(kafka)
-            .WithReference(borrowerDb, DefaultDatabase)
+            .WithReference(borrowerDb, Consts.DefaultDatabase)
             .WaitFor(borrowerDb)
             .WaitFor(kafka);
 
         var bookDb = postgres.AddDefaultDatabase<Projects.CQRS_Library_BookService>();
         builder.AddProject<Projects.CQRS_Library_BookService>()
-            .WithEnvironment(EnvKafkaTopic, GetTopicName<Projects.CQRS_Library_BookService>())
+            .WithEnvironment(Consts.Env_EventPublishingTopics, GetTopicName<Projects.CQRS_Library_BookService>())
             .WithReference(kafka)
-            .WithReference(bookDb, DefaultDatabase)
+            .WithReference(bookDb, Consts.DefaultDatabase)
             .WaitFor(bookDb)
             .WaitFor(kafka);
 
         var borrowingDb = postgres.AddDefaultDatabase<Projects.CQRS_Library_BorrowingService>();
         builder.AddProject<Projects.CQRS_Library_BorrowingService>()
-            .WithEnvironment(EnvKafkaTopic, GetTopicName<Projects.CQRS_Library_BorrowingService>())
+            .WithEnvironment(Consts.Env_EventPublishingTopics, GetTopicName<Projects.CQRS_Library_BorrowingService>())
             .WithReference(kafka)
-            .WithReference(borrowingDb, DefaultDatabase)
+            .WithReference(borrowingDb, Consts.DefaultDatabase)
             .WaitFor(borrowingDb)
             .WaitFor(kafka);
 
         var borrowingHistoryDb = postgres.AddDefaultDatabase<Projects.CQRS_Library_BorrowingHistoryService>();
         builder.AddProject<Projects.CQRS_Library_BorrowingHistoryService>()
-            .WithEnvironment("KAFKA_INCOMMING_TOPICS", 
+            .WithEnvironment(Consts.Env_EventConsumingTopics, 
                 string.Join(',', 
                     GetTopicName<Projects.CQRS_Library_BorrowerService>(),
                     GetTopicName<Projects.CQRS_Library_BookService>(),
@@ -51,7 +59,7 @@ public static class ExternalServiceRegistrationExtentions
                     )
                 )
             .WithReference(kafka)
-            .WithReference(borrowingHistoryDb, DefaultDatabase)
+            .WithReference(borrowingHistoryDb, Consts.DefaultDatabase)
             .WaitFor(borrowingHistoryDb)
             .WaitFor(kafka);
         #endregion CQRS Library
@@ -59,34 +67,50 @@ public static class ExternalServiceRegistrationExtentions
         #region Saga Online Store
         var sagaCatalogDb = postgres.AddDefaultDatabase<Projects.Saga_OnlineStore_CatalogService>();
         builder.AddProject<Projects.Saga_OnlineStore_CatalogService>()
-            .WithEnvironment(EnvKafkaTopic, GetTopicName<Projects.Saga_OnlineStore_CatalogService>())
+            .WithEnvironment(Consts.Env_EventPublishingTopics, GetTopicName<Projects.Saga_OnlineStore_CatalogService>())
             .WithReference(kafka)
-            .WithReference(sagaCatalogDb, DefaultDatabase)
+            .WithReference(sagaCatalogDb, Consts.DefaultDatabase)
             .WaitFor(sagaCatalogDb)
             .WaitFor(kafka);
 
         var sagaInventoryDb = postgres.AddDefaultDatabase<Projects.Saga_OnlineStore_InventoryService>();
         builder.AddProject<Projects.Saga_OnlineStore_InventoryService>()
-            .WithEnvironment(EnvKafkaTopic, GetTopicName<Projects.Saga_OnlineStore_InventoryService>())
-            .WithEnvironment("KAFKA_CATALOG_TOPIC", GetTopicName<Projects.Saga_OnlineStore_CatalogService>())
+            .WithEnvironment(Consts.Env_EventPublishingTopics, GetTopicName<Projects.Saga_OnlineStore_InventoryService>())
+            .WithEnvironment(Consts.Env_EventConsumingTopics,
+                string.Join(',',
+                    GetTopicName<Projects.Saga_OnlineStore_CatalogService>(),
+                    GetTopicName<Projects.Saga_OnlineStore_OrderService>()
+                    )
+                )
             .WithReference(kafka)
-            .WithReference(sagaInventoryDb, DefaultDatabase)
+            .WithReference(sagaInventoryDb, Consts.DefaultDatabase)
             .WaitFor(sagaInventoryDb)
             .WaitFor(kafka);
 
         var sagaBankCardDb = postgres.AddDefaultDatabase<Projects.Saga_OnlineStore_PaymentService>();
         builder.AddProject<Projects.Saga_OnlineStore_PaymentService>()
-            .WithEnvironment(EnvKafkaTopic, GetTopicName<Projects.Saga_OnlineStore_PaymentService>())
+            .WithEnvironment(Consts.Env_EventPublishingTopics, GetTopicName<Projects.Saga_OnlineStore_PaymentService>())
+            .WithEnvironment(Consts.Env_EventConsumingTopics,
+                string.Join(',',
+                    GetTopicName<Projects.Saga_OnlineStore_InventoryService>()
+                    )
+                )
             .WithReference(kafka)
-            .WithReference(sagaBankCardDb, DefaultDatabase)
+            .WithReference(sagaBankCardDb, Consts.DefaultDatabase)
             .WaitFor(sagaBankCardDb)
             .WaitFor(kafka);
 
         var sagaOrderDb = postgres.AddDefaultDatabase<Projects.Saga_OnlineStore_OrderService>();
         builder.AddProject<Projects.Saga_OnlineStore_OrderService>()
-            .WithEnvironment(EnvKafkaTopic, GetTopicName<Projects.Saga_OnlineStore_OrderService>())
+            .WithEnvironment(Consts.Env_EventPublishingTopics, GetTopicName<Projects.Saga_OnlineStore_OrderService>())
+            .WithEnvironment(Consts.Env_EventConsumingTopics,
+                string.Join(',',
+                    GetTopicName<Projects.Saga_OnlineStore_InventoryService>(),
+                    GetTopicName<Projects.Saga_OnlineStore_PaymentService>()
+                    )
+                )
             .WithReference(kafka)
-            .WithReference(sagaOrderDb, DefaultDatabase)
+            .WithReference(sagaOrderDb, Consts.DefaultDatabase)
             .WaitFor(sagaOrderDb)
             .WaitFor(kafka);
 
@@ -118,13 +142,11 @@ public static class ExternalServiceRegistrationExtentions
         }).Build();
         try
         {
-            await adminClient.CreateTopicsAsync(topics);
+            await adminClient.CreateTopicsAsync(topics, new CreateTopicsOptions() { });
         }
-        catch (CreateTopicsException)
+        catch (CreateTopicsException ex)
         {
-            logger.LogError("An error occurred creating topics");
-
-            throw;
+            logger.LogError(ex, "An error occurred creating topics");
         }
     }
 

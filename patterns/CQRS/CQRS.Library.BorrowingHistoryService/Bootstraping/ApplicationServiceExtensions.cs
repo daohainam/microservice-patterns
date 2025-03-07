@@ -12,20 +12,14 @@ public static class ApplicationServiceExtensions
             cfg.RegisterServicesFromAssembly(typeof(Program).Assembly);
         });
 
-        var topicNames = builder.Configuration.GetValue<string>("KAFKA_INCOMMING_TOPICS");
-        if (!string.IsNullOrEmpty(topicNames))
+        var eventConsumingTopics = builder.Configuration.GetValue<string>(Consts.Env_EventConsumingTopics);
+        if (!string.IsNullOrEmpty(eventConsumingTopics))
         {
-            var topics = topicNames.Split(',');
-
             builder.AddKafkaEventConsumer(options => {
-                options.Topics.AddRange(topics);
-
+                options.GroupId = "cqrs";
+                options.Topics.AddRange(eventConsumingTopics.Split(','));
                 options.IntegrationEventFactory = IntegrationEventFactory<BookCreatedIntegrationEvent>.Instance;
             });
-        }
-        else
-        {
-
         }
 
         return builder;

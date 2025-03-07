@@ -2,7 +2,7 @@
 public class Order
 {
     public Guid Id { get; set; }
-    public string CustomerId { get; set; } = default!;
+    public Guid CustomerId { get; set; } = default!;
     public string CustomerName { get; set; } = default!;
     public string CustomerPhone { get; set; } = default!;
     public string ShippingAddress { get; set; } = default!;

@@ -1,7 +1,7 @@
 ﻿namespace EventBus.Kafka;
 public static class KafkaEventBusExtensions
 {
-    public static IHostApplicationBuilder AddKafkaEventPublisher(this IHostApplicationBuilder builder, string connectionName)
+    public static IHostApplicationBuilder AddKafkaProducer(this IHostApplicationBuilder builder, string connectionName)
     {
         builder.AddKafkaProducer<string, MessageEnvelop>(connectionName,
             configureSettings: (settings) => { 
@@ -15,22 +15,22 @@ public static class KafkaEventBusExtensions
         return builder;
     }
 
-    public static void AddKafkaEventPublisher(this IServiceCollection services, string? topic)
+    public static void AddKafkaEventPublisher(this IHostApplicationBuilder builder, string? topic)
     {
+        if (string.IsNullOrWhiteSpace(topic))
+        {
+            throw new ArgumentNullException(nameof(topic));
+        }
+
         if (!string.IsNullOrWhiteSpace(topic))
         {
-            services.AddTransient<IEventPublisher>(services => new KafkaEventPublisher(
+            builder.Services.AddTransient<IEventPublisher>(services => new KafkaEventPublisher(
                 topic,
                 services.GetRequiredService<IProducer<string, MessageEnvelop>>(),
                 services.GetRequiredService<ILogger<KafkaEventPublisher>>()
                 ));
         }
     }
-
-    //public static void AddKafkaEventPublisher<>(this IServiceCollection services)
-    //{
-
-    //}
 
     public static IHostApplicationBuilder AddKafkaMessageEnvelopConsumer(this IHostApplicationBuilder builder, string groupId, string connectionName = "kafka")
     {
@@ -52,7 +52,7 @@ public static class KafkaEventBusExtensions
         var options = new EventHandlingWorkerOptions();
         configureOptions?.Invoke(options);
 
-        builder.AddKafkaMessageEnvelopConsumer("cqrs-library");
+        builder.AddKafkaMessageEnvelopConsumer(options.GroupId);
         builder.Services.AddSingleton(options);
         builder.Services.AddSingleton(services => options.IntegrationEventFactory);
         builder.Services.AddHostedService<EventHandlingService>();

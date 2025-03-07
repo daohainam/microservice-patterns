@@ -16,8 +16,8 @@ namespace Saga.OnlineStore.InventoryService.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    AvailableQuantity = table.Column<long>(type: "bigint", nullable: false),
-                    ReservedQuantity = table.Column<long>(type: "bigint", nullable: false)
+                    Name = table.Column<string>(type: "text", nullable: false),
+                    AvailableQuantity = table.Column<long>(type: "bigint", nullable: false)
                 },
                 constraints: table =>
                 {

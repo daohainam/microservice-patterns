@@ -12,7 +12,7 @@ using Saga.OnlineStore.OrderService.Infrastructure.Data;
 namespace Saga.OnlineStore.OrderService.Migrations
 {
     [DbContext(typeof(OrderDbContext))]
-    [Migration("20250306144940_InitialCreate")]
+    [Migration("20250307122437_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -31,9 +31,8 @@ namespace Saga.OnlineStore.OrderService.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<string>("CustomerId")
-                        .IsRequired()
-                        .HasColumnType("text");
+                    b.Property<Guid>("CustomerId")
+                        .HasColumnType("uuid");
 
                     b.Property<string>("CustomerName")
                         .IsRequired()

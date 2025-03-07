@@ -25,6 +25,7 @@ public static class PaymentApi
         group.MapPost("cards", CreateCard);
 
         group.MapPut("cards/{id:guid}", UpdateCard);
+        group.MapPut("cards/{id:guid}/deposit", Deposit);
         return group;
     }
 
@@ -40,9 +41,13 @@ public static class PaymentApi
         await services.DbContext.Cards.AddAsync(card);
         await services.DbContext.SaveChangesAsync();
 
-        await services.EventPublisher.PublishAsync(new ProductCreatedIntegrationEvent()
+        await services.EventPublisher.PublishAsync(new CardCreatedIntegrationEvent()
         {
-            ProductId = card.Id,
+            CardId = card.Id,
+            CardNumber = card.CardNumber,
+            ExpirationDate = card.ExpirationDate,
+            CardHolderName = card.CardHolderName,
+            Cvv = card.Cvv
         });
 
         return TypedResults.Ok(card);
@@ -75,4 +80,34 @@ public static class PaymentApi
 
         return TypedResults.Ok();
     }
+    private static async Task<Results<NotFound, Ok, BadRequest>> Deposit([AsParameters] ApiServices services, Guid id, Deposit deposit)
+    {
+        if (deposit.Amount <= 0)
+        {
+            return TypedResults.BadRequest();
+        }
+
+        var existingCard = await services.DbContext.Cards.FindAsync(id);
+        if (existingCard == null)
+        {
+            return TypedResults.NotFound();
+        }
+
+        existingCard.Balance += deposit.Amount;
+        services.DbContext.Cards.Update(existingCard);
+
+        await services.DbContext.SaveChangesAsync();
+        await services.EventPublisher.PublishAsync(new CardBalanceChangedIntegrationEvent()
+        {
+            CardId = existingCard.Id,
+            Balance = existingCard.Balance,
+        });
+
+        return TypedResults.Ok();
+    }
+}
+
+public record Deposit
+{
+    public decimal Amount { get; set; }
 }

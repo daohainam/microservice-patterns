@@ -16,7 +16,7 @@ namespace Saga.OnlineStore.OrderService.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    CustomerId = table.Column<string>(type: "text", nullable: false),
+                    CustomerId = table.Column<Guid>(type: "uuid", nullable: false),
                     CustomerName = table.Column<string>(type: "text", nullable: false),
                     CustomerPhone = table.Column<string>(type: "text", nullable: false),
                     ShippingAddress = table.Column<string>(type: "text", nullable: false),

@@ -1,4 +1,5 @@
-﻿using MicroservicePatterns.Shared;
+﻿using EventBus;
+using MicroservicePatterns.Shared;
 using Saga.OnlineStore.PaymentService.Infrastructure.Data;
 
 namespace Saga.OnlineStore.PaymentService.Bootstraping;
@@ -9,8 +10,27 @@ public static class ApplicationServiceExtensions
         builder.AddServiceDefaults();
         builder.Services.AddOpenApi();
         builder.AddNpgsqlDbContext<PaymentDbContext>(Consts.DefaultDatabase);
-        builder.AddKafkaEventPublisher("kafka");
-        builder.Services.AddKafkaEventPublisher(builder.Configuration.GetValue<string>(Consts.EnvKafkaTopic));
+
+        builder.AddKafkaProducer("kafka");
+        var kafkaTopic = builder.Configuration.GetValue<string>(Consts.Env_EventPublishingTopics);
+        if (!string.IsNullOrEmpty(kafkaTopic))
+        {
+            builder.AddKafkaEventPublisher(kafkaTopic);
+        }
+        else
+        {
+            builder.Services.AddTransient<IEventPublisher, NullEventPublisher>();
+        }
+
+        var eventConsumingTopics = builder.Configuration.GetValue<string>(Consts.Env_EventConsumingTopics);
+        if (!string.IsNullOrEmpty(eventConsumingTopics))
+        {
+            builder.AddKafkaEventConsumer(options => {
+                options.GroupId = "saga";
+                options.Topics.AddRange(eventConsumingTopics.Split(','));
+                options.IntegrationEventFactory = IntegrationEventFactory<ProductCreatedIntegrationEvent>.Instance;
+            });
+        }
 
         return builder;
     }

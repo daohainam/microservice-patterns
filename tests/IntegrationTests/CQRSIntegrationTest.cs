@@ -1,11 +1,8 @@
 using Aspire.Hosting;
-using CQRS.Library.BookService.Infrastructure.Entity;
-using CQRS.Library.BorrowerService.Infrastructure.Entity;
 using CQRS.Library.BorrowingHistoryService.Infrastructure.Entity;
 using CQRS.Library.BorrowingService.Infrastructure.Entity;
 using MicroservicePatterns.Shared.Pagination;
 using System.Net.Http.Json;
-using System.Text.Json;
 using Book = CQRS.Library.BookService.Infrastructure.Entity.Book;
 using Borrower = CQRS.Library.BorrowerService.Infrastructure.Entity.Borrower;
 
@@ -19,7 +16,9 @@ namespace IntegrationTests.Tests
 
         public async Task InitializeAsync()
         {
-            var appHost = await DistributedApplicationTestingBuilder.CreateAsync<Projects.MicroservicePatterns_AppHost>();
+            var appHost = await DistributedApplicationTestingBuilder.CreateAsync<Projects.MicroservicePatterns_AppHost>([
+                "IsTest=true"
+                ]);
             appHost.Services.ConfigureHttpClientDefaults(clientBuilder =>
             {
                 clientBuilder.AddStandardResilienceHandler();

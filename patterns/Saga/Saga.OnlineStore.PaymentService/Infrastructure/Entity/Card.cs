@@ -1,4 +1,6 @@
-﻿namespace Saga.OnlineStore.PaymentService.Infrastructure.Entity
+﻿using System.Text.Json.Serialization;
+
+namespace Saga.OnlineStore.PaymentService.Infrastructure.Entity
 {
     public class Card
     {
@@ -7,6 +9,7 @@
         public string CardHolderName { get; set; } = default!;
         public DateTime ExpirationDate { get; set; }
         public string Cvv { get; set; } = default!;
+        [JsonIgnore]
         public decimal Balance { get; set; }
     }
 }

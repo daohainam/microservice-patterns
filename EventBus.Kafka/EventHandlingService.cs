@@ -8,7 +8,7 @@ public class EventHandlingService(IConsumer<string, MessageEnvelop> consumer,
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        logger.LogInformation("Subcribing to topics ...");
+        logger.LogInformation("Subcribing to topics [{topics}]...", string.Join(',', options.Topics));
 
         while (!stoppingToken.IsCancellationRequested)
         {
@@ -69,6 +69,7 @@ public class EventHandlingService(IConsumer<string, MessageEnvelop> consumer,
 
 public class EventHandlingWorkerOptions
 {
+    public string GroupId { get; set; } = "event-handling";
     public List<string> Topics { get; set; } = [];
     public IIntegrationEventFactory IntegrationEventFactory { get; set; } = EventBus.IntegrationEventFactory.Instance;
 }

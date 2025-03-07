@@ -4,7 +4,7 @@ namespace Saga.OnlineStore.IntegrationEvents;
 public class OrderPlacedIntegrationEvent: IntegrationEvent
 {
     public Guid OrderId { get; set; }
-    public string CustomerId { get; set; } = default!;
+    public Guid CustomerId { get; set; } = default!;
     public string CustomerName { get; set; } = default!;
     public string CustomerPhone { get; set; } = default!;
     public string ShippingAddress { get; set; } = default!;
@@ -17,7 +17,7 @@ public class OrderPlacedIntegrationEvent: IntegrationEvent
     {
     }
 
-    public OrderPlacedIntegrationEvent(Guid orderId, string customerId, string customerName, string customerPhone, string shippingAddress, string paymentCardNumber, string paymentCardName, string paymentCardExpiration, string paymentCardCvv, List<OrderItem> items)
+    public OrderPlacedIntegrationEvent(Guid orderId, Guid customerId, string customerName, string customerPhone, string shippingAddress, string paymentCardNumber, string paymentCardName, string paymentCardExpiration, string paymentCardCvv, List<OrderItem> items)
     {
         OrderId = orderId;
         CustomerId = customerId;

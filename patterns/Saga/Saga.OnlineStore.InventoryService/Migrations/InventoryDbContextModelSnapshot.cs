@@ -31,8 +31,9 @@ namespace Saga.OnlineStore.InventoryService.Migrations
                     b.Property<long>("AvailableQuantity")
                         .HasColumnType("bigint");
 
-                    b.Property<long>("ReservedQuantity")
-                        .HasColumnType("bigint");
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.HasKey("Id");
 
