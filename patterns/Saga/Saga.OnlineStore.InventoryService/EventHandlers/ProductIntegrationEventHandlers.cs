@@ -10,8 +10,7 @@ public class ProductIntegrationEventHandlers(InventoryDbContext dbContext, ILogg
         {
             Id = request.ProductId,
             Name = request.Name,
-            AvailableQuantity = 0,
-            ReservedQuantity = 0            
+            AvailableQuantity = 0
         });
         await dbContext.SaveChangesAsync(cancellationToken);
     }

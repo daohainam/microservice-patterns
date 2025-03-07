@@ -74,9 +74,9 @@ public static class ExternalServiceRegistrationExtentions
             .WaitFor(sagaInventoryDb)
             .WaitFor(kafka);
 
-        var sagaBankCardDb = postgres.AddDefaultDatabase<Projects.Saga_OnlineStore_BankCardService>();
-        builder.AddProject<Projects.Saga_OnlineStore_BankCardService>()
-            .WithEnvironment(EnvKafkaTopic, GetTopicName<Projects.Saga_OnlineStore_BankCardService>())
+        var sagaBankCardDb = postgres.AddDefaultDatabase<Projects.Saga_OnlineStore_PaymentService>();
+        builder.AddProject<Projects.Saga_OnlineStore_PaymentService>()
+            .WithEnvironment(EnvKafkaTopic, GetTopicName<Projects.Saga_OnlineStore_PaymentService>())
             .WithReference(kafka)
             .WithReference(sagaBankCardDb, DefaultDatabase)
             .WaitFor(sagaBankCardDb)
@@ -104,7 +104,7 @@ public static class ExternalServiceRegistrationExtentions
             new() { Name = GetTopicName<Projects.CQRS_Library_BorrowerService>(), NumPartitions = 1, ReplicationFactor = 1 },
             new() { Name = GetTopicName<Projects.CQRS_Library_BorrowingService>(), NumPartitions = 1, ReplicationFactor = 1 },
             new() { Name = GetTopicName<Projects.Saga_OnlineStore_CatalogService>(), NumPartitions = 1, ReplicationFactor = 1 },
-            new() { Name = GetTopicName<Projects.Saga_OnlineStore_BankCardService>(), NumPartitions = 1, ReplicationFactor = 1 },
+            new() { Name = GetTopicName<Projects.Saga_OnlineStore_PaymentService>(), NumPartitions = 1, ReplicationFactor = 1 },
             new() { Name = GetTopicName<Projects.Saga_OnlineStore_InventoryService>(), NumPartitions = 1, ReplicationFactor = 1 },
             new() { Name = GetTopicName<Projects.Saga_OnlineStore_OrderService>(), NumPartitions = 1, ReplicationFactor = 1 }
         ];

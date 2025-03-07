@@ -1,4 +1,4 @@
-﻿namespace Saga.OnlineStore.BankCardService.Infrastructure.Entity
+﻿namespace Saga.OnlineStore.PaymentService.Infrastructure.Entity
 {
     public class Card
     {

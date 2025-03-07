@@ -27,7 +27,7 @@ public static class InventoryApi
         });
 
         group.MapPut("items/{id:guid}/restock", Restock);
-        group.MapPut("items/reserve", ReserveOrder);
+
         return group;
     }
 
@@ -76,8 +76,7 @@ public static class InventoryApi
             services.DbContext.Items.Add(new InventoryItem()
             {
                 Id = id,
-                AvailableQuantity = item.Quantity,
-                ReservedQuantity = 0,
+                AvailableQuantity = item.Quantity
             });
         }
         else
@@ -101,57 +100,9 @@ public static class InventoryApi
 
         return TypedResults.Ok();
     }
-
-    private static async Task<Results<BadRequest, Ok>> ReserveOrder([AsParameters] ApiServices services, ReserveOrder order)
-    {
-        if (order.Items == null || order.Items.Count == 0)
-        {
-            return TypedResults.BadRequest();
-        }
-
-        foreach (var item in order.Items)
-        {
-            if (item.Quantity <= 0)
-            {
-                return TypedResults.BadRequest();
-            }
-
-            var existingItem = await services.DbContext.Items.FindAsync(item.ItemId);
-            
-            if (existingItem == null)
-            {
-                return TypedResults.BadRequest();
-            }
-
-            if (existingItem.AvailableQuantity < item.Quantity)
-            {
-                return TypedResults.BadRequest();
-            }
-
-            existingItem.AvailableQuantity -= item.Quantity;
-            existingItem.ReservedQuantity += item.Quantity;
-            services.DbContext.Items.Update(existingItem);
-        }
-
-
-
-
-        return TypedResults.Ok();
-    }
 }
 
 public record RestockItem
 {
-    public long Quantity { get; set; }
-}
-
-public record ReserveOrder
-{
-    public Guid OrderId { get; set; }
-    public List<ReserveOrderItem> Items { get; set; } = default!;
-}
-public record ReserveOrderItem
-{
-    public Guid ItemId { get; set; }
     public long Quantity { get; set; }
 }

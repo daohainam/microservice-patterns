@@ -32,6 +32,9 @@ public class OrderIntegrationEventHandlers(OrderDbContext dbContext,
         }
         order.Status = OrderService.Infrastructure.Entity.OrderStatus.Rejected;
         await dbContext.SaveChangesAsync(cancellationToken);
+
+        logger.LogInformation("Order {id} rejected: {reason}", orderId, reason);
+
         await eventPublisher.PublishAsync(new OrderRejectedIntegrationEvent()
         {
             OrderId = orderId,

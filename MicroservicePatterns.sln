@@ -36,7 +36,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Saga.OnlineStore.InventoryS
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MicroservicePatterns.DatabaseMigrationHelpers", "MicroservicePatterns.DatabaseMigrationHelpers\MicroservicePatterns.DatabaseMigrationHelpers.csproj", "{BD3FBB88-B240-47B8-B630-A7B8B2799280}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Saga.OnlineStore.BankCardService", "patterns\Saga\Saga.OnlineStore.BankCardService\Saga.OnlineStore.BankCardService.csproj", "{FD8FECEE-7C5D-45A9-985E-E2AFFAA40F66}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Saga.OnlineStore.PaymentService", "patterns\Saga\Saga.OnlineStore.PaymentService\Saga.OnlineStore.PaymentService.csproj", "{FD8FECEE-7C5D-45A9-985E-E2AFFAA40F66}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{C813FA6F-4F99-42E6-9520-4C1BA4BBBF76}"
 EndProject

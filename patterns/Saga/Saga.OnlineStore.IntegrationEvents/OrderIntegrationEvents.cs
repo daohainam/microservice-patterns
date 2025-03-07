@@ -46,11 +46,8 @@ public class OrderPlacedIntegrationEvent: IntegrationEvent
     }
 }
 
-public class OrderItemsReservedIntegrationEvent : OrderPlacedIntegrationEvent
+public class OrderItemsReservedIntegrationEvent(OrderPlacedIntegrationEvent other) : OrderPlacedIntegrationEvent(other)
 {
-    public OrderItemsReservedIntegrationEvent(OrderPlacedIntegrationEvent other) : base(other)
-    {
-    }
 }
 
 public class OrderApprovedIntegrationEvent : OrderPlacedIntegrationEvent

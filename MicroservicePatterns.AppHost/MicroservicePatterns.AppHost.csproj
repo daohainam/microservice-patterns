@@ -27,7 +27,7 @@
     <ProjectReference Include="..\patterns\CQRS\CQRS.Library.BorrowingHistoryService\CQRS.Library.BorrowingHistoryService.csproj" />
     <ProjectReference Include="..\patterns\Saga\Saga.OnlineStore.CatalogService\Saga.OnlineStore.CatalogService.csproj" />
     <ProjectReference Include="..\patterns\Saga\Saga.OnlineStore.InventoryService\Saga.OnlineStore.InventoryService.csproj" />
-    <ProjectReference Include="..\patterns\Saga\Saga.OnlineStore.BankCardService\Saga.OnlineStore.BankCardService.csproj" />
+    <ProjectReference Include="..\patterns\Saga\Saga.OnlineStore.PaymentService\Saga.OnlineStore.PaymentService.csproj" />
     <ProjectReference Include="..\patterns\Saga\Saga.OnlineStore.OrderService\Saga.OnlineStore.OrderService.csproj" />
   </ItemGroup>
 

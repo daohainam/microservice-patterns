@@ -1,16 +1,16 @@
-﻿namespace Saga.OnlineStore.BankCardService.Apis;
-public static class BankCardApi
+﻿namespace Saga.OnlineStore.PaymentService.Apis;
+public static class PaymentApi
 {
-    public static IEndpointRouteBuilder MapBankCardApi(this IEndpointRouteBuilder builder)
+    public static IEndpointRouteBuilder MapPaymentApi(this IEndpointRouteBuilder builder)
     {
         builder.MapGroup("/api/saga/v1")
-              .MapCatalogApi()
-              .WithTags("BankCard Api");
+              .MapPaymentApi()
+              .WithTags("Payment Api");
 
         return builder;
     }
 
-    public static RouteGroupBuilder MapCatalogApi(this RouteGroupBuilder group)
+    public static RouteGroupBuilder MapPaymentApi(this RouteGroupBuilder group)
     {
         group.MapGet("cards", async ([AsParameters] ApiServices services) =>
         {
@@ -24,7 +24,7 @@ public static class BankCardApi
 
         group.MapPost("cards", CreateCard);
 
-        group.MapPut("cards/{id:guid}", UpdateProduct);
+        group.MapPut("cards/{id:guid}", UpdateCard);
         return group;
     }
 
@@ -48,7 +48,7 @@ public static class BankCardApi
         return TypedResults.Ok(card);
     }
 
-    private static async Task<Results<NotFound, Ok>> UpdateProduct([AsParameters] ApiServices services, Guid id, Card card)
+    private static async Task<Results<NotFound, Ok>> UpdateCard([AsParameters] ApiServices services, Guid id, Card card)
     {
         var existingCard = await services.DbContext.Cards.FindAsync(id);
         if (existingCard == null)

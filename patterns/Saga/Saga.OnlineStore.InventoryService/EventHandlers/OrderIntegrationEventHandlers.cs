@@ -2,7 +2,8 @@
 public class OrderIntegrationEventHandlers(InventoryDbContext dbContext,
     IEventPublisher eventPublisher,
     ILogger<ProductIntegrationEventHandlers> logger) :
-    IRequestHandler<OrderPlacedIntegrationEvent>
+    IRequestHandler<OrderPlacedIntegrationEvent>,
+    IRequestHandler<OrderPaymentRejectedIntegrationEvent>
 {
     public async Task Handle(OrderPlacedIntegrationEvent request, CancellationToken cancellationToken)
     {
@@ -19,7 +20,6 @@ public class OrderIntegrationEventHandlers(InventoryDbContext dbContext,
                     if (itemInInventory.AvailableQuantity >= item.Quantity)
                     {
                         itemInInventory.AvailableQuantity -= item.Quantity;
-                        itemInInventory.ReservedQuantity += item.Quantity;
 
                         dbContext.ReservedItems.Add(new ReservedItem()
                         {
@@ -65,5 +65,22 @@ public class OrderIntegrationEventHandlers(InventoryDbContext dbContext,
                 Reason = $"Error reserving items: {ex.Message}"
             });
         }
+    }
+    public async Task Handle(OrderPaymentRejectedIntegrationEvent request, CancellationToken cancellationToken)
+    {
+        logger.LogInformation("Handling order payment rejected event: {id}", request.OrderId);
+
+        var reservedItems = await dbContext.ReservedItems.Where(item => item.OrderId == request.OrderId).ToListAsync(cancellationToken);
+        foreach (var item in reservedItems)
+        {
+            var itemInInventory = await dbContext.Items.Where(itm => itm.Id == item.ItemId).SingleOrDefaultAsync(cancellationToken);
+            if (itemInInventory != null)
+            {
+                itemInInventory.AvailableQuantity += item.Quantity;
+                dbContext.ReservedItems.Remove(item);
+            }
+        }
+
+        await dbContext.SaveChangesAsync(cancellationToken);
     }
 }
