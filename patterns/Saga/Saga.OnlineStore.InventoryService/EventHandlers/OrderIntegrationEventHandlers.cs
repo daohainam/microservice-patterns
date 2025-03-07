@@ -2,58 +2,68 @@
 public class OrderIntegrationEventHandlers(InventoryDbContext dbContext,
     IEventPublisher eventPublisher,
     ILogger<ProductIntegrationEventHandlers> logger) :
-    IRequestHandler<OrderCreatedIntegrationEvent>
+    IRequestHandler<OrderPlacedIntegrationEvent>
 {
-    public async Task Handle(OrderCreatedIntegrationEvent request, CancellationToken cancellationToken)
+    public async Task Handle(OrderPlacedIntegrationEvent request, CancellationToken cancellationToken)
     {
         logger.LogInformation("Handling order created event: {id}", request.OrderId);
 
-        foreach (var item in request.Items) { 
-            var itemInInventory = await dbContext.Items.Where(itm => itm.Id == item.ProductId).SingleOrDefaultAsync(cancellationToken);
-
-            if (itemInInventory != null)
+        try
+        {
+            foreach (var item in request.Items)
             {
-                if (itemInInventory.AvailableQuantity >= item.Quantity) {
-                    itemInInventory.AvailableQuantity -= item.Quantity;
-                    itemInInventory.ReservedQuantity += item.Quantity;
+                var itemInInventory = await dbContext.Items.Where(itm => itm.Id == item.ProductId).SingleOrDefaultAsync(cancellationToken);
 
-                    dbContext.ReservedItems.Add(new ReservedItem() { 
-                        Id = Guid.NewGuid(),
-                        ItemId = item.ProductId,
-                        OrderId = item.ProductId,
-                        Quantity = item.Quantity,
-                    });
+                if (itemInInventory != null)
+                {
+                    if (itemInInventory.AvailableQuantity >= item.Quantity)
+                    {
+                        itemInInventory.AvailableQuantity -= item.Quantity;
+                        itemInInventory.ReservedQuantity += item.Quantity;
+
+                        dbContext.ReservedItems.Add(new ReservedItem()
+                        {
+                            Id = Guid.NewGuid(),
+                            ItemId = item.ProductId,
+                            OrderId = item.ProductId,
+                            Quantity = item.Quantity,
+                        });
+                    }
+                    else
+                    {
+                        await eventPublisher.PublishAsync(new OrderItemsReservationFailedIntegrationEvent()
+                        {
+                            OrderId = request.OrderId,
+                            Reason = $"Item stock too low: {item.ProductId}"
+                        });
+
+                        return;
+                    }
                 }
                 else
                 {
-                    await eventPublisher.PublishAsync(new ItemsReservationFailedIntegrationEvent()
+                    await eventPublisher.PublishAsync(new OrderItemsReservationFailedIntegrationEvent()
                     {
                         OrderId = request.OrderId,
-                        ItemId = item.ProductId,
-                        Reason = "Not enough item in inventory"
+                        Reason = $"Item not in stock: {item.ProductId}"
                     });
 
                     return;
                 }
             }
-            else
-            {
-                await eventPublisher.PublishAsync(new ItemsReservationFailedIntegrationEvent() { 
-                    OrderId = request.OrderId,
-                    ItemId = item.ProductId,
-                    Reason = "Item not found"
-                });
 
-                return;
-            }
+            await dbContext.SaveChangesAsync(cancellationToken);
+
+            await eventPublisher.PublishAsync(new OrderItemsReservedIntegrationEvent(request));
         }
-
-        await dbContext.SaveChangesAsync(cancellationToken);
-
-        await eventPublisher.PublishAsync(new ItemsReservedIntegrationEvent()
+        catch (Exception ex)
         {
-            OrderId = request.OrderId,
-        });
-
+            logger.LogError(ex, "Error reserving items for order: {id}", request.OrderId);
+            await eventPublisher.PublishAsync(new OrderItemsReservationFailedIntegrationEvent()
+            {
+                OrderId = request.OrderId,
+                Reason = $"Error reserving items: {ex.Message}"
+            });
+        }
     }
 }

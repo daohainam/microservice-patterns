@@ -27,12 +27,12 @@ public static class OrderApi
             return await services.DbContext.Orders.Include(o => o.Items).Where(o => o.Id == id).FirstOrDefaultAsync();
         });
 
-        group.MapPost("orders", CreateOrder);
+        group.MapPost("orders", PlaceOrder);
 
         return group;
     }
 
-    private static async Task<Results<Ok<Order>, BadRequest>> CreateOrder([AsParameters] ApiServices services, Order order)
+    private static async Task<Results<Ok<Order>, BadRequest>> PlaceOrder([AsParameters] ApiServices services, Order order)
     {
         if (order == null) {
             return TypedResults.BadRequest();
@@ -47,7 +47,7 @@ public static class OrderApi
         await services.DbContext.Orders.AddAsync(order);
         await services.DbContext.SaveChangesAsync();
 
-        await services.EventPublisher.PublishAsync(new OrderCreatedIntegrationEvent()
+        await services.EventPublisher.PublishAsync(new OrderPlacedIntegrationEvent()
         {
             OrderId = order.Id,
             CustomerId = order.CustomerId,

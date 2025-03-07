@@ -1,7 +1,7 @@
 ﻿using EventBus.Events;
 
 namespace Saga.OnlineStore.IntegrationEvents;
-public class OrderCreatedIntegrationEvent: IntegrationEvent
+public class OrderPlacedIntegrationEvent: IntegrationEvent
 {
     public Guid OrderId { get; set; }
     public string CustomerId { get; set; } = default!;
@@ -13,12 +13,81 @@ public class OrderCreatedIntegrationEvent: IntegrationEvent
     public string PaymentCardExpiration { get; set; } = default!;
     public string PaymentCardCvv { get; set; } = default!;
     public List<OrderItem> Items { get; set; } = [];
+    public OrderPlacedIntegrationEvent()
+    {
+    }
+
+    public OrderPlacedIntegrationEvent(Guid orderId, string customerId, string customerName, string customerPhone, string shippingAddress, string paymentCardNumber, string paymentCardName, string paymentCardExpiration, string paymentCardCvv, List<OrderItem> items)
+    {
+        OrderId = orderId;
+        CustomerId = customerId;
+        CustomerName = customerName;
+        CustomerPhone = customerPhone;
+        ShippingAddress = shippingAddress;
+        PaymentCardNumber = paymentCardNumber;
+        PaymentCardName = paymentCardName;
+        PaymentCardExpiration = paymentCardExpiration;
+        PaymentCardCvv = paymentCardCvv;
+        Items = items;
+    }
+
+    public OrderPlacedIntegrationEvent(OrderPlacedIntegrationEvent other)
+    {
+        OrderId = other.OrderId;
+        CustomerId = other.CustomerId;
+        CustomerName = other.CustomerName;
+        CustomerPhone = other.CustomerPhone;
+        ShippingAddress = other.ShippingAddress;
+        PaymentCardNumber = other.PaymentCardNumber;
+        PaymentCardName = other.PaymentCardName;
+        PaymentCardExpiration = other.PaymentCardExpiration;
+        PaymentCardCvv = other.PaymentCardCvv;
+        Items = other.Items;
+    }
+}
+
+public class OrderItemsReservedIntegrationEvent : OrderPlacedIntegrationEvent
+{
+    public OrderItemsReservedIntegrationEvent(OrderPlacedIntegrationEvent other) : base(other)
+    {
+    }
+}
+
+public class OrderApprovedIntegrationEvent : OrderPlacedIntegrationEvent
+{
+}
+
+public class OrderItemsReservationFailedIntegrationEvent : IntegrationEvent
+{
+    public Guid OrderId { get; set; }
+    public string Reason { get; set; } = default!;
+}
+
+public class OrderItemsReleasedIntegrationEvent : IntegrationEvent
+{
+    public Guid OrderId { get; set; }
+}
+
+public class OrderPaymentApprovedIntegrationEvent : IntegrationEvent
+{
+    public Guid OrderId { get; set; }
+}
+
+public class OrderPaymentRejectedIntegrationEvent : IntegrationEvent
+{
+    public Guid OrderId { get; set; }
+    public string Reason { get; set; } = default!;
+}
+
+public class OrderRejectedIntegrationEvent : IntegrationEvent
+{
+    public Guid OrderId { get; set; }
+    public string Reason { get; set; } = default!;
 }
 
 public enum OrderStatus
 {
     Pending,
-    Created,
     Rejected,
     Processing,
     Shipped,
