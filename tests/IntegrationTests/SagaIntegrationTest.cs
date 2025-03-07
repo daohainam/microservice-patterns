@@ -64,9 +64,9 @@ namespace IntegrationTests.Tests
             var inventoryHttpClient = _app.CreateHttpClient<Projects.Saga_OnlineStore_InventoryService>();
             var restockItem = new RestockItem()
             {
-                Quantity = 10
+                Quantity = 120
             };
-            await inventoryHttpClient.PostAsJsonAsync($"/api/saga/v1/items/{product.Id}/restock", restockItem);
+            await inventoryHttpClient.PutAsJsonAsync($"/api/saga/v1/inventory/items/{product.Id}/restock", restockItem);
 
             await Task.Delay(1000);
 
@@ -85,9 +85,9 @@ namespace IntegrationTests.Tests
             Assert.NotNull(card);
 
             // Act
-            response = await paymentHttpClient.PutAsJsonAsync($"/api/saga/v1/cards/{card.Id}/deposite", new Deposit() 
+            response = await paymentHttpClient.PutAsJsonAsync($"/api/saga/v1/cards/{card.Id}/deposit", new Deposit() 
             {
-                Amount = 1000
+                Amount = 8000
             });
 
             // Assert
@@ -117,7 +117,7 @@ namespace IntegrationTests.Tests
             };
             await orderHttpClient.PostAsJsonAsync("/api/saga/v1/orders", order);
 
-            await Task.Delay(2000);
+            await Task.Delay(5000);
 
             var orderResponse = await orderHttpClient.GetAsync($"/api/saga/v1/orders/{order.Id}");
             var orderResult = await orderResponse.Content.ReadFromJsonAsync<Order>();

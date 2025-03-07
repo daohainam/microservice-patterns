@@ -46,8 +46,25 @@ public class OrderPlacedIntegrationEvent: IntegrationEvent
     }
 }
 
-public class OrderItemsReservedIntegrationEvent(OrderPlacedIntegrationEvent other) : OrderPlacedIntegrationEvent(other)
+public class OrderItemsReservedIntegrationEvent: OrderPlacedIntegrationEvent
 {
+    public OrderItemsReservedIntegrationEvent()
+    {
+    }
+
+    public OrderItemsReservedIntegrationEvent(OrderPlacedIntegrationEvent other)
+    {
+        OrderId = other.OrderId;
+        CustomerId = other.CustomerId;
+        CustomerName = other.CustomerName;
+        CustomerPhone = other.CustomerPhone;
+        ShippingAddress = other.ShippingAddress;
+        PaymentCardNumber = other.PaymentCardNumber;
+        PaymentCardName = other.PaymentCardName;
+        PaymentCardExpiration = other.PaymentCardExpiration;
+        PaymentCardCvv = other.PaymentCardCvv;
+        Items = other.Items;
+    }
 }
 
 public class OrderApprovedIntegrationEvent : OrderPlacedIntegrationEvent
