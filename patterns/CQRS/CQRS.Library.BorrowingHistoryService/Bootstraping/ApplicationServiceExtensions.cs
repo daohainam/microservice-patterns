@@ -16,7 +16,8 @@ public static class ApplicationServiceExtensions
         if (!string.IsNullOrEmpty(eventConsumingTopics))
         {
             builder.AddKafkaEventConsumer(options => {
-                options.GroupId = "cqrs";
+                options.ServiceName = "BorrowingHistoryService";
+                options.KafkaGroupId = "cqrs";
                 options.Topics.AddRange(eventConsumingTopics.Split(','));
                 options.IntegrationEventFactory = IntegrationEventFactory<BookCreatedIntegrationEvent>.Instance;
             });

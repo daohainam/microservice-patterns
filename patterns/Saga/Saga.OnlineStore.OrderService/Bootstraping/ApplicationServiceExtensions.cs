@@ -11,6 +11,10 @@ public static class ApplicationServiceExtensions
         builder.Services.AddOpenApi();
         builder.AddNpgsqlDbContext<OrderDbContext>(Consts.DefaultDatabase);
 
+        builder.Services.AddMediatR(cfg => {
+            cfg.RegisterServicesFromAssembly(typeof(Program).Assembly);
+        });
+
         builder.AddKafkaProducer("kafka");
         var kafkaTopic = builder.Configuration.GetValue<string>(Consts.Env_EventPublishingTopics);
         if (!string.IsNullOrEmpty(kafkaTopic))
@@ -26,7 +30,8 @@ public static class ApplicationServiceExtensions
         if (!string.IsNullOrEmpty(eventConsumingTopics))
         {
             builder.AddKafkaEventConsumer(options => {
-                options.GroupId = "saga";
+                options.ServiceName = "OrderService";
+                options.KafkaGroupId = "saga";
                 options.Topics.AddRange(eventConsumingTopics.Split(','));
                 options.IntegrationEventFactory = IntegrationEventFactory<ProductCreatedIntegrationEvent>.Instance;
             });

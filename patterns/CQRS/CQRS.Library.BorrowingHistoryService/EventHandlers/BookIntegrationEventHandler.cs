@@ -1,9 +1,9 @@
 ﻿using CQRS.Library.BorrowingHistoryService.Infrastructure.Data;
 
 namespace CQRS.Library.BorrowingHistoryService.EventHandlers;
-public class BookIntegrationEventHandler(BorrowingHistoryDbContext dbContext, ILogger<BookIntegrationEventHandler> logger) : 
-    IRequestHandler<BookCreatedIntegrationEvent>,
-    IRequestHandler<BookUpdatedIntegrationEvent>
+public class BookIntegrationEventHandler(BorrowingHistoryDbContext dbContext, ILogger<BookIntegrationEventHandler> logger) :
+    INotificationHandler<BookCreatedIntegrationEvent>,
+    INotificationHandler<BookUpdatedIntegrationEvent>
 {
     public async Task Handle(BookCreatedIntegrationEvent request, CancellationToken cancellationToken)
     {

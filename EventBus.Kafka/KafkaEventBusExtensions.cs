@@ -27,7 +27,7 @@ public static class KafkaEventBusExtensions
             builder.Services.AddTransient<IEventPublisher>(services => new KafkaEventPublisher(
                 topic,
                 services.GetRequiredService<IProducer<string, MessageEnvelop>>(),
-                services.GetRequiredService<ILogger<KafkaEventPublisher>>()
+                services.GetRequiredService<ILoggerFactory>().CreateLogger($"EventPublisher<{topic}>")
                 ));
         }
     }
@@ -52,7 +52,7 @@ public static class KafkaEventBusExtensions
         var options = new EventHandlingWorkerOptions();
         configureOptions?.Invoke(options);
 
-        builder.AddKafkaMessageEnvelopConsumer(options.GroupId);
+        builder.AddKafkaMessageEnvelopConsumer(options.KafkaGroupId);
         builder.Services.AddSingleton(options);
         builder.Services.AddSingleton(services => options.IntegrationEventFactory);
         builder.Services.AddHostedService<EventHandlingService>();

@@ -1,10 +1,25 @@
 ﻿namespace EventBus.Kafka;
-public class EventHandlingService(IConsumer<string, MessageEnvelop> consumer,
-    EventHandlingWorkerOptions options,
-    IIntegrationEventFactory integrationEventFactory,
-    IServiceScopeFactory serviceScopeFactory,
-    ILogger<EventHandlingService> logger) : BackgroundService
+public class EventHandlingService : BackgroundService
 {
+    private readonly IConsumer<string, MessageEnvelop> consumer;
+    private readonly EventHandlingWorkerOptions options;
+    private readonly IIntegrationEventFactory integrationEventFactory;
+    private readonly IServiceScopeFactory serviceScopeFactory;
+    private readonly ILogger logger;
+
+    public EventHandlingService(IConsumer<string, MessageEnvelop> consumer,
+        EventHandlingWorkerOptions options,
+        IIntegrationEventFactory integrationEventFactory,
+        IServiceScopeFactory serviceScopeFactory,
+        ILoggerFactory loggerFactory)
+    {
+        this.consumer = consumer;
+        this.options = options;
+        this.integrationEventFactory = integrationEventFactory;
+        this.serviceScopeFactory = serviceScopeFactory;
+
+        logger = loggerFactory.CreateLogger(options.ServiceName);
+    }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
@@ -58,7 +73,7 @@ public class EventHandlingService(IConsumer<string, MessageEnvelop> consumer,
             // here we must use a scope to resolve the mediator since a background service is registered as a singleton service
             using IServiceScope scope = serviceScopeFactory.CreateScope();
             var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
-            await mediator.Send(@event, cancellationToken);
+            await mediator.Publish(@event, cancellationToken);
         }
         else
         {
@@ -69,7 +84,8 @@ public class EventHandlingService(IConsumer<string, MessageEnvelop> consumer,
 
 public class EventHandlingWorkerOptions
 {
-    public string GroupId { get; set; } = "event-handling";
+    public string KafkaGroupId { get; set; } = "event-handling";
     public List<string> Topics { get; set; } = [];
     public IIntegrationEventFactory IntegrationEventFactory { get; set; } = EventBus.IntegrationEventFactory.Instance;
+    public string ServiceName { get; set; } = "EventHandlingService";
 }

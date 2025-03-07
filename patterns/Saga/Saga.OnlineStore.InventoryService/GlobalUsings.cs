@@ -11,4 +11,3 @@ global using Saga.OnlineStore.InventoryService.Bootstraping;
 global using Saga.OnlineStore.InventoryService.Infrastructure.Data;
 global using Saga.OnlineStore.InventoryService.Infrastructure.Entity;
 global using MediatR;
-global using Saga.OnlineStore.IntegrationEvents;
