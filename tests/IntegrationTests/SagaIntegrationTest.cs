@@ -70,7 +70,7 @@ namespace IntegrationTests.Tests
             await inventoryHttpClient.PutAsJsonAsync($"/api/saga/v1/inventory/items/{product.Id}/restock", restockItem);
 
             // Act
-            var inventoryItemResponse = await catalogHttpClient.GetAsync($"/api/saga/v1/inventory/items/{product.Id}");
+            var inventoryItemResponse = await inventoryHttpClient.GetAsync($"/api/saga/v1/inventory/items/{product.Id}");
             var inventoryItem = await inventoryItemResponse.Content.ReadFromJsonAsync<InventoryItem>();
 
             // Assert

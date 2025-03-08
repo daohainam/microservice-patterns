@@ -60,7 +60,7 @@ public static class InventoryApi
         return TypedResults.Ok(item);
     }
 
-    private static async Task<Results<BadRequest, Ok>> Restock([AsParameters] ApiServices services, Guid id, RestockItem item)
+    public static async Task<Results<BadRequest, Ok>> Restock([AsParameters] ApiServices services, Guid id, RestockItem item)
     {
         if (item.Quantity <= 0)
         {
