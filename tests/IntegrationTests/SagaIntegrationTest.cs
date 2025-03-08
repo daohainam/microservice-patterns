@@ -2,6 +2,7 @@ using Aspire.Hosting;
 using MicroservicePatterns.Shared.Pagination;
 using Saga.OnlineStore.CatalogService.Infrastructure.Entity;
 using Saga.OnlineStore.InventoryService.Apis;
+using Saga.OnlineStore.InventoryService.Infrastructure.Entity;
 using Saga.OnlineStore.OrderService.Infrastructure.Entity;
 using Saga.OnlineStore.PaymentService.Apis;
 using Saga.OnlineStore.PaymentService.Infrastructure.Entity;
@@ -67,6 +68,16 @@ namespace IntegrationTests.Tests
                 Quantity = 120
             };
             await inventoryHttpClient.PutAsJsonAsync($"/api/saga/v1/inventory/items/{product.Id}/restock", restockItem);
+
+            // Act
+            var inventoryItemResponse = await catalogHttpClient.GetAsync($"/api/saga/v1/inventory/items/{product.Id}");
+            var inventoryItem = await inventoryItemResponse.Content.ReadFromJsonAsync<InventoryItem>();
+
+            // Assert
+            Assert.Equal(HttpStatusCode.OK, inventoryItemResponse.StatusCode);
+            Assert.NotNull(inventoryItem);
+            Assert.Equal(product.Id, inventoryItem.Id);
+            Assert.Equal(120, inventoryItem.AvailableQuantity);
 
             await Task.Delay(1000);
 

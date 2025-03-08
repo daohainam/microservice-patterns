@@ -12,7 +12,7 @@ using Saga.OnlineStore.InventoryService.Infrastructure.Data;
 namespace Saga.OnlineStore.InventoryService.Migrations
 {
     [DbContext(typeof(InventoryDbContext))]
-    [Migration("20250307122418_InitialCreate")]
+    [Migration("20250308130627_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -33,10 +33,6 @@ namespace Saga.OnlineStore.InventoryService.Migrations
 
                     b.Property<long>("AvailableQuantity")
                         .HasColumnType("bigint");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("text");
 
                     b.HasKey("Id");
 
