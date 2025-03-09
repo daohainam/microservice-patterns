@@ -74,7 +74,7 @@ public class EventHandlingService : BackgroundService
         if (@event is not null)
         {
             // here we must use a scope to resolve the mediator since a background service is registered as a singleton service
-            await mediator.Publish(@event, cancellationToken);
+            await mediator.Send(@event, cancellationToken);
         }
         else
         {

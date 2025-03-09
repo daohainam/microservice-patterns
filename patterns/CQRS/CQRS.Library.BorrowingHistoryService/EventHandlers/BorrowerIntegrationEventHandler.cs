@@ -2,8 +2,8 @@
 
 namespace CQRS.Library.BorrowingHistoryService.EventHandlers;
 public class BorrowerIntegrationEventHandler(BorrowingHistoryDbContext dbContext, ILogger<BorrowerIntegrationEventHandler> logger) :
-    INotificationHandler<BorrowerCreatedIntegrationEvent>, 
-    INotificationHandler<BorrowerUpdatedIntegrationEvent>
+    IRequestHandler<BorrowerCreatedIntegrationEvent>, 
+    IRequestHandler<BorrowerUpdatedIntegrationEvent>
 {
     public async Task Handle(BorrowerCreatedIntegrationEvent request, CancellationToken cancellationToken)
     {
