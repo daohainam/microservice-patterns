@@ -1,6 +1,13 @@
-@Saga.OnlineStore.CatalogService_HostAddress = http://localhost:5242
+@Saga.OnlineStore.CatalogService_HostAddress = https://localhost:7281
 
-GET {{Saga.OnlineStore.CatalogService_HostAddress}}/weatherforecast/
-Accept: application/json
+POST {{Saga.OnlineStore.CatalogService_HostAddress}}/api/saga/v1/products
+Content-Type: application/json
+
+{
+  "Id": "00000000-0000-0000-0000-000000000000",
+  "Name": "Test Product",
+  "Description": "Test Description",
+  "Price": 999
+}
 
 ###
