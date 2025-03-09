@@ -1,9 +1,5 @@
-﻿using Saga.OnlineStore.InventoryService;
-using Saga.OnlineStore.InventoryService.Infrastructure.Entity;
-using Saga.OnlineStore.IntegrationEvents;
-
-namespace Saga.OnlineStore.InventoryService.Apis;
-public static class InventoryApi
+﻿namespace Saga.OnlineStore.InventoryService.Apis;
+public static class InventoryApiExtensions
 {
     public static IEndpointRouteBuilder MapInventoryApi(this IEndpointRouteBuilder builder)
     {
@@ -26,11 +22,14 @@ public static class InventoryApi
             return await services.DbContext.Items.FindAsync(id);
         });
 
-        group.MapPut("items/{id:guid}/restock", Restock);
+        group.MapPut("items/{id:guid}/restock", InventoryApi.Restock);
 
         return group;
     }
+}
 
+public class InventoryApi
+{
     private static async Task<Results<Ok<InventoryItem>, BadRequest>> CreateItem([AsParameters] ApiServices services, InventoryItem item)
     {
         if (item == null)
@@ -60,7 +59,7 @@ public static class InventoryApi
         return TypedResults.Ok(item);
     }
 
-    public static async Task<Results<BadRequest, Ok>> Restock([AsParameters] ApiServices services, Guid id, RestockItem item)
+    public static async Task<Results<BadRequest, NotFound, Ok>> Restock([AsParameters] ApiServices services, Guid id, RestockItem item)
     {
         if (item.Quantity <= 0)
         {
@@ -68,27 +67,22 @@ public static class InventoryApi
         }
 
         var existingItem = await services.DbContext.Items.FindAsync(id);
-        long quantityBefore = 0;
-        long quantityAfter = item.Quantity;
 
         if (existingItem == null)
         {
-            services.DbContext.Items.Add(new InventoryItem()
-            {
-                Id = id,
-                AvailableQuantity = item.Quantity
-            });
+            services.Logger.LogInformation("Item not found: {id}", id);
+            return TypedResults.NotFound();
         }
         else
         {
-            quantityBefore = existingItem.AvailableQuantity;
+            services.Logger.LogInformation("Restock item: {id}, quantity: {quantity}, existing: {existing}", id, item.Quantity, existingItem.AvailableQuantity);
+            var quantityBefore = existingItem.AvailableQuantity;
 
             existingItem.AvailableQuantity += item.Quantity;
 
-            quantityAfter = existingItem.AvailableQuantity;
+            var quantityAfter = existingItem.AvailableQuantity;
 
             services.DbContext.Items.Update(existingItem);
-        }
 
         await services.DbContext.SaveChangesAsync();
         await services.EventPublisher.PublishAsync(new ItemRestockedIntegrationEvent()
@@ -99,6 +93,7 @@ public static class InventoryApi
         });
 
         return TypedResults.Ok();
+        }
     }
 }
 

@@ -1,4 +1,6 @@
-﻿namespace EventBus.Kafka;
+﻿using EventBus.Events;
+
+namespace EventBus.Kafka;
 public class EventHandlingService : BackgroundService
 {
     private readonly IConsumer<string, MessageEnvelop> consumer;
@@ -89,4 +91,5 @@ public class EventHandlingWorkerOptions
     public List<string> Topics { get; set; } = [];
     public IIntegrationEventFactory IntegrationEventFactory { get; set; } = EventBus.IntegrationEventFactory.Instance;
     public string ServiceName { get; set; } = "EventHandlingService";
+    public Func<IntegrationEvent, bool> AcceptEvent { get; set; } = _ => true;
 }

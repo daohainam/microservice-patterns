@@ -1,14 +1,11 @@
-﻿using Castle.Core.Resource;
-using Microsoft.Data.Sqlite;
+﻿using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
-using Moq;
+using Microsoft.Extensions.Logging.Abstractions;
 using Saga.OnlineStore.IntegrationEvents;
 using Saga.OnlineStore.InventoryService;
 using Saga.OnlineStore.InventoryService.Apis;
 using Saga.OnlineStore.InventoryService.Infrastructure.Data;
 using Saga.OnlineStore.InventoryService.Infrastructure.Entity;
-using System.Net.Sockets;
-using System.Reflection.Metadata;
 using TestHelpers;
 
 namespace Saga.UnitTests
@@ -55,7 +52,7 @@ namespace Saga.UnitTests
 
             var fakeEventPublisher = new FakeEventPublisher();
 
-            var services = new ApiServices(context, fakeEventPublisher);
+            var services = new ApiServices(context, fakeEventPublisher, NullLogger<InventoryApi>.Instance);
 
             // Act
             await InventoryApi.Restock(services, id, new RestockItem() { 
@@ -90,7 +87,7 @@ namespace Saga.UnitTests
             context.SaveChanges();
 
             var fakeEventPublisher = new FakeEventPublisher();
-            var services = new ApiServices(context, fakeEventPublisher);
+            var services = new ApiServices(context, fakeEventPublisher, NullLogger<InventoryApi>.Instance);
 
             // Act
             await InventoryApi.Restock(services, id, new RestockItem()

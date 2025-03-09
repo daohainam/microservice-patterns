@@ -28,6 +28,12 @@ namespace IntegrationTests.Tests
 
             _app = await appHost.BuildAsync();
             await _app.StartAsync();
+
+            var resourceNotificationService = _app.Services.GetRequiredService<ResourceNotificationService>();
+            await resourceNotificationService.WaitForResourceAsync<Projects.Saga_OnlineStore_CatalogService>(KnownResourceStates.Running).WaitAsync(TimeSpan.FromSeconds(30));
+            await resourceNotificationService.WaitForResourceAsync<Projects.Saga_OnlineStore_InventoryService>(KnownResourceStates.Running).WaitAsync(TimeSpan.FromSeconds(30));
+            await resourceNotificationService.WaitForResourceAsync<Projects.Saga_OnlineStore_OrderService>(KnownResourceStates.Running).WaitAsync(TimeSpan.FromSeconds(30));
+            await resourceNotificationService.WaitForResourceAsync<Projects.Saga_OnlineStore_PaymentService>(KnownResourceStates.Running).WaitAsync(TimeSpan.FromSeconds(30));
         }
 
         public async Task DisposeAsync()
@@ -39,11 +45,6 @@ namespace IntegrationTests.Tests
         public async Task Create_Order_Success()
         {
             // Arrange
-            var resourceNotificationService = _app.Services.GetRequiredService<ResourceNotificationService>();
-            await resourceNotificationService.WaitForResourceAsync<Projects.Saga_OnlineStore_CatalogService>(KnownResourceStates.Running).WaitAsync(TimeSpan.FromSeconds(30));
-            await resourceNotificationService.WaitForResourceAsync<Projects.Saga_OnlineStore_InventoryService>(KnownResourceStates.Running).WaitAsync(TimeSpan.FromSeconds(30));
-            await resourceNotificationService.WaitForResourceAsync<Projects.Saga_OnlineStore_OrderService>(KnownResourceStates.Running).WaitAsync(TimeSpan.FromSeconds(30));
-            await resourceNotificationService.WaitForResourceAsync<Projects.Saga_OnlineStore_PaymentService>(KnownResourceStates.Running).WaitAsync(TimeSpan.FromSeconds(30));
 
             // Act
             var catalogHttpClient = _app.CreateHttpClient<Projects.Saga_OnlineStore_CatalogService>();
@@ -60,7 +61,7 @@ namespace IntegrationTests.Tests
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
             // Act
-            await Task.Delay(1000);
+            await Task.Delay(10000);
 
             var inventoryHttpClient = _app.CreateHttpClient<Projects.Saga_OnlineStore_InventoryService>();
             var restockItem = new RestockItem()
