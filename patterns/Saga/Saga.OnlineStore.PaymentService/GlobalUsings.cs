@@ -8,4 +8,4 @@ global using Saga.OnlineStore.PaymentService.Infrastructure.Data;
 global using Saga.OnlineStore.PaymentService.Infrastructure.Entity;
 global using EventBus.Abstractions;
 global using Saga.OnlineStore.IntegrationEvents;
-
+global using MediatR;

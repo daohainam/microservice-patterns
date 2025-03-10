@@ -11,22 +11,24 @@ public class OrderIntegrationEventHandlers(InventoryDbContext dbContext,
 
         try
         {
-            foreach (var item in request.Items)
+            foreach (var requestItem in request.Items)
             {
-                var itemInInventory = await dbContext.Items.Where(itm => itm.Id == item.ProductId).SingleOrDefaultAsync(cancellationToken);
+                var itemInInventory = await dbContext.Items.FindAsync([requestItem.ProductId], cancellationToken: cancellationToken);
 
                 if (itemInInventory != null)
                 {
-                    if (itemInInventory.AvailableQuantity >= item.Quantity)
+                    logger.LogInformation("Reserving item {id} for order {orderId}, current quantity {q}", requestItem.ProductId, request.OrderId, itemInInventory.AvailableQuantity);
+
+                    if (itemInInventory.AvailableQuantity >= requestItem.Quantity)
                     {
-                        itemInInventory.AvailableQuantity -= item.Quantity;
+                        itemInInventory.AvailableQuantity -= requestItem.Quantity;
 
                         dbContext.ReservedItems.Add(new ReservedItem()
                         {
                             Id = Guid.NewGuid(),
-                            ItemId = item.ProductId,
-                            OrderId = item.ProductId,
-                            Quantity = item.Quantity,
+                            ItemId = requestItem.ProductId,
+                            OrderId = request.OrderId,
+                            Quantity = requestItem.Quantity,
                         });
                     }
                     else
@@ -34,7 +36,7 @@ public class OrderIntegrationEventHandlers(InventoryDbContext dbContext,
                         await eventPublisher.PublishAsync(new OrderItemsReservationFailedIntegrationEvent()
                         {
                             OrderId = request.OrderId,
-                            Reason = $"Item stock too low: {item.ProductId}"
+                            Reason = $"Item stock too low: {requestItem.ProductId}"
                         });
 
                         return;
@@ -45,7 +47,7 @@ public class OrderIntegrationEventHandlers(InventoryDbContext dbContext,
                     await eventPublisher.PublishAsync(new OrderItemsReservationFailedIntegrationEvent()
                     {
                         OrderId = request.OrderId,
-                        Reason = $"Item not in stock: {item.ProductId}"
+                        Reason = $"Item not in stock: {requestItem.ProductId}"
                     });
 
                     return;

@@ -15,15 +15,10 @@ Content-Type: application/json
   "paymentCardCvv": "123",
   "items": [
     {
-      "productId": "3EEA74EC-35CA-4DAE-A58E-E87FFB91A48F",
+      "productId": "01957eea-c993-714f-bf4a-ca767716031d",
       "quantity": 1,
       "unitPrice": 9.99
-    },
-    {
-      "productId": "56248ECF-4077-4EFD-94E7-1A230785E429",
-      "quantity": 5,
-      "unitPrice": 19.99
-    }  
+    }
   ]
 }
 ###

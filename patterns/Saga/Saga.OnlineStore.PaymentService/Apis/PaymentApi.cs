@@ -1,4 +1,5 @@
-﻿using System.Globalization;
+﻿using Microsoft.AspNetCore.Mvc;
+using System.Globalization;
 using System.Text.Json.Serialization;
 
 namespace Saga.OnlineStore.PaymentService.Apis;
@@ -80,7 +81,7 @@ public static class PaymentApiExtensions
 
             return TypedResults.Ok();
         }
-        public static async Task<Results<NotFound, Ok, BadRequest>> Deposit([AsParameters] ApiServices services, Guid id, Deposit deposit)
+    public static async Task<Results<NotFound, Ok, BadRequest>> Deposit([AsParameters] ApiServices services, Guid id, [FromBody]Deposit deposit)
         {
             if (deposit.Amount <= 0)
             {

@@ -1,6 +1,4 @@
-﻿using MediatR;
-
-namespace Saga.OnlineStore.InventoryService.EventHandlers;
+﻿namespace Saga.OnlineStore.PaymentService.EventHandlers;
 public class PaymentIntegrationEventHandlers(PaymentDbContext dbContext,
     IEventPublisher eventPublisher,
     ILogger<PaymentIntegrationEventHandlers> logger) :

@@ -66,10 +66,10 @@ namespace Saga.UnitTests
             Assert.Equal(65, item.AvailableQuantity);
 
             Assert.Single(fakeEventPublisher.Events);
-            Assert.IsType<ItemRestockedIntegrationEvent>(fakeEventPublisher.Events[0]);
-            Assert.Equal(id, ((ItemRestockedIntegrationEvent)fakeEventPublisher.Events[0]).ItemId);
-            Assert.Equal(10, ((ItemRestockedIntegrationEvent)fakeEventPublisher.Events[0]).QuantityBefore);
-            Assert.Equal(65, ((ItemRestockedIntegrationEvent)fakeEventPublisher.Events[0]).QuantityAfter);
+            Assert.IsType<ItemQuantityChangedIntegrationEvent>(fakeEventPublisher.Events[0]);
+            Assert.Equal(id, ((ItemQuantityChangedIntegrationEvent)fakeEventPublisher.Events[0]).ItemId);
+            Assert.Equal(10, ((ItemQuantityChangedIntegrationEvent)fakeEventPublisher.Events[0]).QuantityBefore);
+            Assert.Equal(65, ((ItemQuantityChangedIntegrationEvent)fakeEventPublisher.Events[0]).QuantityAfter);
         }
 
         [Fact]

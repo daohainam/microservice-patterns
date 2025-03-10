@@ -2,7 +2,7 @@
 
 namespace Saga.OnlineStore.IntegrationEvents;
 
-public class ItemRestockedIntegrationEvent : IntegrationEvent
+public class ItemQuantityChangedIntegrationEvent : IntegrationEvent
 {
     public Guid ItemId { get; set; }
     public long QuantityBefore { get; set; }
