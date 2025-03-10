@@ -43,8 +43,9 @@ namespace Saga.OnlineStore.PaymentService.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<DateTime>("ExpirationDate")
-                        .HasColumnType("timestamp with time zone");
+                    b.Property<string>("ExpirationDate")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.HasKey("Id");
 

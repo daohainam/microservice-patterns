@@ -40,7 +40,7 @@ public class EventHandlingService : BackgroundService
                 {
                     try
                     {
-                        var consumeResult = consumer.Consume(200);
+                        var consumeResult = consumer.Consume(100);
 
                         if (consumeResult != null)
                         {
@@ -48,7 +48,7 @@ public class EventHandlingService : BackgroundService
                         }
                         else
                         {
-                            await Task.Delay(200, stoppingToken);
+                            await Task.Delay(100, stoppingToken);
                         }
                     }
                     catch (Exception ex)
@@ -75,8 +75,11 @@ public class EventHandlingService : BackgroundService
 
         if (@event is not null)
         {
-            // here we must use a scope to resolve the mediator since a background service is registered as a singleton service
-            await mediator.Send(@event, cancellationToken);
+            if (options.AcceptEvent(@event))
+            {
+                // here we must use a scope to resolve the mediator since a background service is registered as a singleton service
+                await mediator.Send(@event, cancellationToken);
+            }
         }
         else
         {

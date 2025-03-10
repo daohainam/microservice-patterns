@@ -12,7 +12,7 @@ using Saga.OnlineStore.PaymentService.Infrastructure.Data;
 namespace Saga.OnlineStore.PaymentService.Migrations
 {
     [DbContext(typeof(PaymentDbContext))]
-    [Migration("20250307123831_InitialCreate")]
+    [Migration("20250310115008_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -46,8 +46,9 @@ namespace Saga.OnlineStore.PaymentService.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<DateTime>("ExpirationDate")
-                        .HasColumnType("timestamp with time zone");
+                    b.Property<string>("ExpirationDate")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.HasKey("Id");
 

@@ -1,6 +1,14 @@
-@Saga.OnlineStore.BankCardService_HostAddress = http://localhost:5174
+@Saga.OnlineStore.BankCardService_HostAddress = https://localhost:7240
 
-GET {{Saga.OnlineStore.BankCardService_HostAddress}}/weatherforecast/
-Accept: application/json
+POST {{Saga.OnlineStore.BankCardService_HostAddress}}/api/saga/v1/cards
+Content-Type: application/json
+
+{
+    "CardId": "53974C76-BC26-44CE-9DB2-AE3EBF095A28",
+    "CardNumber": "1234567890123456",
+    "ExpirationDate": "2035-03-10 10:31:38Z",
+    "CardHolderName": ""Test Card Holder"",
+    "Cvv": "123"
+}
 
 ###

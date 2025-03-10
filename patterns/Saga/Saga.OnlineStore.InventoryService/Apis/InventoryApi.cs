@@ -82,17 +82,15 @@ public class InventoryApi
 
             var quantityAfter = existingItem.AvailableQuantity;
 
-            services.DbContext.Items.Update(existingItem);
+            await services.DbContext.SaveChangesAsync();
+            await services.EventPublisher.PublishAsync(new ItemRestockedIntegrationEvent()
+            {
+                ItemId = id,
+                QuantityBefore = quantityBefore,
+                QuantityAfter = quantityAfter,
+            });
 
-        await services.DbContext.SaveChangesAsync();
-        await services.EventPublisher.PublishAsync(new ItemRestockedIntegrationEvent()
-        {
-            ItemId = id,
-            QuantityBefore = quantityBefore,
-            QuantityAfter = quantityAfter,
-        });
-
-        return TypedResults.Ok();
+           return TypedResults.Ok();
         }
     }
 }

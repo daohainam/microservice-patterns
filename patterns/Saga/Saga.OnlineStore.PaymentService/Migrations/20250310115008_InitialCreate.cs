@@ -18,7 +18,7 @@ namespace Saga.OnlineStore.PaymentService.Migrations
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
                     CardNumber = table.Column<string>(type: "text", nullable: false),
                     CardHolderName = table.Column<string>(type: "text", nullable: false),
-                    ExpirationDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    ExpirationDate = table.Column<string>(type: "text", nullable: false),
                     Cvv = table.Column<string>(type: "text", nullable: false),
                     Balance = table.Column<decimal>(type: "numeric", nullable: false)
                 },

@@ -34,6 +34,7 @@ public static class ApplicationServiceExtensions
                 options.KafkaGroupId = "saga";
                 options.Topics.AddRange(eventConsumingTopics.Split(','));
                 options.IntegrationEventFactory = IntegrationEventFactory<ProductCreatedIntegrationEvent>.Instance;
+                options.AcceptEvent = e => e is OrderItemsReservedIntegrationEvent;
             });
         }
 

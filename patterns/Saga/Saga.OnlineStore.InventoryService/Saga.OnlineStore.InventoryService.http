@@ -1,6 +1,10 @@
-@Saga.OnlineStore.InventoryService_HostAddress = http://localhost:5191
+@Saga.OnlineStore.InventoryService_HostAddress = https://localhost:7092
 
-GET {{Saga.OnlineStore.InventoryService_HostAddress}}/weatherforecast/
-Accept: application/json
+PUT {{Saga.OnlineStore.InventoryService_HostAddress}}/api/saga/v1/inventory/items/01957eea-c993-714f-bf4a-ca767716031d/restock
+Content-Type: application/json
+
+{
+  "Quantity": 199
+}
 
 ###
