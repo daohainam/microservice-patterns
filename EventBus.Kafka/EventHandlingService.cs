@@ -27,9 +27,6 @@ public class EventHandlingService : BackgroundService
     {
         logger.LogInformation("Subcribing to topics [{topics}]...", string.Join(',', options.Topics));
 
-        using IServiceScope scope = serviceScopeFactory.CreateScope();
-        var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
-
         while (!stoppingToken.IsCancellationRequested)
         {
             try
@@ -44,6 +41,8 @@ public class EventHandlingService : BackgroundService
 
                         if (consumeResult != null)
                         {
+                            using IServiceScope scope = serviceScopeFactory.CreateScope();
+                            var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
                             await ProcessMessageAsync(mediator, consumeResult.Message.Value, stoppingToken);
                         }
                         else
@@ -69,16 +68,20 @@ public class EventHandlingService : BackgroundService
 
     private async Task ProcessMessageAsync(IMediator mediator, MessageEnvelop message, CancellationToken cancellationToken)
     {
-        logger.LogInformation("Processing message {t}: {message}", message.MessageTypeName, message.Message);
-
         var @event = integrationEventFactory.CreateEvent(message.MessageTypeName, message.Message);
 
         if (@event is not null)
         {
             if (options.AcceptEvent(@event))
             {
+                logger.LogInformation("Processing message {t}: {message}", message.MessageTypeName, message.Message);
+
                 // here we must use a scope to resolve the mediator since a background service is registered as a singleton service
                 await mediator.Send(@event, cancellationToken);
+            }
+            else
+            {
+                logger.LogDebug("Event skipped: {t}", message.MessageTypeName);
             }
         }
         else

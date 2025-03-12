@@ -1,4 +1,6 @@
-﻿namespace EventBus.Kafka;
+﻿using EventBus.Events;
+
+namespace EventBus.Kafka;
 public static class KafkaEventBusExtensions
 {
     public static IHostApplicationBuilder AddKafkaProducer(this IHostApplicationBuilder builder, string connectionName)
@@ -58,6 +60,27 @@ public static class KafkaEventBusExtensions
         builder.Services.AddHostedService<EventHandlingService>();
         return builder;
     }
+
+    public static bool IsEvent<T1>(this IntegrationEvent @event)
+    {
+        return @event.GetType() == typeof(T1);
+    }
+    
+    public static bool IsEvent<T1, T2>(this IntegrationEvent @event)
+    {
+        return @event.GetType() == typeof(T1) || @event.GetType() == typeof(T2);
+    }
+
+    public static bool IsEvent<T1, T2, T3>(this IntegrationEvent @event)
+    {
+        return @event.GetType() == typeof(T1) || @event.GetType() == typeof(T2) || @event.GetType() == typeof(T3);
+    }
+
+    public static bool IsEvent<T1, T2, T3, T4>(this IntegrationEvent @event)
+    {
+        return @event.GetType() == typeof(T1) || @event.GetType() == typeof(T2) || @event.GetType() == typeof(T3) || @event.GetType() == typeof(T4);
+    }
+
 
 }
 

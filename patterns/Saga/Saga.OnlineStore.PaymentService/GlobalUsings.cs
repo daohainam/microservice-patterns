@@ -9,3 +9,5 @@ global using Saga.OnlineStore.PaymentService.Infrastructure.Entity;
 global using EventBus.Abstractions;
 global using Saga.OnlineStore.IntegrationEvents;
 global using MediatR;
+global using EventBus;
+global using MicroservicePatterns.Shared;

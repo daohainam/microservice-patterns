@@ -1,8 +1,4 @@
-﻿using EventBus;
-using MicroservicePatterns.Shared;
-using Saga.OnlineStore.PaymentService.Infrastructure.Data;
-
-namespace Saga.OnlineStore.PaymentService.Bootstraping;
+﻿namespace Saga.OnlineStore.PaymentService.Bootstraping;
 public static class ApplicationServiceExtensions
 {
     public static IHostApplicationBuilder AddApplicationServices(this IHostApplicationBuilder builder)
@@ -31,10 +27,10 @@ public static class ApplicationServiceExtensions
         {
             builder.AddKafkaEventConsumer(options => {
                 options.ServiceName = "PaymentService";
-                options.KafkaGroupId = "saga";
+                options.KafkaGroupId = "saga-payment-service";
                 options.Topics.AddRange(eventConsumingTopics.Split(','));
                 options.IntegrationEventFactory = IntegrationEventFactory<ProductCreatedIntegrationEvent>.Instance;
-                options.AcceptEvent = e => e is OrderItemsReservedIntegrationEvent;
+                options.AcceptEvent = e => e.IsEvent<OrderItemsReservedIntegrationEvent>();
             });
         }
 

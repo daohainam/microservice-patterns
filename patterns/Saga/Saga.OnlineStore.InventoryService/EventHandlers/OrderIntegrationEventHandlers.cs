@@ -13,7 +13,7 @@ public class OrderIntegrationEventHandlers(InventoryDbContext dbContext,
         {
             foreach (var requestItem in request.Items)
             {
-                var itemInInventory = await dbContext.Items.FindAsync([requestItem.ProductId], cancellationToken: cancellationToken);
+                var itemInInventory = await dbContext.Items.Where(item => item.Id == requestItem.ProductId).SingleOrDefaultAsync(cancellationToken: cancellationToken);
 
                 if (itemInInventory != null)
                 {

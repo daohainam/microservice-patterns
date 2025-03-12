@@ -53,7 +53,7 @@ public class OrderIntegrationEventHandlers(OrderDbContext dbContext,
             return;
         }
 
-        order.Status = OrderService.Infrastructure.Entity.OrderStatus.Processing;
+        order.Status = OrderService.Infrastructure.Entity.OrderStatus.Created;
         await dbContext.SaveChangesAsync(cancellationToken);
 
         await eventPublisher.PublishAsync(new OrderApprovedIntegrationEvent()

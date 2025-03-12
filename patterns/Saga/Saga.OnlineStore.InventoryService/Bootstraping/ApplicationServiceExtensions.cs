@@ -31,10 +31,10 @@ public static class ApplicationServiceExtensions
         {
             builder.AddKafkaEventConsumer(options => {
                 options.ServiceName = "InventoryService";
-                options.KafkaGroupId = "saga";
+                options.KafkaGroupId = "saga-inventory-service";
                 options.Topics.AddRange(eventConsumingTopics.Split(','));
                 options.IntegrationEventFactory = IntegrationEventFactory<ProductCreatedIntegrationEvent>.Instance;
-                options.AcceptEvent = e => e is ProductCreatedIntegrationEvent || e is OrderPlacedIntegrationEvent || e is OrderPaymentRejectedIntegrationEvent;
+                options.AcceptEvent = e => e.IsEvent<ProductCreatedIntegrationEvent, OrderPlacedIntegrationEvent, OrderPaymentRejectedIntegrationEvent>();
             });
         }
 
