@@ -10,49 +10,35 @@ using System.Net.Http.Json;
 
 namespace IntegrationTests.Tests
 {
-    public class SagaIntegrationTest: IAsyncLifetime
+    public class SagaIntegrationTest : IClassFixture<AppFixture>
     {
-#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring as nullable.
-        private DistributedApplication _app;
-#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring as nullable.
+        private readonly AppFixture fixture;
+        private DistributedApplication App => fixture.App;
 
-        public async Task InitializeAsync()
+        public SagaIntegrationTest(AppFixture fixture)
         {
-            var appHost = await DistributedApplicationTestingBuilder.CreateAsync<Projects.MicroservicePatterns_AppHost>([
-                "IsTest=true"
-                ]);
-            appHost.Services.ConfigureHttpClientDefaults(clientBuilder =>
-            {
-                clientBuilder.AddStandardResilienceHandler();
-            });
-
-            _app = await appHost.BuildAsync();
-            await _app.StartAsync();
-
-            var resourceNotificationService = _app.Services.GetRequiredService<ResourceNotificationService>();
-            await resourceNotificationService.WaitForResourceAsync<Projects.Saga_OnlineStore_CatalogService>(KnownResourceStates.Running).WaitAsync(TimeSpan.FromSeconds(120));
-            await resourceNotificationService.WaitForResourceAsync<Projects.Saga_OnlineStore_InventoryService>(KnownResourceStates.Running).WaitAsync(TimeSpan.FromSeconds(120));
-            await resourceNotificationService.WaitForResourceAsync<Projects.Saga_OnlineStore_OrderService>(KnownResourceStates.Running).WaitAsync(TimeSpan.FromSeconds(120));
-            await resourceNotificationService.WaitForResourceAsync<Projects.Saga_OnlineStore_PaymentService>(KnownResourceStates.Running).WaitAsync(TimeSpan.FromSeconds(120));
+            this.fixture = fixture;
         }
 
-        public async Task DisposeAsync()
-        {
-            await _app.DisposeAsync();
-        }
-
-        [Fact]
-        public async Task Create_Order_Success()
+        [Theory]
+        [InlineData(100, 120, 15, 1500, OrderStatus.Created)]
+        [InlineData(100, 15, 15, 1000, OrderStatus.Rejected)] // Not enough balance
+        [InlineData(100, 15, 150, 1000, OrderStatus.Rejected)] // Not enough stock
+        [InlineData(1000, 120, 15, 10000, OrderStatus.Rejected)] // Not enough balance
+        [InlineData(1000, 1200, 1200, 1000 * 1200, OrderStatus.Created)]
+        [InlineData(100, 200, 201, 100 * 201, OrderStatus.Rejected)]
+        [InlineData(100, 201, 201, 100 * 201, OrderStatus.Created)]
+        public async Task Create_Order(decimal productPrice, int quantityInStock, int orderItemQuantity, decimal bankAccountBalance, OrderStatus expectedOrderStatus)
         {
             // Arrange
 
             // Act
-            var catalogHttpClient = _app.CreateHttpClient<Projects.Saga_OnlineStore_CatalogService>();
+            var catalogHttpClient = App.CreateHttpClient<Projects.Saga_OnlineStore_CatalogService>();
             var product = new Product()
             {
                 Id = Guid.NewGuid(),
                 Name = "Test Product",
-                Price = 100,
+                Price = productPrice,
                 Description = "Test Description"
             };
             var response = await catalogHttpClient.PostAsJsonAsync("/api/saga/v1/products", product);
@@ -63,10 +49,10 @@ namespace IntegrationTests.Tests
             // Act
             await Task.Delay(2000);
 
-            var inventoryHttpClient = _app.CreateHttpClient<Projects.Saga_OnlineStore_InventoryService>();
+            var inventoryHttpClient = App.CreateHttpClient<Projects.Saga_OnlineStore_InventoryService>();
             var restockItem = new RestockItem()
             {
-                Quantity = 120
+                Quantity = quantityInStock
             };
             response = await inventoryHttpClient.PutAsJsonAsync($"/api/saga/v1/inventory/items/{product.Id}/restock", restockItem);
 
@@ -81,14 +67,14 @@ namespace IntegrationTests.Tests
             Assert.Equal(HttpStatusCode.OK, inventoryItemResponse.StatusCode);
             Assert.NotNull(inventoryItem);
             Assert.Equal(product.Id, inventoryItem.Id);
-            Assert.Equal(120, inventoryItem.AvailableQuantity);
+            Assert.Equal(quantityInStock, inventoryItem.AvailableQuantity);
 
             await Task.Delay(2000);
 
-            var paymentHttpClient = _app.CreateHttpClient<Projects.Saga_OnlineStore_PaymentService>();
+            var paymentHttpClient = App.CreateHttpClient<Projects.Saga_OnlineStore_PaymentService>();
             var card = new Card()
             {
-                CardNumber = "1234567890123456",
+                CardNumber = Guid.NewGuid().ToString("N")[..16],
                 CardHolderName = "Test Card Holder",
                 ExpirationDate = "12/34",
                 Cvv = "123"
@@ -102,14 +88,14 @@ namespace IntegrationTests.Tests
             // Act
             response = await paymentHttpClient.PutAsJsonAsync($"/api/saga/v1/cards/{card.Id}/deposit", new Deposit() 
             {
-                Amount = 1000
+                Amount = bankAccountBalance
             });
 
             // Assert
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
             // Act
-            var orderHttpClient = _app.CreateHttpClient<Projects.Saga_OnlineStore_OrderService>();
+            var orderHttpClient = App.CreateHttpClient<Projects.Saga_OnlineStore_OrderService>();
             var order = new Order()
             {
                 Id = Guid.NewGuid(),
@@ -118,7 +104,8 @@ namespace IntegrationTests.Tests
                     new OrderItem()
                     {
                         ProductId = product.Id,
-                        Quantity = 15
+                        Quantity = orderItemQuantity,
+                        UnitPrice = product.Price
                     }
                 ],
                 PaymentCardNumber = card.CardNumber,
@@ -152,7 +139,7 @@ namespace IntegrationTests.Tests
             Assert.Equal(order.Items.Count, orderResult.Items.Count);
             Assert.Equal(order.Items[0].ProductId, orderResult.Items[0].ProductId);
             Assert.Equal(order.Items[0].Quantity, orderResult.Items[0].Quantity);
-            Assert.Equal(OrderStatus.Created, orderResult.Status);
+            Assert.Equal(expectedOrderStatus, orderResult.Status);
         }
     }
 }

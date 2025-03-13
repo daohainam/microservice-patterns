@@ -8,40 +8,25 @@ using Borrower = CQRS.Library.BorrowerService.Infrastructure.Entity.Borrower;
 
 namespace IntegrationTests.Tests
 {
-    public class CQRSIntegrationTest: IAsyncLifetime
+    public class CQRSIntegrationTest : IClassFixture<AppFixture>
     {
-#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring as nullable.
-        private DistributedApplication _app;
-#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring as nullable.
+        private readonly AppFixture fixture;
+        private DistributedApplication App => fixture.App;
 
-        public async Task InitializeAsync()
+        public CQRSIntegrationTest(AppFixture fixture)
         {
-            var appHost = await DistributedApplicationTestingBuilder.CreateAsync<Projects.MicroservicePatterns_AppHost>([
-                "IsTest=true"
-                ]);
-            appHost.Services.ConfigureHttpClientDefaults(clientBuilder =>
-            {
-                clientBuilder.AddStandardResilienceHandler();
-            });
-
-            _app = await appHost.BuildAsync();
-            await _app.StartAsync();
-        }
-
-        public async Task DisposeAsync()
-        {
-            await _app.DisposeAsync();
+            this.fixture = fixture;
         }
 
         [Fact]
         public async Task Create_Book_And_Read_Success()
         {
             // Arrange
-            var resourceNotificationService = _app.Services.GetRequiredService<ResourceNotificationService>();
+            var resourceNotificationService = App.Services.GetRequiredService<ResourceNotificationService>();
             await resourceNotificationService.WaitForResourceAsync<Projects.CQRS_Library_BookService>(KnownResourceStates.Running).WaitAsync(TimeSpan.FromSeconds(30));
 
             // Act
-            var httpClient = _app.CreateHttpClient<Projects.CQRS_Library_BookService>();
+            var httpClient = App.CreateHttpClient<Projects.CQRS_Library_BookService>();
             var bookId = Guid.NewGuid();
             var response = await httpClient.PostAsJsonAsync("/api/cqrs/v1/books", new Book()
             {
@@ -69,11 +54,11 @@ namespace IntegrationTests.Tests
         public async Task Borrow_Book_And_Read_BorrowingHistory_Success()
         {
             // Arrange
-            var resourceNotificationService = _app.Services.GetRequiredService<ResourceNotificationService>();
+            var resourceNotificationService = App.Services.GetRequiredService<ResourceNotificationService>();
             await resourceNotificationService.WaitForResourceAsync<Projects.CQRS_Library_BookService>(KnownResourceStates.Running).WaitAsync(TimeSpan.FromSeconds(30));
 
             // Act
-            var bookHttpClient = _app.CreateHttpClient<Projects.CQRS_Library_BookService>();
+            var bookHttpClient = App.CreateHttpClient<Projects.CQRS_Library_BookService>();
             var book = new Book()
             {
                 Id = Guid.NewGuid(),
@@ -82,7 +67,7 @@ namespace IntegrationTests.Tests
             };
             await bookHttpClient.PostAsJsonAsync("/api/cqrs/v1/books", book);
 
-            var borrowerHttpClient = _app.CreateHttpClient<Projects.CQRS_Library_BorrowerService>();
+            var borrowerHttpClient = App.CreateHttpClient<Projects.CQRS_Library_BorrowerService>();
             var borrower = new Borrower()
             {
                 Id = Guid.NewGuid(),
@@ -93,7 +78,7 @@ namespace IntegrationTests.Tests
             };
             await borrowerHttpClient.PostAsJsonAsync("/api/cqrs/v1/borrowers", borrower);
 
-            var borrowingHttpClient = _app.CreateHttpClient<Projects.CQRS_Library_BorrowingService>();
+            var borrowingHttpClient = App.CreateHttpClient<Projects.CQRS_Library_BorrowingService>();
             var borrowing = new Borrowing()
             {
                 BookId = book.Id,
@@ -105,7 +90,7 @@ namespace IntegrationTests.Tests
 
             await Task.Delay(2000);
 
-            var borrowingHistoryHttpClient = _app.CreateHttpClient<Projects.CQRS_Library_BorrowingHistoryService>();
+            var borrowingHistoryHttpClient = App.CreateHttpClient<Projects.CQRS_Library_BorrowingHistoryService>();
             var response = await borrowingHistoryHttpClient.GetAsync($"/api/cqrs/v1/history/items?borrowerId={borrower.Id}&bookId={book.Id}");
             var borrowingHistoryItems = await response.Content.ReadFromJsonAsync<PaginatedResult<BorrowingHistoryItem>>();
 
