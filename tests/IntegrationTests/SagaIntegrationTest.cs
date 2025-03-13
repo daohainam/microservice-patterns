@@ -26,7 +26,7 @@ namespace IntegrationTests.Tests
         [InlineData(100, 15, 150, 1000, OrderStatus.Rejected)] // Not enough stock
         [InlineData(1000, 120, 15, 10000, OrderStatus.Rejected)] // Not enough balance
         [InlineData(1000, 1200, 1200, 1000 * 1200, OrderStatus.Created)]
-        [InlineData(100, 200, 201, 100 * 201, OrderStatus.Rejected)]
+        [InlineData(100, 200, 201, 100 * 201, OrderStatus.Rejected)] // Not enough stock
         [InlineData(100, 201, 201, 100 * 201, OrderStatus.Created)]
         public async Task Create_Order(decimal productPrice, int quantityInStock, int orderItemQuantity, decimal bankAccountBalance, OrderStatus expectedOrderStatus)
         {
@@ -85,14 +85,27 @@ namespace IntegrationTests.Tests
             card = await response.Content.ReadFromJsonAsync<Card>();
             Assert.NotNull(card);
 
+            // Arrange
+            var cardId = card.Id;
+
             // Act
-            response = await paymentHttpClient.PutAsJsonAsync($"/api/saga/v1/cards/{card.Id}/deposit", new Deposit() 
+            response = await paymentHttpClient.PutAsJsonAsync($"/api/saga/v1/cards/{cardId}/deposit", new Deposit()
             {
                 Amount = bankAccountBalance
             });
 
             // Assert
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+
+            // Act
+            response = await paymentHttpClient.GetAsync($"/api/saga/v1/cards/{cardId}");
+            card = await response.Content.ReadFromJsonAsync<Card>();
+
+            // Assert
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            Assert.NotNull(card);
+            Assert.Equal(bankAccountBalance, card.Balance);
+            Assert.Equal(cardId, card.Id);
 
             // Act
             var orderHttpClient = App.CreateHttpClient<Projects.Saga_OnlineStore_OrderService>();
@@ -140,6 +153,45 @@ namespace IntegrationTests.Tests
             Assert.Equal(order.Items[0].ProductId, orderResult.Items[0].ProductId);
             Assert.Equal(order.Items[0].Quantity, orderResult.Items[0].Quantity);
             Assert.Equal(expectedOrderStatus, orderResult.Status);
+
+            if (expectedOrderStatus == OrderStatus.Created)
+            {
+                // assert inventory and balance after order created successfully
+                inventoryItemResponse = await inventoryHttpClient.GetAsync($"/api/saga/v1/inventory/items/{product.Id}");
+                inventoryItem = await inventoryItemResponse.Content.ReadFromJsonAsync<InventoryItem>();
+
+                Assert.Equal(HttpStatusCode.OK, inventoryItemResponse.StatusCode);
+                Assert.NotNull(inventoryItem);
+                Assert.Equal(product.Id, inventoryItem.Id);
+                Assert.Equal(quantityInStock - orderItemQuantity, inventoryItem.AvailableQuantity);
+
+                var cardResponse = await paymentHttpClient.GetAsync($"/api/saga/v1/cards/{card.Id}");
+                var cardResult = await cardResponse.Content.ReadFromJsonAsync<Card>();
+
+                Assert.Equal(HttpStatusCode.OK, cardResponse.StatusCode);
+                Assert.NotNull(cardResult);
+                Assert.Equal(card.Id, cardResult.Id);
+                Assert.Equal(bankAccountBalance - product.Price * orderItemQuantity, cardResult.Balance);
+            }
+            else
+            {
+                // assert inventory and balance after order rejected
+                inventoryItemResponse = await inventoryHttpClient.GetAsync($"/api/saga/v1/inventory/items/{product.Id}");
+                inventoryItem = await inventoryItemResponse.Content.ReadFromJsonAsync<InventoryItem>();
+
+                Assert.Equal(HttpStatusCode.OK, inventoryItemResponse.StatusCode);
+                Assert.NotNull(inventoryItem);
+                Assert.Equal(product.Id, inventoryItem.Id);
+                Assert.Equal(quantityInStock, inventoryItem.AvailableQuantity);
+
+                var cardResponse = await paymentHttpClient.GetAsync($"/api/saga/v1/cards/{card.Id}");
+                var cardResult = await cardResponse.Content.ReadFromJsonAsync<Card>();
+
+                Assert.Equal(HttpStatusCode.OK, cardResponse.StatusCode);
+                Assert.NotNull(cardResult);
+                Assert.Equal(card.Id, cardResult.Id);
+                Assert.Equal(bankAccountBalance, cardResult.Balance);
+            }
         }
     }
 }

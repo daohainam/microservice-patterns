@@ -8,6 +8,5 @@ public class Card
     public string CardHolderName { get; set; } = default!;
     public string ExpirationDate { get; set; } = default!;
     public string Cvv { get; set; } = default!;
-    [JsonIgnore]
     public decimal Balance { get; set; }
 }

@@ -3,7 +3,7 @@ public class OrderIntegrationEventHandlers(InventoryDbContext dbContext,
     IEventPublisher eventPublisher,
     ILogger<ProductIntegrationEventHandlers> logger) :
     IRequestHandler<OrderPlacedIntegrationEvent>,
-    IRequestHandler<OrderPaymentRejectedIntegrationEvent>
+    IRequestHandler<OrderRejectedIntegrationEvent>
 {
     public async Task Handle(OrderPlacedIntegrationEvent request, CancellationToken cancellationToken)
     {
@@ -68,9 +68,9 @@ public class OrderIntegrationEventHandlers(InventoryDbContext dbContext,
             });
         }
     }
-    public async Task Handle(OrderPaymentRejectedIntegrationEvent request, CancellationToken cancellationToken)
+    public async Task Handle(OrderRejectedIntegrationEvent request, CancellationToken cancellationToken)
     {
-        logger.LogInformation("Handling order payment rejected event: {id}", request.OrderId);
+        logger.LogInformation("Handling order rejected event: {id}", request.OrderId);
 
         var reservedItems = await dbContext.ReservedItems.Where(item => item.OrderId == request.OrderId).ToListAsync(cancellationToken);
         foreach (var item in reservedItems)

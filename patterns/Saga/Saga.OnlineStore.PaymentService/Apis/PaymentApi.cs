@@ -42,12 +42,19 @@ public static class PaymentApiExtensions
                 return TypedResults.BadRequest();
             }
 
+            if (card.Balance != 0)
+            {
+                services.Logger.LogError("New card must have balance = 0");
+                return TypedResults.BadRequest();
+            }
+
             if (card.Id == Guid.Empty)
                 card.Id = Guid.CreateVersion7();
 
             var existingCard = await services.DbContext.Cards.Where(c => c.CardNumber == card.CardNumber).SingleOrDefaultAsync();
             if (existingCard != null)
             {
+                services.Logger.LogError("Card already exists");
                 return TypedResults.BadRequest();
             }
 

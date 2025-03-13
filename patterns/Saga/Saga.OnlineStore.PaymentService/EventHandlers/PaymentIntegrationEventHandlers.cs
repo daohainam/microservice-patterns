@@ -7,7 +7,7 @@ public class PaymentIntegrationEventHandlers(PaymentDbContext dbContext,
     public async Task Handle(OrderItemsReservedIntegrationEvent request, CancellationToken cancellationToken)
     {
         // this event is sent by Payment service when it approves payment for an order
-        logger.LogInformation("Handling order payment approved event: {id}", request.OrderId);
+        logger.LogInformation("Handling order items reserved event: {id}", request.OrderId);
 
         if (request.PaymentCardNumber.Length != 16)
         {
@@ -34,9 +34,9 @@ public class PaymentIntegrationEventHandlers(PaymentDbContext dbContext,
             return;
         }
 
-        card.Balance -= request.Items.Sum(i => i.Price * i.Quantity);
+        var newBalance = card.Balance - request.Items.Sum(i => i.Price * i.Quantity);
 
-        if (card.Balance < 0)
+        if (newBalance < 0)
         {
             logger.LogWarning("Insufficient funds on card {id} for order {orderId}", card.Id, request.OrderId);
             await eventPublisher.PublishAsync(new OrderPaymentRejectedIntegrationEvent()
@@ -46,13 +46,16 @@ public class PaymentIntegrationEventHandlers(PaymentDbContext dbContext,
             });
             return;
         }
-
-        await dbContext.SaveChangesAsync(cancellationToken);
-
-        await eventPublisher.PublishAsync(new OrderPaymentApprovedIntegrationEvent()
+        else
         {
-            OrderId = request.OrderId
-        });
+            card.Balance = newBalance;
+            await dbContext.SaveChangesAsync(cancellationToken);
+
+            await eventPublisher.PublishAsync(new OrderPaymentApprovedIntegrationEvent()
+            {
+                OrderId = request.OrderId
+            });
+        }
     }
 
     private static string MaskCardNumber(string cardNumber)
