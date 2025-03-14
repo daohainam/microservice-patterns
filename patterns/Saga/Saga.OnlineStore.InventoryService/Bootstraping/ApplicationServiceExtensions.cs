@@ -34,7 +34,7 @@ public static class ApplicationServiceExtensions
                 options.KafkaGroupId = "saga-inventory-service";
                 options.Topics.AddRange(eventConsumingTopics.Split(','));
                 options.IntegrationEventFactory = IntegrationEventFactory<ProductCreatedIntegrationEvent>.Instance;
-                options.AcceptEvent = e => e.IsEvent<ProductCreatedIntegrationEvent, OrderPlacedIntegrationEvent, OrderRejectedIntegrationEvent>();
+                options.AcceptEvent = e => e.IsEvent<ProductCreatedIntegrationEvent, OrderPlacedIntegrationEvent, OrderPaymentRejectedIntegrationEvent>();
             });
         }
 

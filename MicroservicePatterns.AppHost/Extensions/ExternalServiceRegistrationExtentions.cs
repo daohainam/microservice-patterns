@@ -79,7 +79,8 @@ public static class ExternalServiceRegistrationExtentions
             .WithEnvironment(Consts.Env_EventConsumingTopics,
                 string.Join(',',
                     GetTopicName<Projects.Saga_OnlineStore_CatalogService>(),
-                    GetTopicName<Projects.Saga_OnlineStore_OrderService>()
+                    GetTopicName<Projects.Saga_OnlineStore_OrderService>(),
+                    GetTopicName<Projects.Saga_OnlineStore_PaymentService>()
                     )
                 )
             .WithReference(kafka)
