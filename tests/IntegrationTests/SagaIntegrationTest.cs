@@ -28,12 +28,16 @@ namespace IntegrationTests.Tests
         [InlineData(1000, 1200, 1200, 1000 * 1200, OrderStatus.Created)]
         [InlineData(100, 200, 201, 100 * 201, OrderStatus.Rejected)] // Not enough stock
         [InlineData(100, 201, 201, 100 * 201, OrderStatus.Created)]
-        public async Task Create_Order(decimal productPrice, int quantityInStock, int orderItemQuantity, decimal bankAccountBalance, OrderStatus expectedOrderStatus)
+        public Task Create_Order_Using_Choreography(decimal productPrice, int quantityInStock, int orderItemQuantity, decimal bankAccountBalance, OrderStatus expectedOrderStatus)
+        {
+            return Create_Order("Choreography", productPrice, quantityInStock, orderItemQuantity, bankAccountBalance, expectedOrderStatus);
+        }
+        private async Task Create_Order(string postfix, decimal productPrice, int quantityInStock, int orderItemQuantity, decimal bankAccountBalance, OrderStatus expectedOrderStatus)
         {
             // Arrange
 
             // Act
-            var catalogHttpClient = App.CreateHttpClient<Projects.Saga_OnlineStore_CatalogService>();
+            var catalogHttpClient = App.CreateHttpClientWithPostfix<Projects.Saga_OnlineStore_CatalogService>(postfix);
             var product = new Product()
             {
                 Id = Guid.NewGuid(),
@@ -49,7 +53,7 @@ namespace IntegrationTests.Tests
             // Act
             await Task.Delay(2000);
 
-            var inventoryHttpClient = App.CreateHttpClient<Projects.Saga_OnlineStore_InventoryService>();
+            var inventoryHttpClient = App.CreateHttpClientWithPostfix<Projects.Saga_OnlineStore_InventoryService>(postfix);
             var restockItem = new RestockItem()
             {
                 Quantity = quantityInStock
@@ -71,7 +75,7 @@ namespace IntegrationTests.Tests
 
             await Task.Delay(2000);
 
-            var paymentHttpClient = App.CreateHttpClient<Projects.Saga_OnlineStore_PaymentService>();
+            var paymentHttpClient = App.CreateHttpClientWithPostfix<Projects.Saga_OnlineStore_PaymentService>(postfix);
             var card = new Card()
             {
                 CardNumber = Guid.NewGuid().ToString("N")[..16],
@@ -108,7 +112,7 @@ namespace IntegrationTests.Tests
             Assert.Equal(cardId, card.Id);
 
             // Act
-            var orderHttpClient = App.CreateHttpClient<Projects.Saga_OnlineStore_OrderService>();
+            var orderHttpClient = App.CreateHttpClientWithPostfix<Projects.Saga_OnlineStore_OrderService>(postfix);
             var order = new Order()
             {
                 Id = Guid.NewGuid(),

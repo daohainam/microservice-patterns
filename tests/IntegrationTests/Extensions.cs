@@ -15,6 +15,13 @@ internal static class Extensions
         return app.CreateHttpClient(resourceName, endpointName);
     }
 
+    public static HttpClient CreateHttpClientWithPostfix<TProject>(this DistributedApplication app, string postfix, string? endpointName = default)
+    {
+        string resourceName = $"{(typeof(TProject).Name.Replace('_', '-'))}-{postfix}";
+
+        return app.CreateHttpClient(resourceName, endpointName);
+    }
+
     public static Task WaitForResourceAsync<TProject>(this ResourceNotificationService service, string? targetState = null, CancellationToken cancellationToken = default)
     {
         string resourceName = (typeof(TProject).Name.Replace('_', '-'));

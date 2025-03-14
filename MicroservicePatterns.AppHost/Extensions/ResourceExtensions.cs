@@ -6,9 +6,20 @@ public static class ResourceExtensions
         return builder.AddDatabase($"{typeof(TProject).Name.Replace('_', '-')}-Db");
     }
 
-    public static IResourceBuilder<ProjectResource> AddProject<TProject>(this IDistributedApplicationBuilder builder) where TProject : IProjectMetadata, new()
-    {
-        return builder.AddProject<TProject>(typeof(TProject).Name.Replace('_', '-'));
-    }
+    //public static IResourceBuilder<ProjectResource> AddProject<TProject>(this IDistributedApplicationBuilder builder) where TProject : IProjectMetadata, new()
+    //{
+    //    return builder.AddProject<TProject>(typeof(TProject).Name.Replace('_', '-'));
+    //}
 
+    public static IResourceBuilder<ProjectResource> AddProjectWithPostfix<TProject>(this IDistributedApplicationBuilder builder, string postfix = "") where TProject : IProjectMetadata, new()
+    {
+        if (string.IsNullOrEmpty(postfix))
+        {
+            return builder.AddProject<TProject>(typeof(TProject).Name.Replace('_', '-'));
+        }
+        else
+        {
+            return builder.AddProject<TProject>(typeof(TProject).Name.Replace('_', '-') + "-" + postfix);
+        }
+    }
 }
