@@ -88,7 +88,7 @@ namespace IntegrationTests.Tests
             };
             await borrowingHttpClient.PostAsJsonAsync("/api/cqrs/v1/borrowings", borrowing);
 
-            await Task.Delay(2000);
+            await Task.Delay(4000);
 
             var borrowingHistoryHttpClient = App.CreateHttpClient<Projects.CQRS_Library_BorrowingHistoryService>();
             var response = await borrowingHistoryHttpClient.GetAsync($"/api/cqrs/v1/history/items?borrowerId={borrower.Id}&bookId={book.Id}");

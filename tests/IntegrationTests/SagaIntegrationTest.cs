@@ -37,7 +37,7 @@ namespace IntegrationTests.Tests
             // Arrange
 
             // Act
-            var catalogHttpClient = App.CreateHttpClientWithPostfix<Projects.Saga_OnlineStore_CatalogService>(postfix);
+            var catalogHttpClient = App.CreateHttpClient<Projects.Saga_OnlineStore_CatalogService>();
             var product = new Product()
             {
                 Id = Guid.NewGuid(),
@@ -51,9 +51,9 @@ namespace IntegrationTests.Tests
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
             // Act
-            await Task.Delay(2000);
+            await Task.Delay(4000);
 
-            var inventoryHttpClient = App.CreateHttpClientWithPostfix<Projects.Saga_OnlineStore_InventoryService>(postfix);
+            var inventoryHttpClient = App.CreateHttpClient<Projects.Saga_OnlineStore_InventoryService>();
             var restockItem = new RestockItem()
             {
                 Quantity = quantityInStock
@@ -75,7 +75,7 @@ namespace IntegrationTests.Tests
 
             await Task.Delay(2000);
 
-            var paymentHttpClient = App.CreateHttpClientWithPostfix<Projects.Saga_OnlineStore_PaymentService>(postfix);
+            var paymentHttpClient = App.CreateHttpClient<Projects.Saga_OnlineStore_PaymentService>();
             var card = new Card()
             {
                 CardNumber = Guid.NewGuid().ToString("N")[..16],
@@ -112,7 +112,7 @@ namespace IntegrationTests.Tests
             Assert.Equal(cardId, card.Id);
 
             // Act
-            var orderHttpClient = App.CreateHttpClientWithPostfix<Projects.Saga_OnlineStore_OrderService>(postfix);
+            var orderHttpClient = App.CreateHttpClient<Projects.Saga_OnlineStore_OrderService>();
             var order = new Order()
             {
                 Id = Guid.NewGuid(),
