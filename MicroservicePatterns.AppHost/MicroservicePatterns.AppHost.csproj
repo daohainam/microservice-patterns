@@ -16,6 +16,7 @@
     <PackageReference Include="Aspire.Hosting.Kafka" Version="9.1.0" />
     <PackageReference Include="Aspire.Hosting.MongoDB" Version="9.1.0" />
     <PackageReference Include="Aspire.Hosting.PostgreSQL" Version="9.1.0" />
+    <PackageReference Include="Aspire.Hosting.RabbitMQ" Version="9.1.0" />
     <PackageReference Include="Aspire.Hosting.Redis" Version="9.1.0" />
   </ItemGroup>
 
@@ -29,6 +30,7 @@
     <ProjectReference Include="..\patterns\Saga\Saga.OnlineStore.InventoryService\Saga.OnlineStore.InventoryService.csproj" />
     <ProjectReference Include="..\patterns\Saga\Saga.OnlineStore.PaymentService\Saga.OnlineStore.PaymentService.csproj" />
     <ProjectReference Include="..\patterns\Saga\Saga.OnlineStore.OrderService\Saga.OnlineStore.OrderService.csproj" />
+    <ProjectReference Include="..\patterns\Saga\Saga.TripPlanner.HotelService\Saga.TripPlanner.HotelService.csproj" />
   </ItemGroup>
 
 </Project>

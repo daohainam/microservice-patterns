@@ -4,9 +4,6 @@ using Microsoft.Extensions.Configuration;
 namespace MicroservicePatterns.AppHost.Extensions;
 public static class ExternalServiceRegistrationExtentions
 {
-    private const string Choreography = "Choreography";
-    private const string Orchestration = "Orchestration";
-
     public static IDistributedApplicationBuilder AddApplicationServices(this IDistributedApplicationBuilder builder)
     {
         var cache = builder.AddRedis("redis");
