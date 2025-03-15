@@ -1,9 +1,10 @@
 ﻿namespace Saga.TripPlanner.HotelService;
 public class ApiServices(
-    CatalogDbContext dbContext,
-    IEventPublisher eventPublisher)
+    HotelDbContext dbContext,
+    IEventPublisher eventPublisher,
+    ILogger<HotelApi> logger)
 {
-    public CatalogDbContext DbContext => dbContext;
+    public HotelDbContext DbContext => dbContext;
     public IEventPublisher EventPublisher => eventPublisher;
-
+    public ILogger<HotelApi> Logger { get; } = logger;
 }

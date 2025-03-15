@@ -12,8 +12,8 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
 }
 app.UseHttpsRedirection();
-app.MapCatalogApi();
+app.MapHotelApi();
 
-await app.MigrateDbContextAsync<CatalogDbContext>();
+await app.MigrateDbContextAsync<HotelDbContext>();
 
 app.Run();

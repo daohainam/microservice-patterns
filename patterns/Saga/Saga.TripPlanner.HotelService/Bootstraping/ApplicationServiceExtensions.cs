@@ -5,7 +5,7 @@ public static class ApplicationServiceExtensions
     {
         builder.AddServiceDefaults();
         builder.Services.AddOpenApi();
-        builder.AddNpgsqlDbContext<CatalogDbContext>(Consts.DefaultDatabase);
+        builder.AddNpgsqlDbContext<HotelDbContext>(Consts.DefaultDatabase);
 
         builder.AddKafkaProducer("kafka");
         var kafkaTopic = builder.Configuration.GetValue<string>(Consts.Env_EventPublishingTopics);
