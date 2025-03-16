@@ -1,0 +1,6 @@
+@Saga.TripPlanner.TicketService_HostAddress = http://localhost:5296
+
+GET {{Saga.TripPlanner.TicketService_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

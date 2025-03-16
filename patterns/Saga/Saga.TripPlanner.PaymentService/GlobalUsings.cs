@@ -1,0 +1,13 @@
+﻿global using EventBus.Kafka;
+global using MicroservicePatterns.DatabaseMigrationHelpers;
+global using Microsoft.AspNetCore.Http.HttpResults;
+global using Microsoft.EntityFrameworkCore;
+global using Saga.TripPlanner.PaymentService.Apis;
+global using Saga.TripPlanner.PaymentService.Bootstraping;
+global using Saga.TripPlanner.PaymentService.Infrastructure.Data;
+global using Saga.TripPlanner.PaymentService.Infrastructure.Entity;
+global using EventBus.Abstractions;
+global using Saga.TripPlanner.IntegrationEvents;
+global using MediatR;
+global using EventBus;
+global using MicroservicePatterns.Shared;

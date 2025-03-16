@@ -97,7 +97,7 @@ public class HotelApi
         if (booking.Status != BookingStatus.Pending)
         {
             services.Logger.LogInformation("Booking {id} is not in pending state", booking.Id);
-            return TypedResults.Ok(booking);
+            return TypedResults.BadRequest();
         }
 
         booking.Status = BookingStatus.Confirmed;

@@ -31,6 +31,8 @@
     <ProjectReference Include="..\patterns\Saga\Saga.OnlineStore.PaymentService\Saga.OnlineStore.PaymentService.csproj" />
     <ProjectReference Include="..\patterns\Saga\Saga.OnlineStore.OrderService\Saga.OnlineStore.OrderService.csproj" />
     <ProjectReference Include="..\patterns\Saga\Saga.TripPlanner.HotelService\Saga.TripPlanner.HotelService.csproj" />
+    <ProjectReference Include="..\patterns\Saga\Saga.TripPlanner.PaymentService\Saga.TripPlanner.PaymentService.csproj" />
+    <ProjectReference Include="..\patterns\Saga\Saga.TripPlanner.TicketService\Saga.TripPlanner.TicketService.csproj" />
   </ItemGroup>
 
 </Project>
