@@ -10,4 +10,6 @@ builder.AddProject<Projects.Saga_TripPlanner_TicketService>("saga-tripplanner-ti
 
 builder.AddProject<Projects.Saga_TripPlanner_PaymentService>("saga-tripplanner-paymentservice");
 
+builder.AddProject<Projects.Saga_TripPlanner_TripPlanningService>("saga-tripplanner-tripplanningservice");
+
 builder.Build().Run();

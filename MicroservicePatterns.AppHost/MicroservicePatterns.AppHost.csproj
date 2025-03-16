@@ -33,6 +33,7 @@
     <ProjectReference Include="..\patterns\Saga\Saga.TripPlanner.HotelService\Saga.TripPlanner.HotelService.csproj" />
     <ProjectReference Include="..\patterns\Saga\Saga.TripPlanner.PaymentService\Saga.TripPlanner.PaymentService.csproj" />
     <ProjectReference Include="..\patterns\Saga\Saga.TripPlanner.TicketService\Saga.TripPlanner.TicketService.csproj" />
+    <ProjectReference Include="..\patterns\Saga\Saga.TripPlanner.TripPlanningService\Saga.TripPlanner.TripPlanningService.csproj" />
   </ItemGroup>
 
 </Project>
