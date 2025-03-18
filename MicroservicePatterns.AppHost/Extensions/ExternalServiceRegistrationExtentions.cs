@@ -124,7 +124,18 @@ public static class ExternalServiceRegistrationExtentions
 
         #endregion
 
-        #region Saga Online Store - Orchestration
+        #region Saga Trip Planner - Orchestration
+        builder.AddProject<Projects.Saga_TripPlanner_HotelService>("saga-tripplanner-hotelservice");
+
+        builder.AddProject<Projects.Saga_TripPlanner_TicketService>("saga-tripplanner-ticketservice");
+
+        builder.AddProject<Projects.Saga_TripPlanner_PaymentService>("saga-tripplanner-paymentservice");
+
+        builder.AddProject<Projects.Saga_TripPlanner_TripPlanningService>("saga-tripplanner-tripplanningservice");
+        #endregion
+
+        #region Event Sourcing Catalog
+        builder.AddProject<Projects.EventSourcing_Catalog_ProductService>("eventsourcing-catalog-productservice");
         #endregion
 
         return builder;
