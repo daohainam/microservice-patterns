@@ -1,7 +1,7 @@
 ﻿namespace CQRS.Library.BookService.Apis;
 public static class BookApi
 {
-    public static IEndpointRouteBuilder MapBorrowerApi(this IEndpointRouteBuilder builder)
+    public static IEndpointRouteBuilder MapBookApi(this IEndpointRouteBuilder builder)
     {
         builder.MapGroup("/api/cqrs/v1")
               .MapBookApi()

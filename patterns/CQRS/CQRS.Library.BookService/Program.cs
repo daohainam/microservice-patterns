@@ -12,7 +12,7 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
 }
 app.UseHttpsRedirection();
-app.MapBorrowerApi();
+app.MapBookApi();
 
 await app.MigrateDbContextAsync<BookDbContext>();
 
