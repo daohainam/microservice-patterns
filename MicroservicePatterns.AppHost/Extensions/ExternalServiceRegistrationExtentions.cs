@@ -125,17 +125,61 @@ public static class ExternalServiceRegistrationExtentions
         #endregion
 
         #region Saga Trip Planner - Orchestration
-        builder.AddProject<Projects.Saga_TripPlanner_HotelService>("saga-tripplanner-hotelservice");
+        var sagaHotelDb = postgres.AddDefaultDatabase<Projects.Saga_TripPlanner_HotelService>();
+        var sagaHotelService = builder.AddProjectWithPostfix<Projects.Saga_TripPlanner_HotelService>()
+            .WithEnvironment(Consts.Env_EventPublishingTopics, GetTopicName<Projects.Saga_TripPlanner_HotelService>())
+            .WithEnvironment(Consts.Env_EventConsumingTopics,
+                string.Join(',',
+                    GetTopicName<Projects.Saga_TripPlanner_TripPlanningService>()
+                    )
+                )
+            .WithReference(kafka)
+            .WithReference(sagaHotelDb, Consts.DefaultDatabase)
+            .WaitFor(sagaHotelDb)
+            .WaitFor(kafka);
 
-        builder.AddProject<Projects.Saga_TripPlanner_TicketService>("saga-tripplanner-ticketservice");
+        var sagaTicketlDb = postgres.AddDefaultDatabase<Projects.Saga_TripPlanner_TicketService>();
+        var sagaTicketService = builder.AddProjectWithPostfix<Projects.Saga_TripPlanner_TicketService>()
+            .WithEnvironment(Consts.Env_EventPublishingTopics, GetTopicName<Projects.Saga_TripPlanner_TicketService>())
+            .WithEnvironment(Consts.Env_EventConsumingTopics,
+                string.Join(',',
+                    GetTopicName<Projects.Saga_TripPlanner_TripPlanningService>()
+                    )
+                )
+            .WithReference(kafka)
+            .WithReference(sagaTicketlDb, Consts.DefaultDatabase)
+            .WaitFor(sagaTicketlDb)
+            .WaitFor(kafka);
 
-        builder.AddProject<Projects.Saga_TripPlanner_PaymentService>("saga-tripplanner-paymentservice");
+        var sagaPaymentDb = postgres.AddDefaultDatabase<Projects.Saga_TripPlanner_PaymentService>();
+        var sagaPaymentService = builder.AddProjectWithPostfix<Projects.Saga_TripPlanner_PaymentService>()
+            .WithEnvironment(Consts.Env_EventPublishingTopics, GetTopicName<Projects.Saga_TripPlanner_PaymentService>())
+            .WithEnvironment(Consts.Env_EventConsumingTopics,
+                string.Join(',',
+                    GetTopicName<Projects.Saga_TripPlanner_TripPlanningService>()
+                    )
+                )
+            .WithReference(kafka)
+            .WithReference(sagaPaymentDb, Consts.DefaultDatabase)
+            .WaitFor(sagaPaymentDb)
+            .WaitFor(kafka);
 
-        builder.AddProject<Projects.Saga_TripPlanner_TripPlanningService>("saga-tripplanner-tripplanningservice");
+        var sagaTripPlanningDb = postgres.AddDefaultDatabase<Projects.Saga_TripPlanner_TripPlanningService>();
+        var sagaTripPlanningService = builder.AddProjectWithPostfix<Projects.Saga_TripPlanner_TripPlanningService>()
+            .WithEnvironment(Consts.Env_EventPublishingTopics, GetTopicName<Projects.Saga_TripPlanner_TripPlanningService>())
+            .WithEnvironment(Consts.Env_EventConsumingTopics,
+                string.Join(',',
+                    GetTopicName<Projects.Saga_TripPlanner_TripPlanningService>()
+                    )
+                )
+            .WithReference(kafka)
+            .WithReference(sagaTripPlanningDb, Consts.DefaultDatabase)
+            .WaitFor(sagaTripPlanningDb)
+            .WaitFor(kafka);
         #endregion
 
         #region Event Sourcing Catalog
-        builder.AddProject<Projects.EventSourcing_Catalog_ProductService>("eventsourcing-catalog-productservice");
+        //builder.AddProject<Projects.EventSourcing_Catalog_ProductService>("eventsourcing-catalog-productservice");
         #endregion
 
         return builder;
