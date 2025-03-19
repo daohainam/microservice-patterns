@@ -35,7 +35,7 @@ public static class PaymentApiExtensions
 }
     public class PaymentApi
     {
-        public static async Task<Results<Ok<Card>, BadRequest>> CreateCard([AsParameters] ApiServices services, Card card)
+        public static async Task<Results<Ok<CreditCard>, BadRequest>> CreateCard([AsParameters] ApiServices services, CreditCard card)
         {
             if (card == null)
             {

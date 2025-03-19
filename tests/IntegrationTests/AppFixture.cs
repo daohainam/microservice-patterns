@@ -9,6 +9,8 @@ using System.Threading.Tasks;
 namespace IntegrationTests;
 public class AppFixture : IDisposable
 {
+    private const int DefaultTimeout = 120;
+
     public DistributedApplication App => _app;
     private readonly DistributedApplication _app;
 
@@ -27,10 +29,16 @@ public class AppFixture : IDisposable
         _app.StartAsync().Wait();
 
         var resourceNotificationService = _app.Services.GetRequiredService<ResourceNotificationService>();
-        resourceNotificationService.WaitForResourceAsync<Saga_OnlineStore_CatalogService>(KnownResourceStates.Running).Wait(TimeSpan.FromSeconds(120));
-        resourceNotificationService.WaitForResourceAsync<Saga_OnlineStore_InventoryService>(KnownResourceStates.Running).Wait(TimeSpan.FromSeconds(120));
-        resourceNotificationService.WaitForResourceAsync<Saga_OnlineStore_OrderService>(KnownResourceStates.Running).Wait(TimeSpan.FromSeconds(120));
-        resourceNotificationService.WaitForResourceAsync<Saga_OnlineStore_PaymentService>(KnownResourceStates.Running).Wait(TimeSpan.FromSeconds(120));
+        resourceNotificationService.WaitForResourceAsync<Saga_OnlineStore_CatalogService>(KnownResourceStates.Running).Wait(TimeSpan.FromSeconds(DefaultTimeout));
+        resourceNotificationService.WaitForResourceAsync<Saga_OnlineStore_InventoryService>(KnownResourceStates.Running).Wait(TimeSpan.FromSeconds(DefaultTimeout));
+        resourceNotificationService.WaitForResourceAsync<Saga_OnlineStore_OrderService>(KnownResourceStates.Running).Wait(TimeSpan.FromSeconds(DefaultTimeout));
+        resourceNotificationService.WaitForResourceAsync<Saga_OnlineStore_PaymentService>(KnownResourceStates.Running).Wait(TimeSpan.FromSeconds(DefaultTimeout));
+
+        resourceNotificationService.WaitForResourceAsync<Saga_TripPlanner_HotelService>(KnownResourceStates.Running).Wait(TimeSpan.FromSeconds(DefaultTimeout));
+        resourceNotificationService.WaitForResourceAsync<Saga_TripPlanner_TicketService>(KnownResourceStates.Running).Wait(TimeSpan.FromSeconds(DefaultTimeout));
+        resourceNotificationService.WaitForResourceAsync<Saga_TripPlanner_PaymentService>(KnownResourceStates.Running).Wait(TimeSpan.FromSeconds(DefaultTimeout));
+        resourceNotificationService.WaitForResourceAsync<Saga_TripPlanner_TripPlanningService>(KnownResourceStates.Running).Wait(TimeSpan.FromSeconds(DefaultTimeout));
+
     }
 
     public void Dispose()

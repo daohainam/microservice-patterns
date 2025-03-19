@@ -40,6 +40,11 @@ public class HotelApi
             return TypedResults.BadRequest();
         }
 
+        if (room.Price <= 0 || room.MaxOccupancy <= 0)
+        {
+            return TypedResults.BadRequest();
+        }
+
         if (room.Id == Guid.Empty)
             room.Id = Guid.CreateVersion7();
 

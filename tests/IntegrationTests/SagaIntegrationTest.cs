@@ -1,11 +1,12 @@
 using Aspire.Hosting;
-using MicroservicePatterns.Shared.Pagination;
+using Microsoft.AspNetCore.Components.Endpoints;
 using Saga.OnlineStore.CatalogService.Infrastructure.Entity;
 using Saga.OnlineStore.InventoryService.Apis;
 using Saga.OnlineStore.InventoryService.Infrastructure.Entity;
 using Saga.OnlineStore.OrderService.Infrastructure.Entity;
 using Saga.OnlineStore.PaymentService.Apis;
 using Saga.OnlineStore.PaymentService.Infrastructure.Entity;
+using Saga.TripPlanner.HotelService.Infrastructure.Entity;
 using System.Net.Http.Json;
 
 namespace IntegrationTests.Tests
@@ -28,11 +29,7 @@ namespace IntegrationTests.Tests
         [InlineData(1000, 1200, 1200, 1000 * 1200, OrderStatus.Created)]
         [InlineData(100, 200, 201, 100 * 201, OrderStatus.Rejected)] // Not enough stock
         [InlineData(100, 201, 201, 100 * 201, OrderStatus.Created)]
-        public Task Create_Order_Using_Choreography(decimal productPrice, int quantityInStock, int orderItemQuantity, decimal bankAccountBalance, OrderStatus expectedOrderStatus)
-        {
-            return Create_Order("Choreography", productPrice, quantityInStock, orderItemQuantity, bankAccountBalance, expectedOrderStatus);
-        }
-        private async Task Create_Order(string postfix, decimal productPrice, int quantityInStock, int orderItemQuantity, decimal bankAccountBalance, OrderStatus expectedOrderStatus)
+        public async Task Create_OnlineStore_Order(decimal productPrice, int quantityInStock, int orderItemQuantity, decimal bankAccountBalance, OrderStatus expectedOrderStatus)
         {
             // Arrange
 
