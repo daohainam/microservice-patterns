@@ -22,10 +22,6 @@ public static class ApplicationServiceExtensions
             builder.Services.AddTransient<IEventPublisher, NullEventPublisher>();
         }
 
-        builder.Services.AddMediatR(cfg => {
-            cfg.RegisterServicesFromAssembly(typeof(Program).Assembly);
-        });
-
         var eventConsumingTopics = builder.Configuration.GetValue<string>(Consts.Env_EventConsumingTopics);
         if (!string.IsNullOrEmpty(eventConsumingTopics))
         {
