@@ -21,6 +21,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\patterns\EventSourcing\EventSourcing.Catalog.ProductService\EventSourcing.Catalog.ProductService.csproj" />
     <ProjectReference Include="..\MicroservicePatterns.Shared\MicroservicePatterns.Shared.csproj" IsAspireProjectResource="false" />
     <ProjectReference Include="..\patterns\CQRS\CQRS.Library.BookService\CQRS.Library.BookService.csproj" />
     <ProjectReference Include="..\patterns\CQRS\CQRS.Library.BorrowerService\CQRS.Library.BorrowerService.csproj" />

@@ -58,6 +58,14 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Saga.TripPlanner.PaymentSer
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Saga.TripPlanner.TripPlanningService", "patterns\Saga\Saga.TripPlanner.TripPlanningService\Saga.TripPlanner.TripPlanningService.csproj", "{6ECF3CB6-F8B7-657A-1C9E-AF46024553E1}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "EventSourcing", "EventSourcing", "{880FC6E0-303C-4FA8-82BF-8E7645F8A5D7}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventSourcing.Catalog.ProductService", "patterns\EventSourcing\EventSourcing.Catalog.ProductService\EventSourcing.Catalog.ProductService.csproj", "{89027152-894D-0030-E292-20C4AF933A03}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventSourcing.Catalog.IntegrationEvents", "patterns\EventSourcing\EventSourcing.Catalog.IntegrationEvents\EventSourcing.Catalog.IntegrationEvents.csproj", "{9D8FDE11-894E-4690-98EB-49A42430EE72}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventSourcing.Infrastructure", "patterns\EventSourcing\EventSourcing.Infrastructure\EventSourcing.Infrastructure.csproj", "{573BC3A9-7F7D-4C03-9934-C1B07BB0DED5}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -160,6 +168,18 @@ Global
 		{6ECF3CB6-F8B7-657A-1C9E-AF46024553E1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6ECF3CB6-F8B7-657A-1C9E-AF46024553E1}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6ECF3CB6-F8B7-657A-1C9E-AF46024553E1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{89027152-894D-0030-E292-20C4AF933A03}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{89027152-894D-0030-E292-20C4AF933A03}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{89027152-894D-0030-E292-20C4AF933A03}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{89027152-894D-0030-E292-20C4AF933A03}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9D8FDE11-894E-4690-98EB-49A42430EE72}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9D8FDE11-894E-4690-98EB-49A42430EE72}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9D8FDE11-894E-4690-98EB-49A42430EE72}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9D8FDE11-894E-4690-98EB-49A42430EE72}.Release|Any CPU.Build.0 = Release|Any CPU
+		{573BC3A9-7F7D-4C03-9934-C1B07BB0DED5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{573BC3A9-7F7D-4C03-9934-C1B07BB0DED5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{573BC3A9-7F7D-4C03-9934-C1B07BB0DED5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{573BC3A9-7F7D-4C03-9934-C1B07BB0DED5}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -185,6 +205,10 @@ Global
 		{71C064AE-091A-20BD-F09E-816E399FFB53} = {34650080-5C06-4A32-A233-762F74E439C6}
 		{8642D35E-8C2E-F4F2-71C1-434CF51FF076} = {34650080-5C06-4A32-A233-762F74E439C6}
 		{6ECF3CB6-F8B7-657A-1C9E-AF46024553E1} = {34650080-5C06-4A32-A233-762F74E439C6}
+		{880FC6E0-303C-4FA8-82BF-8E7645F8A5D7} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
+		{89027152-894D-0030-E292-20C4AF933A03} = {880FC6E0-303C-4FA8-82BF-8E7645F8A5D7}
+		{9D8FDE11-894E-4690-98EB-49A42430EE72} = {880FC6E0-303C-4FA8-82BF-8E7645F8A5D7}
+		{573BC3A9-7F7D-4C03-9934-C1B07BB0DED5} = {880FC6E0-303C-4FA8-82BF-8E7645F8A5D7}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {2A6D38EF-43A8-421A-9D76-87B6E1656DF5}
