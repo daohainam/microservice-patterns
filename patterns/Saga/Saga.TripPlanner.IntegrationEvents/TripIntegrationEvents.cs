@@ -8,11 +8,17 @@ public class TripCreatedIntegrationEvent: IntegrationEvent
     public DateTime StartDate { get; set; }
     public DateTime EndDate { get; set; }
     public TripStatus Status { get; set; } = TripStatus.Pending;
+    public DateTime CreationDate { get; set; }
     public List<TripHotelRoom> HotelRooms { get; set; } = [];
 }
 
 public class TripBookedIntegrationEvent : TripCreatedIntegrationEvent
 {
+}
+
+public class TripRejectedIntegrationEvent : TripCreatedIntegrationEvent
+{
+    public string Reason { get; set; } = default!;
 }
 
 public enum TripStatus
@@ -25,8 +31,11 @@ public enum TripStatus
 
 public class TripHotelRoom
 {
-    public string RoomType { get; set; } = default!;
-    public Guid BookedRoomId { get; set; }
+    public Guid Id { get; set; }
+    public Guid RoomId { get; set; }
+    public DateTime BookingDate { get; set; }
+    public DateTime CheckInDate { get; set; }
+    public DateTime CheckOutDate { get; set; }
 }
 
 public class TripFlightTicket

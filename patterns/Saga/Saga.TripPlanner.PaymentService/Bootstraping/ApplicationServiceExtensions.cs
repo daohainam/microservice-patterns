@@ -28,11 +28,11 @@ public static class ApplicationServiceExtensions
         if (!string.IsNullOrEmpty(eventConsumingTopics))
         {
             builder.AddKafkaEventConsumer(options => {
-                options.ServiceName = "PaymentService";
-                options.KafkaGroupId = "saga-payment-service";
+                options.ServiceName = "TripPlanningPaymentService";
+                options.KafkaGroupId = "saga-tripplanning-payment-service";
                 options.Topics.AddRange(eventConsumingTopics.Split(','));
                 options.IntegrationEventFactory = IntegrationEventFactory<HotelRoomBookedIntegrationEvent>.Instance;
-                options.AcceptEvent = e => e.IsEvent<HotelRoomBookingPendingIntegrationEvent>();
+                options.AcceptEvent = e => e.IsEvent<HotelRoomBookingPendingIntegrationEvent, TripRejectedIntegrationEvent>();
             });
         }
 

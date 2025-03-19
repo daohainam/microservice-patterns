@@ -12,7 +12,7 @@ using Saga.TripPlanner.TripPlanningService.Infrastructure.Data;
 namespace Saga.TripPlanner.TripPlanningService.Migrations
 {
     [DbContext(typeof(TripPlanningDbContext))]
-    [Migration("20250317151411_InitialCreate")]
+    [Migration("20250319100000_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -92,6 +92,9 @@ namespace Saga.TripPlanner.TripPlanningService.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreationDate")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<DateTime>("EndDate")
                         .HasColumnType("timestamp with time zone");

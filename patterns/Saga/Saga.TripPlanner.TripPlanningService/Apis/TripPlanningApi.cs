@@ -1,4 +1,6 @@
 ﻿
+using Saga.TripPlanner.IntegrationEvents;
+
 namespace Saga.TripPlanner.TripPlanningService.Apis;
 public static class TripPlanningApiExtensions
 {
@@ -38,9 +40,34 @@ public class TripPlanningApi
 
         if (trip.Id == Guid.Empty)
             trip.Id = Guid.CreateVersion7();
+        trip.CreationDate = DateTime.UtcNow;
 
         await services.DbContext.Trips.AddAsync(trip);
+        foreach (var hotelRoom in trip.HotelRoomBookings)
+        {
+            hotelRoom.Id = Guid.CreateVersion7();
+            hotelRoom.BookingDate = trip.CreationDate;
+        }
+
         await services.DbContext.SaveChangesAsync();
+
+        await services.EventPublisher.PublishAsync(new TripCreatedIntegrationEvent()
+        {
+            TripId = trip.Id,
+            StartDate = trip.StartDate,
+            EndDate = trip.EndDate,
+            CreationDate = trip.CreationDate,
+            Status = TripStatus.Pending,
+            TripName = trip.Name, 
+            HotelRooms = [.. trip.HotelRoomBookings.Select(h => new TripHotelRoom()
+            {
+                Id = Guid.CreateVersion7(),
+                RoomId = h.RoomId,
+                BookingDate = h.BookingDate,
+                CheckInDate = h.CheckInDate,
+                CheckOutDate = h.CheckOutDate,
+            })]
+        });
 
         return TypedResults.Ok(trip);
     }

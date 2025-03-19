@@ -8,7 +8,6 @@ public class HotelRoomBookedIntegrationEvent: IntegrationEvent
 }
 public class HotelRoomBookingPendingIntegrationEvent : IntegrationEvent
 {
-    public Guid RoomId { get; set; }
     public Guid TripId { get; set; }
 }
 public class HotelRoomBookingRejectedIntegrationEvent : IntegrationEvent

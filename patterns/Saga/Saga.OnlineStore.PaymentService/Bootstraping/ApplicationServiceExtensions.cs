@@ -26,8 +26,8 @@ public static class ApplicationServiceExtensions
         if (!string.IsNullOrEmpty(eventConsumingTopics))
         {
             builder.AddKafkaEventConsumer(options => {
-                options.ServiceName = "PaymentService";
-                options.KafkaGroupId = "saga-payment-service";
+                options.ServiceName = "OnlineStorePaymentService";
+                options.KafkaGroupId = "saga-onlinestore-payment-service";
                 options.Topics.AddRange(eventConsumingTopics.Split(','));
                 options.IntegrationEventFactory = IntegrationEventFactory<ProductCreatedIntegrationEvent>.Instance;
                 options.AcceptEvent = e => e.IsEvent<OrderItemsReservedIntegrationEvent>();
