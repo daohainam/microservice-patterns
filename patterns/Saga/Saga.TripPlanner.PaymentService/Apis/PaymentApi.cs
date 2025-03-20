@@ -18,104 +18,94 @@ public static class PaymentApiExtensions
     {
         group.MapGet("cards", async ([AsParameters] ApiServices services) =>
         {
-            return await services.DbContext.Cards.ToListAsync();
+            return await services.DbContext.CreditCards.ToListAsync();
         });
 
         group.MapGet("cards/{id:guid}", async ([AsParameters] ApiServices services, Guid id) =>
         {
-            return await services.DbContext.Cards.FindAsync(id);
+            return await services.DbContext.CreditCards.FindAsync(id);
         });
 
         group.MapPost("cards", PaymentApi.CreateCard);
 
         group.MapDelete("cards/{id:guid}", PaymentApi.DeleteCard);
-        group.MapPut("cards/{id:guid}/deposit", PaymentApi.Deposit);
+        group.MapPut("cards/{id:guid}/pay", PaymentApi.Deposit);
         return group;
     }
 }
-    public class PaymentApi
+public class PaymentApi
+{
+    public static async Task<Results<Ok<CreditCard>, BadRequest>> CreateCard([AsParameters] ApiServices services, CreditCard card)
     {
-        public static async Task<Results<Ok<CreditCard>, BadRequest>> CreateCard([AsParameters] ApiServices services, CreditCard card)
+        if (card == null)
         {
-            if (card == null)
-            {
-                return TypedResults.BadRequest();
-            }
-
-            if (card.Balance != 0)
-            {
-                services.Logger.LogError("New card must have balance = 0");
-                return TypedResults.BadRequest();
-            }
-
-            if (card.Id == Guid.Empty)
-                card.Id = Guid.CreateVersion7();
-
-            var existingCard = await services.DbContext.Cards.Where(c => c.CardNumber == card.CardNumber).SingleOrDefaultAsync();
-            if (existingCard != null)
-            {
-                services.Logger.LogError("Card already exists");
-                return TypedResults.BadRequest();
-            }
-
-            await services.DbContext.Cards.AddAsync(card);
-            await services.DbContext.SaveChangesAsync();
-
-            await services.EventPublisher.PublishAsync(new CardCreatedIntegrationEvent()
-            {
-                CardId = card.Id,
-                CardNumber = card.CardNumber,
-                ExpirationDate = card.ExpirationDate,
-                CardHolderName = card.CardHolderName,
-                Cvv = card.Cvv
-            });
-
-            return TypedResults.Ok(card);
+            return TypedResults.BadRequest();
         }
 
-        public static async Task<Results<NotFound, Ok>> DeleteCard([AsParameters] ApiServices services, Guid id)
+        if (card.CreditLimit <= 0)
         {
-        var r = await services.DbContext.Cards.Where(c => c.Id == id).ExecuteDeleteAsync();
+            services.Logger.LogError("Credit limit must be greater than 0");
+            return TypedResults.BadRequest();
+        }
+
+        if (card.AvailableCredit != card.CreditLimit)
+        {
+            services.Logger.LogError("Available credit must be equal to credit limit");
+            return TypedResults.BadRequest();
+        }
+
+        if (card.Id == Guid.Empty)
+            card.Id = Guid.CreateVersion7();
+
+        var existingCard = await services.DbContext.CreditCards.Where(c => c.CardNumber == card.CardNumber).SingleOrDefaultAsync();
+        if (existingCard != null)
+        {
+            services.Logger.LogError("Card already exists");
+            return TypedResults.BadRequest();
+        }
+
+        await services.DbContext.CreditCards.AddAsync(card);
+        await services.DbContext.SaveChangesAsync();
+
+        return TypedResults.Ok(card);
+    }
+
+    public static async Task<Results<NotFound, Ok>> DeleteCard([AsParameters] ApiServices services, Guid id)
+    {
+        var r = await services.DbContext.CreditCards.Where(c => c.Id == id).ExecuteDeleteAsync();
         if (r == 0)
         {
             return TypedResults.NotFound();
         }
 
-        await services.EventPublisher.PublishAsync(new CardDeletedIntegrationEvent()
-            {
-                CardId = id
-            });
-
-            return TypedResults.Ok();
-        }
-    public static async Task<Results<NotFound, Ok, BadRequest>> Deposit([AsParameters] ApiServices services, Guid id, [FromBody]Deposit deposit)
-        {
-            if (deposit.Amount <= 0)
-            {
-                return TypedResults.BadRequest();
-            }
-
-            var existingCard = await services.DbContext.Cards.FindAsync(id);
-            if (existingCard == null)
-            {
-                return TypedResults.NotFound();
-            }
-
-            existingCard.Balance += deposit.Amount;
-            services.DbContext.Cards.Update(existingCard);
-
-            await services.DbContext.SaveChangesAsync();
-            await services.EventPublisher.PublishAsync(new CardBalanceChangedIntegrationEvent()
-            {
-                CardId = existingCard.Id,
-                Balance = existingCard.Balance,
-            });
-
-            return TypedResults.Ok();
-        }
+        return TypedResults.Ok();
     }
-
-    public record Deposit
+    public static async Task<Results<NotFound, Ok, BadRequest>> Deposit([AsParameters] ApiServices services, Guid id, [FromBody] CreditCardPayment payment)
     {
-        public decimal Amount { get; set; }
+        if (payment.Amount <= 0)
+        {
+            services.Logger.LogError("Payment amount must be greater than 0");
+            return TypedResults.BadRequest();
+        }
+
+        var existingCard = await services.DbContext.CreditCards.FindAsync(id);
+        if (existingCard == null)
+        {
+            return TypedResults.NotFound();
+        }
+
+        var availableCredit = existingCard.AvailableCredit + payment.Amount; // we allow overpayment
+
+        existingCard.AvailableCredit = availableCredit;
+        services.DbContext.CreditCards.Update(existingCard);
+
+        await services.DbContext.SaveChangesAsync();
+
+        return TypedResults.Ok();
     }
+}
+
+public record CreditCardPayment
+{
+    public decimal Amount { get; set; }
+}

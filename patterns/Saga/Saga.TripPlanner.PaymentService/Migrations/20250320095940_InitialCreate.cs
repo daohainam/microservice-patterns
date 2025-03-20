@@ -12,7 +12,7 @@ namespace Saga.TripPlanner.PaymentService.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
-                name: "Cards",
+                name: "CreditCards",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
@@ -20,11 +20,12 @@ namespace Saga.TripPlanner.PaymentService.Migrations
                     CardHolderName = table.Column<string>(type: "text", nullable: false),
                     ExpirationDate = table.Column<string>(type: "text", nullable: false),
                     Cvv = table.Column<string>(type: "text", nullable: false),
-                    Balance = table.Column<decimal>(type: "numeric", nullable: false)
+                    CreditLimit = table.Column<decimal>(type: "numeric", nullable: false),
+                    AvailableCredit = table.Column<decimal>(type: "numeric", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Cards", x => x.Id);
+                    table.PrimaryKey("PK_CreditCards", x => x.Id);
                 });
         }
 
@@ -32,7 +33,7 @@ namespace Saga.TripPlanner.PaymentService.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "Cards");
+                name: "CreditCards");
         }
     }
 }

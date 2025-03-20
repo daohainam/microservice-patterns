@@ -12,7 +12,7 @@ using Saga.TripPlanner.PaymentService.Infrastructure.Data;
 namespace Saga.TripPlanner.PaymentService.Migrations
 {
     [DbContext(typeof(PaymentDbContext))]
-    [Migration("20250317151204_InitialCreate")]
+    [Migration("20250320095940_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -25,13 +25,13 @@ namespace Saga.TripPlanner.PaymentService.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("Saga.TripPlanner.PaymentService.Infrastructure.Entity.Card", b =>
+            modelBuilder.Entity("Saga.TripPlanner.PaymentService.Infrastructure.Entity.CreditCard", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<decimal>("Balance")
+                    b.Property<decimal>("AvailableCredit")
                         .HasColumnType("numeric");
 
                     b.Property<string>("CardHolderName")
@@ -41,6 +41,9 @@ namespace Saga.TripPlanner.PaymentService.Migrations
                     b.Property<string>("CardNumber")
                         .IsRequired()
                         .HasColumnType("text");
+
+                    b.Property<decimal>("CreditLimit")
+                        .HasColumnType("numeric");
 
                     b.Property<string>("Cvv")
                         .IsRequired()
@@ -52,7 +55,7 @@ namespace Saga.TripPlanner.PaymentService.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Cards");
+                    b.ToTable("CreditCards");
                 });
 #pragma warning restore 612, 618
         }
