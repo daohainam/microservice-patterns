@@ -1,11 +1,4 @@
 using Aspire.Hosting;
-using Microsoft.AspNetCore.Components.Endpoints;
-using Saga.OnlineStore.CatalogService.Infrastructure.Entity;
-using Saga.OnlineStore.InventoryService.Apis;
-using Saga.OnlineStore.InventoryService.Infrastructure.Entity;
-using Saga.OnlineStore.OrderService.Infrastructure.Entity;
-using Saga.OnlineStore.PaymentService.Apis;
-using Saga.OnlineStore.PaymentService.Infrastructure.Entity;
 using Saga.TripPlanner.HotelService.Infrastructure.Entity;
 using Saga.TripPlanner.PaymentService.Infrastructure.Entity;
 using Saga.TripPlanner.TicketService.Infrastructure.Entity;

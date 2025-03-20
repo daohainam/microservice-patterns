@@ -12,7 +12,7 @@ using Saga.TripPlanner.TripPlanningService.Infrastructure.Data;
 namespace Saga.TripPlanner.TripPlanningService.Migrations
 {
     [DbContext(typeof(TripPlanningDbContext))]
-    [Migration("20250319100000_InitialCreate")]
+    [Migration("20250320211707_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -56,7 +56,7 @@ namespace Saga.TripPlanner.TripPlanningService.Migrations
                     b.ToTable("HotelBookings");
                 });
 
-            modelBuilder.Entity("Saga.TripPlanner.TripPlanningService.Infrastructure.Entity.Ticket", b =>
+            modelBuilder.Entity("Saga.TripPlanner.TripPlanningService.Infrastructure.Entity.TicketBooking", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -64,15 +64,6 @@ namespace Saga.TripPlanner.TripPlanningService.Migrations
 
                     b.Property<DateTime>("BookingDate")
                         .HasColumnType("timestamp with time zone");
-
-                    b.Property<DateTime>("CheckInDate")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<DateTime>("CheckOutDate")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<Guid>("RoomId")
-                        .HasColumnType("uuid");
 
                     b.Property<int>("Status")
                         .HasColumnType("integer");
@@ -123,10 +114,10 @@ namespace Saga.TripPlanner.TripPlanningService.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Saga.TripPlanner.TripPlanningService.Infrastructure.Entity.Ticket", b =>
+            modelBuilder.Entity("Saga.TripPlanner.TripPlanningService.Infrastructure.Entity.TicketBooking", b =>
                 {
                     b.HasOne("Saga.TripPlanner.TripPlanningService.Infrastructure.Entity.Trip", null)
-                        .WithMany("Tickets")
+                        .WithMany("TicketBookings")
                         .HasForeignKey("TripId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -136,7 +127,7 @@ namespace Saga.TripPlanner.TripPlanningService.Migrations
                 {
                     b.Navigation("HotelRoomBookings");
 
-                    b.Navigation("Tickets");
+                    b.Navigation("TicketBookings");
                 });
 #pragma warning restore 612, 618
         }

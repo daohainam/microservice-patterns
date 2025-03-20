@@ -11,7 +11,7 @@ public class Trip
     public DateTime CreationDate { get; set; }
 
     [JsonIgnore]
-    public List<Ticket> Tickets { get; set; } = [];
+    public List<TicketBooking> TicketBookings { get; set; } = [];
     [JsonIgnore]
     public List<HotelBooking> HotelRoomBookings { get; set; } = [];
 }

@@ -3,5 +3,5 @@ public class TripPlanningDbContext(DbContextOptions<TripPlanningDbContext> optio
 {
     public DbSet<Trip> Trips{ get; set; } = default!;
     public DbSet<HotelBooking> HotelBookings { get; set; } = default!;
-    public DbSet<Ticket> Tickets { get; set; } = default!;
+    public DbSet<TicketBooking> Tickets { get; set; } = default!;
 }
