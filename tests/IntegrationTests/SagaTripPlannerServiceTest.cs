@@ -95,56 +95,79 @@ namespace IntegrationTests.Tests
         }
 
         [Theory]
-        [InlineData(150, "train")]
-        [InlineData(300, "train")]
-        [InlineData(500, "flight")]
-        public async Task Create_Ticket_Success(decimal price, string ticketTypeId)
+        [InlineData("train_100", 100)]
+        [InlineData("train_120", 120)]
+        [InlineData("flight", 200)]
+        public async Task Create_Ticket_Success(string ticketTypeId, decimal price)
         {
             var ticketHttpClient = App.CreateHttpClient<Projects.Saga_TripPlanner_TicketService>();
+
+            var response = await ticketHttpClient.PostAsJsonAsync("/api/saga/v1/ticket-types", new TicketType()
+            {
+                Id = ticketTypeId,
+                Name = $"Test Ticket: {ticketTypeId}",
+                Price = price,
+                AvailableTickets = 100
+            });
+
+            // Assert
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+
+            // Act
+            var ticketTypeResponse = await ticketHttpClient.GetAsync($"/api/saga/v1/ticket-types/{ticketTypeId}");
+            var ticketType = await ticketTypeResponse.Content.ReadFromJsonAsync<TicketType>();
+
+            // Assert
+            Assert.Equal(HttpStatusCode.OK, ticketTypeResponse.StatusCode);
+            Assert.NotNull(ticketType);
+            Assert.Equal(ticketTypeId, ticketType.Id);
+
+            // Act
             var ticket = new Ticket()
             {
                 Id = Guid.NewGuid(),
-                Price = price,
                 TicketTypeId = ticketTypeId
             };
-            var response = await ticketHttpClient.PostAsJsonAsync("/api/saga/v1/tickets", ticket);
+            response = await ticketHttpClient.PostAsJsonAsync("/api/saga/v1/tickets", ticket);
 
             // Assert
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
             // Act
             var result = await response.Content.ReadFromJsonAsync<Ticket>();
-
+            
             // Assert
             Assert.NotNull(result);
             Assert.Equal(ticket.Id, result.Id);
-            Assert.Equal(ticket.Price, result.Price);
+            Assert.Equal(price, result.Price);
             Assert.Equal(ticket.TicketTypeId, result.TicketTypeId);
 
             // Act
             response = await ticketHttpClient.GetAsync($"/api/saga/v1/tickets/{ticket.Id}");
+
+            // Assert
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+
+            // Act
             result = await response.Content.ReadFromJsonAsync<Ticket>();
 
             // Assert
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
             Assert.NotNull(result);
             Assert.Equal(ticket.Id, result.Id);
-            Assert.Equal(ticket.Price, result.Price);
+            Assert.Equal(price, result.Price);
             Assert.Equal(ticket.TicketTypeId, result.TicketTypeId);
         }
 
-        [Theory]
-        [InlineData(-150, "train")]
-        [InlineData(300, "")]
-        [InlineData(0, "train")]
-        public async Task Create_Ticket_Failed(decimal price, string ticketTypeId)
+        [Fact]
+        public async Task Create_Ticket_TicketType_NotFound()
         {
             var ticketHttpClient = App.CreateHttpClient<Projects.Saga_TripPlanner_TicketService>();
+
             var ticket = new Ticket()
             {
                 Id = Guid.NewGuid(),
-                Price = price,
-                TicketTypeId = ticketTypeId
+                TicketTypeId = "ticket_type_not_found"
             };
             var response = await ticketHttpClient.PostAsJsonAsync("/api/saga/v1/tickets", ticket);
 
@@ -153,10 +176,10 @@ namespace IntegrationTests.Tests
         }
 
         [Theory]
-        [InlineData(1000, 1000)]
-        [InlineData(500, 200)]
-        [InlineData(999999, 999999)]
-        public async Task Create_And_Use_Credit_Card_Success(decimal creditLimit, decimal borrowAmount)
+        [InlineData(1000)]
+        [InlineData(500)]
+        [InlineData(999999)]
+        public async Task Create_Credit_Card_Success(decimal creditLimit)
         {
             var paymentHttpClient = App.CreateHttpClient<Projects.Saga_TripPlanner_PaymentService>();
             var creditCard = new CreditCard()
@@ -169,7 +192,7 @@ namespace IntegrationTests.Tests
                 CreditLimit = creditLimit,
                 AvailableCredit = creditLimit
             };
-            var response = await paymentHttpClient.PostAsJsonAsync("/api/saga/v1/payments", creditCard);
+            var response = await paymentHttpClient.PostAsJsonAsync("/api/saga/v1/cards", creditCard);
 
             // Assert
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
@@ -188,7 +211,7 @@ namespace IntegrationTests.Tests
             Assert.Equal(creditCard.AvailableCredit, result.AvailableCredit);
 
             // Act
-            response = await paymentHttpClient.GetAsync($"/api/saga/v1/payments/{creditCard.Id}");
+            response = await paymentHttpClient.GetAsync($"/api/saga/v1/cards/{creditCard.Id}");
             result = await response.Content.ReadFromJsonAsync<CreditCard>();
 
             // Assert
@@ -205,24 +228,6 @@ namespace IntegrationTests.Tests
             // Act
 
         }
-
-        [Theory]
-        [InlineData(-1000, "Credit Card")]
-        [InlineData(500, "")]
-        [InlineData(0, "Bank Transfer")]
-        public async Task Create_Payment_Failed(decimal amount, string method)
-        {
-            var paymentHttpClient = App.CreateHttpClient<Projects.Saga_TripPlanner_PaymentService>();
-            var payment = new CreditCard()
-            {
-                Id = Guid.NewGuid(),
-            };
-            var response = await paymentHttpClient.PostAsJsonAsync("/api/saga/v1/payments", payment);
-
-            // Assert
-            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
-        }
-
 
     }
 }

@@ -29,7 +29,7 @@ public static class PaymentApiExtensions
         group.MapPost("cards", PaymentApi.CreateCard);
 
         group.MapDelete("cards/{id:guid}", PaymentApi.DeleteCard);
-        group.MapPut("cards/{id:guid}/pay", PaymentApi.Deposit);
+        group.MapPut("cards/{id:guid}/pay", PaymentApi.Pay);
         return group;
     }
 }
@@ -42,9 +42,9 @@ public class PaymentApi
             return TypedResults.BadRequest();
         }
 
-        if (card.CreditLimit <= 0)
+        if (card.CreditLimit < 0)
         {
-            services.Logger.LogError("Credit limit must be greater than 0");
+            services.Logger.LogError("Credit limit must be greater than or equal 0");
             return TypedResults.BadRequest();
         }
 
@@ -80,7 +80,7 @@ public class PaymentApi
 
         return TypedResults.Ok();
     }
-    public static async Task<Results<NotFound, Ok, BadRequest>> Deposit([AsParameters] ApiServices services, Guid id, [FromBody] CreditCardPayment payment)
+    public static async Task<Results<NotFound, Ok, BadRequest>> Pay([AsParameters] ApiServices services, Guid id, [FromBody] CreditCardPayment payment)
     {
         if (payment.Amount <= 0)
         {

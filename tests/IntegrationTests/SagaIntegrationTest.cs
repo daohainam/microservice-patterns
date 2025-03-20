@@ -11,12 +11,12 @@ using System.Net.Http.Json;
 
 namespace IntegrationTests.Tests
 {
-    public class SagaIntegrationTest : IClassFixture<AppFixture>
+    public class SagaOnlineStoreTest : IClassFixture<AppFixture>
     {
         private readonly AppFixture fixture;
         private DistributedApplication App => fixture.App;
 
-        public SagaIntegrationTest(AppFixture fixture)
+        public SagaOnlineStoreTest(AppFixture fixture)
         {
             this.fixture = fixture;
         }
