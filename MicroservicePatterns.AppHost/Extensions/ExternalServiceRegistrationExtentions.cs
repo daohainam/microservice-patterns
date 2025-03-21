@@ -174,6 +174,9 @@ public static class ExternalServiceRegistrationExtentions
                 )
             .WithReference(kafka)
             .WithReference(sagaTripPlanningDb, Consts.DefaultDatabase)
+            .WithReference(sagaPaymentService)
+            .WithReference(sagaTicketService)
+            .WithReference(sagaHotelService)
             .WaitFor(sagaTripPlanningDb)
             .WaitFor(kafka);
         #endregion

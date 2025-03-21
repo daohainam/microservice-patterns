@@ -10,6 +10,10 @@ public class TicketBooking
 public enum BookingStatus
 {
     Pending,
+    TicketsBooked,
+    HotelRoomsBooked,
     Rejected,
+    HotelRoomBookingCancelled,
+    TicketsCancelled,
     Confirmed
 }

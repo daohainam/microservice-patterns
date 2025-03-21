@@ -49,7 +49,10 @@ public class TripPlanningApi
             hotelRoom.BookingDate = trip.CreationDate;
         }
 
+        // we commmit the transaction here to make sure that the trip is created before we handle the saga
         await services.DbContext.SaveChangesAsync();
+
+        await HandleSaga(services, trip);
 
         await services.EventPublisher.PublishAsync(new TripCreatedIntegrationEvent()
         {
@@ -57,7 +60,7 @@ public class TripPlanningApi
             StartDate = trip.StartDate,
             EndDate = trip.EndDate,
             CreationDate = trip.CreationDate,
-            Status = TripStatus.Pending,
+            Status = TripStatus.Booked,
             TripName = trip.Name, 
             HotelRooms = [.. trip.HotelRoomBookings.Select(h => new TripHotelRoom()
             {
@@ -70,5 +73,10 @@ public class TripPlanningApi
         });
 
         return TypedResults.Ok(trip);
+    }
+
+    private static async Task HandleSaga(ApiServices services, Trip trip)
+    {
+        
     }
 }

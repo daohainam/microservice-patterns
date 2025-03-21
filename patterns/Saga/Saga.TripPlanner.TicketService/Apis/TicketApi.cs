@@ -35,8 +35,8 @@ public static class TicketApiExtensions
             return await services.DbContext.Tickets.FindAsync(id);
         });
 
-        group.MapPost("tickets", TicketApi.CreateTicket);
-        group.MapPut("tickets/{id:guid}/confirm", TicketApi.ConfirmTicket);
+        group.MapPost("tickets", TicketApi.CreateTickets);
+        group.MapPut("tickets/{id:guid}/confirm", TicketApi.CancelTickets);
 
 
         return group;
@@ -88,59 +88,72 @@ public class TicketApi
 
     }
 
-    internal static async Task<Results<Ok<Ticket>, BadRequest>> CreateTicket([AsParameters] ApiServices services, Ticket ticket)
+    internal static async Task<Results<Ok<List<Ticket>>, BadRequest>> CreateTickets([AsParameters] ApiServices services, List<Ticket> tickets)
     {
-        if (ticket == null) {
+        if (tickets == null || tickets.Count == 0) {
             return TypedResults.BadRequest();
         }
 
-        var ticketType = await services.DbContext.TicketTypes.FindAsync(ticket.TicketTypeId);
-        if (ticketType == null)
+        foreach (Ticket ticket in tickets)
         {
-            services.Logger.LogInformation("Ticket type {id} not found", ticket.TicketTypeId);
-            return TypedResults.BadRequest();
+            var ticketType = await services.DbContext.TicketTypes.FindAsync(ticket.TicketTypeId);
+            if (ticketType == null)
+            {
+                services.Logger.LogInformation("Ticket type {id} not found", ticket.TicketTypeId);
+                return TypedResults.BadRequest();
+            }
+
+            if (ticketType.AvailableTickets <= 0)
+            {
+                services.Logger.LogInformation("Ticket type {id} is sold out", ticket.TicketTypeId);
+                return TypedResults.BadRequest();
+            }
+
+            if (ticket.Id == Guid.Empty)
+                ticket.Id = Guid.CreateVersion7();
+
+            ticket.Price = ticketType.Price;
+            ticket.Status = TicketStatus.Booked;
+
+            ticketType.AvailableTickets--;
+
+            await services.DbContext.Tickets.AddAsync(ticket);
         }
 
-        if (ticketType.AvailableTickets <= 0)
-        {
-            services.Logger.LogInformation("Ticket type {id} is sold out", ticket.TicketTypeId);
-            return TypedResults.BadRequest();
-        }
-
-        if (ticket.Id == Guid.Empty)
-            ticket.Id = Guid.CreateVersion7();
-
-        ticket.Price = ticketType.Price;
-        ticket.Status = TicketStatus.Confirmed;
-
-        ticketType.AvailableTickets--;
-
-        await services.DbContext.Tickets.AddAsync(ticket);
         await services.DbContext.SaveChangesAsync();
 
-        return TypedResults.Ok(ticket);
+        return TypedResults.Ok(tickets);
     }
 
-    internal static async Task<Results<Ok<Ticket>, BadRequest, NotFound>> ConfirmTicket([AsParameters] ApiServices services, Guid id)
+    internal static async Task<Results<Ok, BadRequest, NotFound>> CancelTickets([AsParameters] ApiServices services, List<Guid> ticketIds)
     {
-        var ticket = await services.DbContext.Tickets.FindAsync(id);
-        if (ticket == null)
+        if (ticketIds == null || ticketIds.Count == 0)
         {
-            return TypedResults.NotFound();
-        }
-
-        if (ticket.Status != TicketStatus.Pending)
-        {
-            services.Logger.LogInformation("Ticket {id} is not in pending state", ticket.Id);
             return TypedResults.BadRequest();
         }
 
-        ticket.Status = TicketStatus.Confirmed;
+        foreach (Guid id in ticketIds)
+        {
+            var ticket = await services.DbContext.Tickets.FindAsync(id);
+            if (ticket == null)
+            {
+                return TypedResults.NotFound();
+            }
+
+            if (ticket.Status != TicketStatus.Booked)
+            {
+                services.Logger.LogInformation("Ticket {id} is not in Booked state", ticket.Id);
+                return TypedResults.BadRequest();
+            }
+
+            ticket.Status = TicketStatus.Cancelled;
+            ticket.TicketType.AvailableTickets++;
+        }
 
         await services.DbContext.SaveChangesAsync();
-        services.Logger.LogInformation("Ticket {id} confirmed successfully", ticket.Id);
+        services.Logger.LogInformation("Ticket {ids} confirmed successfully", ticketIds);
 
-        return TypedResults.Ok(ticket);
+        return TypedResults.Ok();
     }
 
 }

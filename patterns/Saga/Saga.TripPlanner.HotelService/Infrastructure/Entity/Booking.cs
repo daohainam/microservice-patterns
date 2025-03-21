@@ -7,12 +7,11 @@ public class Booking
     public DateTime BookingDate { get; set; }
     public DateTime CheckInDate { get; set; }
     public DateTime CheckOutDate { get; set; }
-    public BookingStatus Status { get; set; } = BookingStatus.Pending;
+    public BookingStatus Status { get; set; } = BookingStatus.Booked;
 }
 
 public enum BookingStatus
 {
-    Pending,
-    Rejected,
-    Confirmed
+    Booked,
+    Cancelled
 }

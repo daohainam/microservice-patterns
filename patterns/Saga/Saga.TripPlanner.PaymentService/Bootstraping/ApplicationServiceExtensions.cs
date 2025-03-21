@@ -1,6 +1,4 @@
-﻿using Saga.TripPlanner.IntegrationEvents;
-
-namespace Saga.TripPlanner.PaymentService.Bootstraping;
+﻿namespace Saga.TripPlanner.PaymentService.Bootstraping;
 public static class ApplicationServiceExtensions
 {
     public static IHostApplicationBuilder AddApplicationServices(this IHostApplicationBuilder builder)
@@ -32,7 +30,7 @@ public static class ApplicationServiceExtensions
                 options.KafkaGroupId = "saga-tripplanning-payment-service";
                 options.Topics.AddRange(eventConsumingTopics.Split(','));
                 options.IntegrationEventFactory = IntegrationEventFactory<HotelRoomBookedIntegrationEvent>.Instance;
-                options.AcceptEvent = e => e.IsEvent<HotelRoomBookingPendingIntegrationEvent, TripRejectedIntegrationEvent>();
+                options.AcceptEvent = e => e.IsEvent<HotelRoomBookedIntegrationEvent, TripRejectedIntegrationEvent>();
             });
         }
 

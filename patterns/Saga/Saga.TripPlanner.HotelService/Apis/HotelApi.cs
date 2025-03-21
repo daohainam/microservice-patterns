@@ -26,7 +26,7 @@ public static class HotelApiExtensions
         group.MapPost("rooms", HotelApi.CreateRoom);
 
         group.MapPost("rooms/{id:guid}/bookings", HotelApi.CreateBooking);
-        group.MapPut("bookings/{bookingId:guid}/confirm", HotelApi.ConfirmBooking);
+        group.MapPut("bookings/{bookingId:guid}/cancel", HotelApi.CancelBooking);
 
 
         return group;
@@ -81,7 +81,7 @@ public class HotelApi
 
         booking.RoomId = id;
         booking.BookingDate = DateTime.UtcNow;
-        booking.Status = BookingStatus.Pending;
+        booking.Status = BookingStatus.Booked;
         bookings.Add(booking);
 
         await services.DbContext.SaveChangesAsync();
@@ -91,7 +91,7 @@ public class HotelApi
         return TypedResults.Ok(booking);
     }
 
-    internal static async Task<Results<Ok<Booking>, BadRequest, NotFound>> ConfirmBooking([AsParameters] ApiServices services, Guid bookingId)
+    internal static async Task<Results<Ok<Booking>, BadRequest, NotFound>> CancelBooking([AsParameters] ApiServices services, Guid bookingId)
     {
         var booking = await services.DbContext.Bookings.FindAsync(bookingId);
         if (booking == null)
@@ -99,16 +99,16 @@ public class HotelApi
             return TypedResults.NotFound();
         }
 
-        if (booking.Status != BookingStatus.Pending)
+        if (booking.Status != BookingStatus.Booked)
         {
-            services.Logger.LogInformation("Booking {id} is not in pending state", booking.Id);
+            services.Logger.LogInformation("Booking {id} is not in booked state", booking.Id);
             return TypedResults.BadRequest();
         }
 
-        booking.Status = BookingStatus.Confirmed;
+        booking.Status = BookingStatus.Cancelled;
         
         await services.DbContext.SaveChangesAsync();
-        services.Logger.LogInformation("Booking {id} confirmed successfully", booking.Id);
+        services.Logger.LogInformation("Booking {id} cancelled successfully", booking.Id);
 
         return TypedResults.Ok(booking);
     }

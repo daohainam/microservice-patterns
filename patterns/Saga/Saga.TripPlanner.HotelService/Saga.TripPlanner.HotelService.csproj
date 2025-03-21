@@ -24,4 +24,8 @@
 	  <ProjectReference Include="..\Saga.TripPlanner.IntegrationEvents\Saga.TripPlanner.IntegrationEvents.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="EventHandlers\" />
+  </ItemGroup>
+
 </Project>

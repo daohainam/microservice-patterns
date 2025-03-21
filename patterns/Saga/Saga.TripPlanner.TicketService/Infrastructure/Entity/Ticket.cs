@@ -6,13 +6,15 @@ public class Ticket
     public Guid Id { get; set; }
     public string TicketTypeId { get; set; } = default!;
     public decimal Price { get; set; }
-    public TicketStatus Status { get; set; } = TicketStatus.Pending;
+    public TicketStatus Status { get; set; } = TicketStatus.Booked;
+
+    [JsonIgnore]
+    public TicketType TicketType { get; set; } = default!;
 }
 
 public enum TicketStatus
 {
-    Pending,
-    Rejected,
-    Confirmed,
-    Cancelled
+    Booked,
+    Cancelled,
+    CheckedIn,
 }
