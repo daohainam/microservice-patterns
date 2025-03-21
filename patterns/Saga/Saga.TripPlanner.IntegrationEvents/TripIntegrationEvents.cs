@@ -38,8 +38,9 @@ public class TripHotelRoom
     public DateTime CheckOutDate { get; set; }
 }
 
-public class TripFlightTicket
+public class TripTicket
 {
+    public Guid Id { get; set; }
     public string FlightNumber { get; set; } = default!;
     public DateTime FlightTime { get; set; } = default!;
     public Guid BookedTicketId { get; set; }

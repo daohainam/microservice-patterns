@@ -15,14 +15,14 @@ namespace Saga.UnitTests
         private SqliteConnection _connection = default!;
         private DbContextOptions<InventoryDbContext> _contextOptions = default!;
 
-        public Task DisposeAsync()
+        public ValueTask DisposeAsync()
         {
             _connection?.Close();
 
-            return Task.CompletedTask;
+            return ValueTask.CompletedTask;
         }
 
-        public Task InitializeAsync()
+        public ValueTask InitializeAsync()
         {
             _connection = new SqliteConnection("Filename=:memory:");
             _connection.Open();
@@ -31,7 +31,7 @@ namespace Saga.UnitTests
                 .UseSqlite(_connection)
                 .Options;
 
-            return Task.CompletedTask;
+            return ValueTask.CompletedTask;
         }
 
         [Fact]

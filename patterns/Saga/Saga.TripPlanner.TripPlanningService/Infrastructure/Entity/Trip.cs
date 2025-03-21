@@ -9,9 +9,6 @@ public class Trip
     public string Name { get; set; } = default!;
     public BookingStatus Status { get; set; } = BookingStatus.Pending;
     public DateTime CreationDate { get; set; }
-
-    [JsonIgnore]
     public List<TicketBooking> TicketBookings { get; set; } = [];
-    [JsonIgnore]
     public List<HotelBooking> HotelRoomBookings { get; set; } = [];
 }

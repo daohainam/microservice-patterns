@@ -1,10 +1,8 @@
 ﻿using Aspire.Hosting;
+using IntegrationTests;
 using Projects;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+
+[assembly: AssemblyFixture(typeof(AppFixture))]
 
 namespace IntegrationTests;
 public class AppFixture : IDisposable
@@ -39,6 +37,7 @@ public class AppFixture : IDisposable
         resourceNotificationService.WaitForResourceAsync<Saga_TripPlanner_PaymentService>(KnownResourceStates.Running).Wait(TimeSpan.FromSeconds(DefaultTimeout));
         resourceNotificationService.WaitForResourceAsync<Saga_TripPlanner_TripPlanningService>(KnownResourceStates.Running).Wait(TimeSpan.FromSeconds(DefaultTimeout));
 
+        Task.Delay(2000).Wait();
     }
 
     public void Dispose()
