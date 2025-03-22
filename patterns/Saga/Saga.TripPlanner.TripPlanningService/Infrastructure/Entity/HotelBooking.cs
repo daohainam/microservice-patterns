@@ -8,5 +8,5 @@ public class HotelBooking
     public DateTime BookingDate { get; set; }
     public DateTime CheckInDate { get; set; }
     public DateTime CheckOutDate { get; set; }
-    public BookingStatus Status { get; set; } = BookingStatus.Pending;
+    public BookingStatus Status { get; set; } = BookingStatus.Booked;
 }

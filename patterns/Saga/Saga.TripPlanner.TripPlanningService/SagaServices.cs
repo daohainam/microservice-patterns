@@ -1,14 +1,7 @@
 ﻿namespace Saga.TripPlanner.TripPlanningService;
-public class SagaServices
+public class SagaServices(HttpClient hotelHttpClient, HttpClient ticketHttpClient, HttpClient paymentHttpClient)
 {
-    public HttpClient HotelHttpClient { get; }
-    //public HttpClient TicketHttpClient { get; }
-    //public HttpClient PaymentHttpClient { get; }
-
-    public SagaServices(HttpClient hotelHttpClient/*, HttpClient ticketHttpClient, HttpClient paymentHttpClient*/)
-    {
-        HotelHttpClient = hotelHttpClient;
-        //TicketHttpClient = ticketHttpClient;
-        //PaymentHttpClient = paymentHttpClient;
-    }
+    public HttpClient HotelHttpClient { get; } = hotelHttpClient;
+    public HttpClient TicketHttpClient { get; } = ticketHttpClient;
+    public HttpClient PaymentHttpClient { get; } = paymentHttpClient;
 }

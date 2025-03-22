@@ -1,5 +1,7 @@
-﻿using MicroservicePatterns.Shared;
+﻿using Aspire.Hosting;
+using MicroservicePatterns.Shared;
 using Microsoft.Extensions.Configuration;
+using Projects;
 
 namespace MicroservicePatterns.AppHost.Extensions;
 public static class ExternalServiceRegistrationExtentions

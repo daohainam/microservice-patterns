@@ -23,5 +23,7 @@
 		<ProjectReference Include="..\..\..\MicroservicePatterns.Shared\MicroservicePatterns.Shared.csproj" />
 		<ProjectReference Include="..\Saga.TripPlanner.HotelService\Saga.TripPlanner.HotelService.csproj" />
 		<ProjectReference Include="..\Saga.TripPlanner.IntegrationEvents\Saga.TripPlanner.IntegrationEvents.csproj" />
+		<ProjectReference Include="..\Saga.TripPlanner.PaymentService\Saga.TripPlanner.PaymentService.csproj" />
+		<ProjectReference Include="..\Saga.TripPlanner.TicketService\Saga.TripPlanner.TicketService.csproj" />
 	</ItemGroup>
 </Project>

@@ -20,7 +20,9 @@ public class AppFixture : IDisposable
             ]).Result;
         appHost.Services.ConfigureHttpClientDefaults(clientBuilder =>
         {
-            clientBuilder.AddStandardResilienceHandler();
+            clientBuilder.AddStandardResilienceHandler(configure: options => {
+                options.AttemptTimeout.Timeout = TimeSpan.FromSeconds(120); // A longer timeout makes it is easier to debug
+            });
         });
 
         _app = appHost.BuildAsync().Result;

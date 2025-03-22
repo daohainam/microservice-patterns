@@ -35,8 +35,8 @@ public static class TicketApiExtensions
             return await services.DbContext.Tickets.FindAsync(id);
         });
 
-        group.MapPost("tickets", TicketApi.CreateTickets);
-        group.MapPut("tickets/{id:guid}/confirm", TicketApi.CancelTickets);
+        group.MapPost("tickets", TicketApi.BookTickets);
+        group.MapPut("tickets/cancel", TicketApi.CancelTickets);
 
 
         return group;
@@ -88,7 +88,7 @@ public class TicketApi
 
     }
 
-    internal static async Task<Results<Ok<List<Ticket>>, BadRequest>> CreateTickets([AsParameters] ApiServices services, List<Ticket> tickets)
+    internal static async Task<Results<Ok<List<Ticket>>, BadRequest>> BookTickets([AsParameters] ApiServices services, List<Ticket> tickets)
     {
         if (tickets == null || tickets.Count == 0) {
             return TypedResults.BadRequest();

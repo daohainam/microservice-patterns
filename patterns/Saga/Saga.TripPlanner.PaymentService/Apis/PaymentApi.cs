@@ -29,7 +29,7 @@ public static class PaymentApiExtensions
         group.MapPost("cards", PaymentApi.CreateCard);
 
         group.MapDelete("cards/{id:guid}", PaymentApi.DeleteCard);
-        group.MapPut("cards/{id:guid}/pay", PaymentApi.Pay);
+        group.MapPut("cards/{cardNumber}/pay", PaymentApi.Pay);
         return group;
     }
 }
@@ -80,7 +80,7 @@ public class PaymentApi
 
         return TypedResults.Ok();
     }
-    public static async Task<Results<NotFound, Ok, BadRequest>> Pay([AsParameters] ApiServices services, Guid id, [FromBody] CreditCardPayment payment)
+    public static async Task<Results<NotFound, Ok, BadRequest>> Pay([AsParameters] ApiServices services, string cardNumber, [FromBody] CreditCardPayment payment)
     {
         if (payment.Amount <= 0)
         {
@@ -88,7 +88,7 @@ public class PaymentApi
             return TypedResults.BadRequest();
         }
 
-        var existingCard = await services.DbContext.CreditCards.FindAsync(id);
+        var existingCard = await services.DbContext.CreditCards.Where(c => c.Equals(cardNumber)).SingleOrDefaultAsync();
         if (existingCard == null)
         {
             return TypedResults.NotFound();
@@ -107,5 +107,8 @@ public class PaymentApi
 
 public record CreditCardPayment
 {
+    public string CardHolderName { get; set; } = default!;
+    public string ExpirationDate { get; set; } = default!;
+    public string Cvv { get; set; } = default!;
     public decimal Amount { get; set; }
 }

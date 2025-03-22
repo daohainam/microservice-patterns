@@ -1,6 +1,9 @@
 ﻿
+using Saga.TripPlanner.HotelService.Apis;
 using Saga.TripPlanner.HotelService.Infrastructure.Entity;
 using Saga.TripPlanner.IntegrationEvents;
+using Saga.TripPlanner.PaymentService.Apis;
+using Saga.TripPlanner.TicketService.Infrastructure.Entity;
 
 namespace Saga.TripPlanner.TripPlanningService.Apis;
 public static class TripPlanningApiExtensions
@@ -61,7 +64,6 @@ public class TripPlanningApi
             StartDate = trip.StartDate,
             EndDate = trip.EndDate,
             CreationDate = trip.CreationDate,
-            Status = TripStatus.Booked,
             TripName = trip.Name, 
             HotelRooms = [.. trip.HotelRoomBookings.Select(h => new TripHotelRoom()
             {
@@ -78,13 +80,51 @@ public class TripPlanningApi
 
     private static async Task HandleSaga(ApiServices services, SagaServices sagaServices, Trip trip, CancellationToken cancellationToken = default)
     {
-        var room = new Room()
+        // it is better to offload this Saga handing part to an async service, but I don't want to make this sample too complicated
+
+        while (trip.Status != TripStatus.Rejected && trip.Status != TripStatus.Confirmed)
         {
-            Id = Guid.NewGuid(),
-            Name = "Test Room",
-            Price = 1234,
-            MaxOccupancy = 2
-        };
-        var response = await sagaServices.HotelHttpClient.PostAsJsonAsync("/api/saga/v1/rooms", room);
+            if (trip.Status == TripStatus.Pending)
+            {
+                var tickets = trip.TicketBookings.Select(t => new Ticket()
+                {
+                    Id = Guid.CreateVersion7(),
+                    TicketTypeId = t.TicketTypeId
+                });
+
+                var ticketResponse = await sagaServices.TicketHttpClient.PostAsJsonAsync("/api/saga/v1/tickets",
+                    tickets,
+                    cancellationToken);
+
+                trip.Status = TripStatus.TicketsBooked;
+                await services.DbContext.SaveChangesAsync(cancellationToken);
+            }
+            else if (trip.Status == TripStatus.TicketsBooked)
+            {
+                var bookings = trip.HotelRoomBookings.Select(r => new Booking()
+                {
+                    RoomId = r.RoomId,
+                    TripId = r.TripId,
+                    CheckInDate = r.CheckInDate,
+                    CheckOutDate = r.CheckOutDate,
+                });
+
+                var hotelRoomResponse = await sagaServices.HotelHttpClient.PostAsJsonAsync("/api/saga/v1/bookings", bookings, cancellationToken: cancellationToken);
+                trip.Status = TripStatus.HotelRoomsBooked;
+                await services.DbContext.SaveChangesAsync(cancellationToken);
+            }
+            else if (trip.Status == TripStatus.HotelRoomsBooked)
+            {
+                var payment = new CreditCardPayment()
+                {
+                    //CardHolderName = trip.
+
+                };
+
+                var paymentResponse = await sagaServices.PaymentHttpClient.PostAsJsonAsync("/api/saga/v1/bookings", payment, cancellationToken: cancellationToken);
+                trip.Status = TripStatus.HotelRoomsBooked;
+                await services.DbContext.SaveChangesAsync(cancellationToken);
+            }
+        }
     }
 }

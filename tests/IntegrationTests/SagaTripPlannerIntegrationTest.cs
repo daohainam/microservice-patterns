@@ -128,7 +128,7 @@ public class SagaTripPlannerIntegrationTest
         // Assert - now it must be in Confirmed state
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         Assert.NotNull(tripResponse);
-        Assert.Equal(Saga.TripPlanner.TripPlanningService.Infrastructure.Entity.BookingStatus.Confirmed, tripResponse.Status);
+        Assert.Equal(Saga.TripPlanner.TripPlanningService.Infrastructure.Entity.TripStatus.Confirmed, tripResponse.Status);
     }
 
 }

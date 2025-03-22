@@ -20,7 +20,12 @@ namespace Saga.TripPlanner.TripPlanningService.Migrations
                     EndDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     Name = table.Column<string>(type: "text", nullable: false),
                     Status = table.Column<int>(type: "integer", nullable: false),
-                    CreationDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
+                    CreationDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    CardNumber = table.Column<string>(type: "text", nullable: false),
+                    CardHolderName = table.Column<string>(type: "text", nullable: false),
+                    ExpirationDate = table.Column<string>(type: "text", nullable: false),
+                    Cvv = table.Column<string>(type: "text", nullable: false),
+                    Amount = table.Column<decimal>(type: "numeric", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -56,6 +61,7 @@ namespace Saga.TripPlanner.TripPlanningService.Migrations
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
                     TripId = table.Column<Guid>(type: "uuid", nullable: false),
+                    TicketTypeId = table.Column<string>(type: "text", nullable: false),
                     BookingDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     Status = table.Column<int>(type: "integer", nullable: false)
                 },

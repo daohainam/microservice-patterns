@@ -3,17 +3,13 @@ public class TicketBooking
 {
     public Guid Id { get; set; }
     public Guid TripId { get; set; }
+    public string TicketTypeId { get; set; } = default!;
     public DateTime BookingDate { get; set; }
-    public BookingStatus Status { get; set; } = BookingStatus.Pending;
+    public BookingStatus Status { get; set; } = BookingStatus.Booked;
 }
 
 public enum BookingStatus
 {
-    Pending,
-    TicketsBooked,
-    HotelRoomsBooked,
-    Rejected,
-    HotelRoomBookingCancelled,
-    TicketsCancelled,
-    Confirmed
+    Booked,
+    Canncelled,
 }

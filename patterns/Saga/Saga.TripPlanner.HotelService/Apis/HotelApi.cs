@@ -1,4 +1,6 @@
 ﻿
+using Saga.TripPlanner.HotelService.Infrastructure.Entity;
+
 namespace Saga.TripPlanner.HotelService.Apis;
 public static class HotelApiExtensions
 {
@@ -25,7 +27,7 @@ public static class HotelApiExtensions
 
         group.MapPost("rooms", HotelApi.CreateRoom);
 
-        group.MapPost("rooms/{id:guid}/bookings", HotelApi.CreateBooking);
+        group.MapPost("bookings", HotelApi.CreateBooking);
         group.MapPut("bookings/{bookingId:guid}/cancel", HotelApi.CancelBooking);
 
 
@@ -54,41 +56,42 @@ public class HotelApi
         return TypedResults.Ok(room);
     }
 
-    internal static async Task<Results<Ok<Booking>, BadRequest, NotFound>> CreateBooking([AsParameters] ApiServices services, Guid id, Booking booking)
+    internal static async Task<Results<Ok<List<Booking>>, BadRequest, NotFound>> CreateBooking([AsParameters] ApiServices services, List<Booking> bookings)
     {
-        if (id == Guid.Empty)
+        foreach (var booking in bookings)
         {
-            return TypedResults.BadRequest();
+            if (booking.RoomId == Guid.Empty)
+            {
+                return TypedResults.BadRequest();
+            }
+
+            var room = await services.DbContext.Rooms.FindAsync(booking.RoomId);
+            if (room == null)
+            {
+                return TypedResults.NotFound();
+            }
+
+            // we need to make sure that the room is available for the booking dates
+            var duplicatedBookings = room.Bookings.Where(b => b.CheckInDate <= booking.CheckOutDate && b.CheckOutDate >= booking.CheckInDate).ToList();
+
+            if (duplicatedBookings.Count != 0)
+            {
+                services.Logger.LogInformation("Room is not available for the booking dates");
+                return TypedResults.BadRequest();
+            }
+
+            if (booking.Id == Guid.Empty)
+                booking.Id = Guid.CreateVersion7();
+
+            booking.RoomId = booking.RoomId;
+            booking.BookingDate = DateTime.UtcNow;
+            booking.Status = BookingStatus.Booked;
+            bookings.Add(booking);
         }
-
-        var room = await services.DbContext.Rooms.FindAsync(id);
-        if (room == null)
-        {
-            return TypedResults.NotFound();
-        }
-
-        // we need to make sure that the room is available for the booking dates
-        var bookings = room.Bookings.Where(b => b.CheckInDate <= booking.CheckOutDate && b.CheckOutDate >= booking.CheckInDate).ToList();
-
-        if (bookings.Count != 0)
-        {
-            services.Logger.LogInformation("Room is not available for the booking dates");
-            return TypedResults.BadRequest();
-        }
-
-        if (booking.Id == Guid.Empty)
-            booking.Id = Guid.CreateVersion7();
-
-        booking.RoomId = id;
-        booking.BookingDate = DateTime.UtcNow;
-        booking.Status = BookingStatus.Booked;
-        bookings.Add(booking);
 
         await services.DbContext.SaveChangesAsync();
 
-        services.Logger.LogInformation("Booking {id} created successfully", booking.Id);
-
-        return TypedResults.Ok(booking);
+        return TypedResults.Ok(bookings);
     }
 
     internal static async Task<Results<Ok<Booking>, BadRequest, NotFound>> CancelBooking([AsParameters] ApiServices services, Guid bookingId)
