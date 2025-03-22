@@ -21,6 +21,7 @@
 		<ProjectReference Include="..\..\..\MicroservicePatterns.DatabaseMigrationHelpers\MicroservicePatterns.DatabaseMigrationHelpers.csproj" />
 		<ProjectReference Include="..\..\..\MicroservicePatterns.ServiceDefaults\MicroservicePatterns.ServiceDefaults.csproj" />
 		<ProjectReference Include="..\..\..\MicroservicePatterns.Shared\MicroservicePatterns.Shared.csproj" />
+		<ProjectReference Include="..\Saga.TripPlanner.HotelService\Saga.TripPlanner.HotelService.csproj" />
 		<ProjectReference Include="..\Saga.TripPlanner.IntegrationEvents\Saga.TripPlanner.IntegrationEvents.csproj" />
 	</ItemGroup>
 </Project>

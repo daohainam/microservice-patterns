@@ -20,7 +20,7 @@ public class SagaTripPlannerIntegrationTest
 
     [Theory]
     [InlineData(100, 2, 200)]
-    [InlineData(1000, 20,  200)]
+    [InlineData(1000, 20, 200)]
     [InlineData(10000, 20, 10000 + 100)]
     [InlineData(100000, 20, 100000 + 200)]
     [InlineData(9999, 1, 9999 + 50)]
@@ -60,7 +60,7 @@ public class SagaTripPlannerIntegrationTest
             Id = Guid.NewGuid(),
             TicketTypeId = ticketTypeId
         };
-        response = await ticketHttpClient.PostAsJsonAsync("/api/saga/v1/tickets", ticket, cancellationToken: TestContext.Current.CancellationToken);
+        response = await ticketHttpClient.PostAsJsonAsync("/api/saga/v1/tickets", new List<Ticket>() { ticket }, cancellationToken: TestContext.Current.CancellationToken);
 
         // Assert
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);

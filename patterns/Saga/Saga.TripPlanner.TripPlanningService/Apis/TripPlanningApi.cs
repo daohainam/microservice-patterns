@@ -1,4 +1,5 @@
 ﻿
+using Saga.TripPlanner.HotelService.Infrastructure.Entity;
 using Saga.TripPlanner.IntegrationEvents;
 
 namespace Saga.TripPlanner.TripPlanningService.Apis;
@@ -32,7 +33,7 @@ public static class TripPlanningApiExtensions
 }
 public class TripPlanningApi
 { 
-    internal static async Task<Results<Ok<Trip>, BadRequest>> CreateTrip([AsParameters] ApiServices services, Trip trip)
+    internal static async Task<Results<Ok<Trip>, BadRequest>> CreateTrip([AsParameters] ApiServices services, SagaServices sagaServices, Trip trip)
     {
         if (trip == null) {
             return TypedResults.BadRequest();
@@ -52,7 +53,7 @@ public class TripPlanningApi
         // we commmit the transaction here to make sure that the trip is created before we handle the saga
         await services.DbContext.SaveChangesAsync();
 
-        await HandleSaga(services, trip);
+        await HandleSaga(services, sagaServices, trip);
 
         await services.EventPublisher.PublishAsync(new TripCreatedIntegrationEvent()
         {
@@ -75,8 +76,15 @@ public class TripPlanningApi
         return TypedResults.Ok(trip);
     }
 
-    private static async Task HandleSaga(ApiServices services, Trip trip)
+    private static async Task HandleSaga(ApiServices services, SagaServices sagaServices, Trip trip, CancellationToken cancellationToken = default)
     {
-        
+        var room = new Room()
+        {
+            Id = Guid.NewGuid(),
+            Name = "Test Room",
+            Price = 1234,
+            MaxOccupancy = 2
+        };
+        var response = await sagaServices.HotelHttpClient.PostAsJsonAsync("/api/saga/v1/rooms", room);
     }
 }
