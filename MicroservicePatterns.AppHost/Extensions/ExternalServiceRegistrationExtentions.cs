@@ -34,7 +34,7 @@ public static class ExternalServiceRegistrationExtentions
             .WaitFor(kafka);
 
         var borrowerDb = postgres.AddDefaultDatabase<Projects.CQRS_Library_BorrowerService>();
-        builder.AddProjectWithPostfix<Projects.CQRS_Library_BorrowerService>()
+        var borrowerService = builder.AddProjectWithPostfix<Projects.CQRS_Library_BorrowerService>()
             .WithEnvironment(Consts.Env_EventPublishingTopics, GetTopicName<Projects.CQRS_Library_BorrowerService>())
             .WithReference(kafka)
             .WithReference(borrowerDb, Consts.DefaultDatabase)
@@ -42,7 +42,7 @@ public static class ExternalServiceRegistrationExtentions
             .WaitFor(kafka);
 
         var borrowingDb = postgres.AddDefaultDatabase<Projects.CQRS_Library_BorrowingService>();
-        builder.AddProjectWithPostfix<Projects.CQRS_Library_BorrowingService>()
+        var borrowingService = builder.AddProjectWithPostfix<Projects.CQRS_Library_BorrowingService>()
             .WithEnvironment(Consts.Env_EventPublishingTopics, GetTopicName<Projects.CQRS_Library_BorrowingService>())
             .WithReference(kafka)
             .WithReference(borrowingDb, Consts.DefaultDatabase)
@@ -64,8 +64,8 @@ public static class ExternalServiceRegistrationExtentions
             .WaitFor(kafka);
 
         bookService.WithParentRelationship(borrowingHistoryService);
-        borrowerDb.WithParentRelationship(borrowingHistoryService);
-        borrowingDb.WithParentRelationship(borrowingHistoryService);
+        borrowerService.WithParentRelationship(borrowingHistoryService);
+        borrowingService.WithParentRelationship(borrowingHistoryService);
         #endregion CQRS Library
 
         #region Saga Online Store - Choreography
@@ -85,16 +85,15 @@ public static class ExternalServiceRegistrationExtentions
 
         
         var sagaCatalogDb = postgres.AddDefaultDatabase<Projects.Saga_OnlineStore_CatalogService>();
-        builder.AddProjectWithPostfix<Projects.Saga_OnlineStore_CatalogService>()
+        var sagaCatalogService = builder.AddProjectWithPostfix<Projects.Saga_OnlineStore_CatalogService>()
             .WithEnvironment(Consts.Env_EventPublishingTopics, GetTopicName<Projects.Saga_OnlineStore_CatalogService>())
             .WithReference(kafka)
             .WithReference(sagaCatalogDb, Consts.DefaultDatabase)
             .WaitFor(sagaCatalogDb)
-            .WaitFor(kafka)
-            .WithParentRelationship(sagaOrderService);
+            .WaitFor(kafka);
 
         var sagaInventoryDb = postgres.AddDefaultDatabase<Projects.Saga_OnlineStore_InventoryService>();
-        builder.AddProjectWithPostfix<Projects.Saga_OnlineStore_InventoryService>()
+        var sagaInventoryService = builder.AddProjectWithPostfix<Projects.Saga_OnlineStore_InventoryService>()
             .WithEnvironment(Consts.Env_EventPublishingTopics, GetTopicName<Projects.Saga_OnlineStore_InventoryService>())
             .WithEnvironment(Consts.Env_EventConsumingTopics,
                 string.Join(',',
@@ -110,7 +109,7 @@ public static class ExternalServiceRegistrationExtentions
             .WithParentRelationship(sagaOrderService);
 
         var sagaBankCardDb = postgres.AddDefaultDatabase<Projects.Saga_OnlineStore_PaymentService>();
-        builder.AddProjectWithPostfix<Projects.Saga_OnlineStore_PaymentService>()
+        var sagaBankCardService = builder.AddProjectWithPostfix<Projects.Saga_OnlineStore_PaymentService>()
             .WithEnvironment(Consts.Env_EventPublishingTopics, GetTopicName<Projects.Saga_OnlineStore_PaymentService>())
             .WithEnvironment(Consts.Env_EventConsumingTopics,
                 string.Join(',',
@@ -123,6 +122,10 @@ public static class ExternalServiceRegistrationExtentions
             .WaitFor(kafka)
             .WithParentRelationship(sagaOrderService);
 
+
+        sagaBankCardService.WithParentRelationship(sagaOrderService);
+        sagaCatalogService.WithParentRelationship(sagaOrderService);
+        sagaInventoryService.WithParentRelationship(sagaOrderService);
         #endregion
 
         #region Saga Trip Planner - Orchestration
