@@ -123,19 +123,20 @@ public class SagaTripPlannerServiceTest
             Id = Guid.NewGuid(),
             TicketTypeId = ticketTypeId
         };
-        response = await ticketHttpClient.PostAsJsonAsync("/api/saga/v1/tickets", ticket, cancellationToken: TestContext.Current.CancellationToken);
+        response = await ticketHttpClient.PostAsJsonAsync("/api/saga/v1/tickets", new List<Ticket>() { ticket }, cancellationToken: TestContext.Current.CancellationToken);
 
         // Assert
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
         // Act
-        var result = await response.Content.ReadFromJsonAsync<Ticket>(cancellationToken: TestContext.Current.CancellationToken);
+        var result = await response.Content.ReadFromJsonAsync<List<Ticket>>(cancellationToken: TestContext.Current.CancellationToken);
         
         // Assert
         Assert.NotNull(result);
-        Assert.Equal(ticket.Id, result.Id);
-        Assert.Equal(price, result.Price);
-        Assert.Equal(ticket.TicketTypeId, result.TicketTypeId);
+        Assert.Single(result);
+        Assert.Equal(ticket.Id, result[0].Id);
+        Assert.Equal(price, result[0].Price);
+        Assert.Equal(ticket.TicketTypeId, result[0].TicketTypeId);
 
         // Act
         response = await ticketHttpClient.GetAsync($"/api/saga/v1/tickets/{ticket.Id}", TestContext.Current.CancellationToken);
@@ -144,14 +145,14 @@ public class SagaTripPlannerServiceTest
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
         // Act
-        result = await response.Content.ReadFromJsonAsync<Ticket>(cancellationToken: TestContext.Current.CancellationToken);
+        var ticketResult = await response.Content.ReadFromJsonAsync<Ticket>(cancellationToken: TestContext.Current.CancellationToken);
 
         // Assert
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-        Assert.NotNull(result);
-        Assert.Equal(ticket.Id, result.Id);
-        Assert.Equal(price, result.Price);
-        Assert.Equal(ticket.TicketTypeId, result.TicketTypeId);
+        Assert.NotNull(ticketResult);
+        Assert.Equal(ticket.Id, ticketResult.Id);
+        Assert.Equal(price, ticketResult.Price);
+        Assert.Equal(ticket.TicketTypeId, ticketResult.TicketTypeId);
     }
 
     [Fact]

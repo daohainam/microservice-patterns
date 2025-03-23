@@ -88,7 +88,7 @@ public class PaymentApi
             return TypedResults.BadRequest();
         }
 
-        var existingCard = await services.DbContext.CreditCards.Where(c => c.Equals(cardNumber)).SingleOrDefaultAsync();
+        var existingCard = await services.DbContext.CreditCards.Where(c => c.CardNumber.Equals(cardNumber)).SingleOrDefaultAsync();
         if (existingCard == null)
         {
             return TypedResults.NotFound();

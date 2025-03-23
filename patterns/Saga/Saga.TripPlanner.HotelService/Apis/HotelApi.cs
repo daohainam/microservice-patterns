@@ -86,7 +86,7 @@ public class HotelApi
             booking.RoomId = booking.RoomId;
             booking.BookingDate = DateTime.UtcNow;
             booking.Status = BookingStatus.Booked;
-            bookings.Add(booking);
+            services.DbContext.Add(booking);
         }
 
         await services.DbContext.SaveChangesAsync();
@@ -94,26 +94,28 @@ public class HotelApi
         return TypedResults.Ok(bookings);
     }
 
-    internal static async Task<Results<Ok<Booking>, BadRequest, NotFound>> CancelBooking([AsParameters] ApiServices services, Guid bookingId)
+    internal static async Task<Results<Ok, BadRequest, NotFound>> CancelBooking([AsParameters] ApiServices services, List<Guid> bookingIds)
     {
-        var booking = await services.DbContext.Bookings.FindAsync(bookingId);
-        if (booking == null)
-        {
-            return TypedResults.NotFound();
-        }
 
-        if (booking.Status != BookingStatus.Booked)
+        foreach (var bookingId in bookingIds)
         {
-            services.Logger.LogInformation("Booking {id} is not in booked state", booking.Id);
-            return TypedResults.BadRequest();
-        }
+            var booking = await services.DbContext.Bookings.FindAsync(bookingId);
+            if (booking == null)
+            {
+                return TypedResults.NotFound();
+            }
 
-        booking.Status = BookingStatus.Cancelled;
-        
+            if (booking.Status != BookingStatus.Booked)
+            {
+                services.Logger.LogInformation("Booking {id} is not in booked state", booking.Id);
+                return TypedResults.BadRequest();
+            }
+
+            booking.Status = BookingStatus.Cancelled;
+        }
         await services.DbContext.SaveChangesAsync();
-        services.Logger.LogInformation("Booking {id} cancelled successfully", booking.Id);
 
-        return TypedResults.Ok(booking);
+        return TypedResults.Ok();
     }
 
 }

@@ -1,7 +1,5 @@
-﻿using Aspire.Hosting;
-using MicroservicePatterns.Shared;
+﻿using MicroservicePatterns.Shared;
 using Microsoft.Extensions.Configuration;
-using Projects;
 
 namespace MicroservicePatterns.AppHost.Extensions;
 public static class ExternalServiceRegistrationExtentions
@@ -41,8 +39,7 @@ public static class ExternalServiceRegistrationExtentions
             .WithReference(kafka)
             .WithReference(borrowerDb, Consts.DefaultDatabase)
             .WaitFor(borrowerDb)
-            .WaitFor(kafka)
-            .WithParentRelationship(bookService);
+            .WaitFor(kafka);
 
         var borrowingDb = postgres.AddDefaultDatabase<Projects.CQRS_Library_BorrowingService>();
         builder.AddProjectWithPostfix<Projects.CQRS_Library_BorrowingService>()
@@ -50,11 +47,10 @@ public static class ExternalServiceRegistrationExtentions
             .WithReference(kafka)
             .WithReference(borrowingDb, Consts.DefaultDatabase)
             .WaitFor(borrowingDb)
-            .WaitFor(kafka)
-            .WithParentRelationship(bookService);
+            .WaitFor(kafka);
 
         var borrowingHistoryDb = postgres.AddDefaultDatabase<Projects.CQRS_Library_BorrowingHistoryService>();
-        builder.AddProjectWithPostfix<Projects.CQRS_Library_BorrowingHistoryService>()
+        var borrowingHistoryService = builder.AddProjectWithPostfix<Projects.CQRS_Library_BorrowingHistoryService>()
             .WithEnvironment(Consts.Env_EventConsumingTopics,
                 string.Join(',',
                     GetTopicName<Projects.CQRS_Library_BorrowerService>(),
@@ -65,8 +61,11 @@ public static class ExternalServiceRegistrationExtentions
             .WithReference(kafka)
             .WithReference(borrowingHistoryDb, Consts.DefaultDatabase)
             .WaitFor(borrowingHistoryDb)
-            .WaitFor(kafka)
-            .WithParentRelationship(bookService);
+            .WaitFor(kafka);
+
+        bookService.WithParentRelationship(borrowingHistoryService);
+        borrowerDb.WithParentRelationship(borrowingHistoryService);
+        borrowingDb.WithParentRelationship(borrowingHistoryService);
         #endregion CQRS Library
 
         #region Saga Online Store - Choreography
@@ -181,6 +180,10 @@ public static class ExternalServiceRegistrationExtentions
             .WithReference(sagaHotelService)
             .WaitFor(sagaTripPlanningDb)
             .WaitFor(kafka);
+
+        sagaHotelService.WithParentRelationship(sagaTripPlanningService);
+        sagaTicketService.WithParentRelationship(sagaTripPlanningService);
+        sagaPaymentService.WithParentRelationship(sagaTripPlanningService);
         #endregion
 
         #region Event Sourcing Catalog

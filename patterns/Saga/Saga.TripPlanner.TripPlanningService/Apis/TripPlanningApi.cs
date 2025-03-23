@@ -82,7 +82,8 @@ public class TripPlanningApi
     {
         // it is better to offload this Saga handing part to an async service, but I don't want to make this sample too complicated
 
-        while (trip.Status != TripStatus.Rejected && trip.Status != TripStatus.Confirmed)
+        int retryCount = 3;
+        while (retryCount-- > 0 && trip.Status != TripStatus.Rejected && trip.Status != TripStatus.Confirmed)
         {
             if (trip.Status == TripStatus.Pending)
             {
@@ -96,8 +97,18 @@ public class TripPlanningApi
                     tickets,
                     cancellationToken);
 
-                trip.Status = TripStatus.TicketsBooked;
-                await services.DbContext.SaveChangesAsync(cancellationToken);
+                if (ticketResponse.IsSuccessStatusCode)
+                {
+                    services.Logger.LogInformation("Tickets booked successfully");
+                    trip.Status = TripStatus.TicketsBooked;
+                    await services.DbContext.SaveChangesAsync(cancellationToken);
+                }
+                else
+                {
+                    services.Logger.LogInformation("Failed to book tickets");
+                    trip.Status = TripStatus.Rejected;
+                    await services.DbContext.SaveChangesAsync(cancellationToken);
+                }
             }
             else if (trip.Status == TripStatus.TicketsBooked)
             {
@@ -110,21 +121,117 @@ public class TripPlanningApi
                 });
 
                 var hotelRoomResponse = await sagaServices.HotelHttpClient.PostAsJsonAsync("/api/saga/v1/bookings", bookings, cancellationToken: cancellationToken);
-                trip.Status = TripStatus.HotelRoomsBooked;
-                await services.DbContext.SaveChangesAsync(cancellationToken);
+
+                if (hotelRoomResponse.IsSuccessStatusCode)
+                {
+                    services.Logger.LogInformation("Hotel rooms booked successfully");
+                    trip.Status = TripStatus.HotelRoomsBooked;
+                    await services.DbContext.SaveChangesAsync(cancellationToken);
+                }
+                else
+                {
+                    services.Logger.LogInformation("Failed to book hotel rooms");
+                    trip.Status = TripStatus.TicketsCancelled;
+                    await services.DbContext.SaveChangesAsync(cancellationToken);
+                }
             }
             else if (trip.Status == TripStatus.HotelRoomsBooked)
             {
                 var payment = new CreditCardPayment()
                 {
-                    //CardHolderName = trip.
-
+                    CardHolderName = trip.CardHolderName,
+                    ExpirationDate = trip.ExpirationDate,
+                    Cvv = trip.Cvv,
+                    Amount = trip.Amount
                 };
 
-                var paymentResponse = await sagaServices.PaymentHttpClient.PostAsJsonAsync("/api/saga/v1/bookings", payment, cancellationToken: cancellationToken);
-                trip.Status = TripStatus.HotelRoomsBooked;
-                await services.DbContext.SaveChangesAsync(cancellationToken);
+                var paymentResponse = await sagaServices.PaymentHttpClient.PutAsJsonAsync($"/api/saga/v1/cards/{trip.CardNumber}/pay", payment, cancellationToken: cancellationToken);
+
+                if (paymentResponse.IsSuccessStatusCode)
+                {
+                    services.Logger.LogInformation("Payment successful");
+                    trip.Status = TripStatus.Confirmed;
+                    await services.DbContext.SaveChangesAsync(cancellationToken);
+                }
+                else
+                {
+                    services.Logger.LogInformation("Payment failed");
+                    trip.Status = TripStatus.PaymentFailed;
+                    await services.DbContext.SaveChangesAsync(cancellationToken);
+                }
             }
+            else if (trip.Status == TripStatus.PaymentFailed)
+            {
+                // cancel hotel rooms
+                services.Logger.LogInformation("[Compensating transaction] Cancelling hotel rooms");
+
+                var roomBookingIds = trip.HotelRoomBookings.Select(r => r.Id);
+                var hotelRoomResponse = await sagaServices.HotelHttpClient.PutAsJsonAsync("/api/saga/v1/bookings", roomBookingIds, cancellationToken: cancellationToken);
+                if (hotelRoomResponse.IsSuccessStatusCode)
+                {
+                    trip.Status = TripStatus.HotelRoomBookingCancelled;
+                    await services.DbContext.SaveChangesAsync(cancellationToken);
+                }
+
+                // if hotel room cancellation fails, we need to retry in next loop
+            }
+            else if (trip.Status == TripStatus.HotelRoomBookingCancelled)
+            {
+                // cancel tickets
+                services.Logger.LogInformation("[Compensating transaction] Cancelling tickets");
+
+                var ticketIds = trip.TicketBookings.Select(t => t.Id);
+                var ticketResponse = await sagaServices.TicketHttpClient.PutAsJsonAsync("/api/saga/v1/tickets/cancel",
+                    ticketIds,
+                    cancellationToken);
+                if (ticketResponse.IsSuccessStatusCode)
+                {
+                    trip.Status = TripStatus.Rejected;
+                    await services.DbContext.SaveChangesAsync(cancellationToken);
+                }
+
+                // if ticket cancellation fails, we need to retry in next loop
+            }
+        }
+
+        if (trip.Status != TripStatus.Confirmed)
+        {
+            await services.EventPublisher.PublishAsync(new TripRejectedIntegrationEvent()
+            {
+                TripId = trip.Id,
+                StartDate = trip.StartDate,
+                EndDate = trip.EndDate,
+                CreationDate = trip.CreationDate,
+                TripName = trip.Name,
+                HotelRooms = [.. trip.HotelRoomBookings.Select(h => new TripHotelRoom()
+                {
+                    Id = Guid.CreateVersion7(),
+                    RoomId = h.RoomId,
+                    BookingDate = h.BookingDate,
+                    CheckInDate = h.CheckInDate,
+                    CheckOutDate = h.CheckOutDate,
+                })],
+                Reason = "Failed to book tickets, hotel rooms or payment"
+            });
+        }
+        else
+        {
+            await services.EventPublisher.PublishAsync(new TripBookedIntegrationEvent()
+            {
+                TripId = trip.Id,
+                StartDate = trip.StartDate,
+                EndDate = trip.EndDate,
+                CreationDate = trip.CreationDate,
+                TripName = trip.Name,
+                HotelRooms = [.. trip.HotelRoomBookings.Select(h => new TripHotelRoom()
+                {
+                    Id = Guid.CreateVersion7(),
+                    RoomId = h.RoomId,
+                    BookingDate = h.BookingDate,
+                    CheckInDate = h.CheckInDate,
+                    CheckOutDate = h.CheckOutDate,
+                })]
+            });
         }
     }
 }

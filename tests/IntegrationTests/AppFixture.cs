@@ -18,12 +18,6 @@ public class AppFixture : IDisposable
         var appHost = DistributedApplicationTestingBuilder.CreateAsync<MicroservicePatterns_AppHost>([
             "IsTest=true"
             ]).Result;
-        appHost.Services.ConfigureHttpClientDefaults(clientBuilder =>
-        {
-            clientBuilder.AddStandardResilienceHandler(configure: options => {
-                options.AttemptTimeout.Timeout = TimeSpan.FromSeconds(120); // A longer timeout makes it is easier to debug
-            });
-        });
 
         _app = appHost.BuildAsync().Result;
         _app.StartAsync().Wait();

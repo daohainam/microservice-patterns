@@ -41,30 +41,21 @@ public class SagaTripPlannerIntegrationTest
 
         // Act
         string ticketTypeId = Guid.NewGuid().ToString();
-        var ticketHttpClient = App.CreateHttpClient<Projects.Saga_TripPlanner_TicketService>();
-
-        response = await ticketHttpClient.PostAsJsonAsync("/api/saga/v1/ticket-types", new TicketType()
+        var ticketType = new TicketType()
         {
             Id = ticketTypeId,
             Name = $"Test Ticket: {ticketTypeId}",
             Price = price,
             AvailableTickets = 1
-        }, cancellationToken: TestContext.Current.CancellationToken);
+        };
+        var ticketHttpClient = App.CreateHttpClient<Projects.Saga_TripPlanner_TicketService>();
+
+        response = await ticketHttpClient.PostAsJsonAsync("/api/saga/v1/ticket-types", ticketType, cancellationToken: TestContext.Current.CancellationToken);
 
         // Assert
         Assert.True(response.StatusCode == HttpStatusCode.OK || response.StatusCode == HttpStatusCode.Conflict);
 
         // Act
-        var ticket = new Ticket()
-        {
-            Id = Guid.NewGuid(),
-            TicketTypeId = ticketTypeId
-        };
-        response = await ticketHttpClient.PostAsJsonAsync("/api/saga/v1/tickets", new List<Ticket>() { ticket }, cancellationToken: TestContext.Current.CancellationToken);
-
-        // Assert
-        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-
         var paymentHttpClient = App.CreateHttpClient<Projects.Saga_TripPlanner_PaymentService>();
         var creditCard = new CreditCard()
         {
@@ -94,7 +85,8 @@ public class SagaTripPlannerIntegrationTest
                 new()
                 {
                     Id = Guid.NewGuid(),
-                    BookingDate = DateTime.UtcNow,                        
+                    BookingDate = DateTime.UtcNow,
+                    TicketTypeId = ticketTypeId
                 }
             ],
             HotelRoomBookings =
@@ -103,11 +95,25 @@ public class SagaTripPlannerIntegrationTest
                 {
                     Id = Guid.NewGuid(),
                     BookingDate = DateTime.UtcNow,
+                    CheckInDate = DateTime.UtcNow,
+                    CheckOutDate = DateTime.UtcNow.AddDays(1),
+                    RoomId = room.Id
                 }
-            ]
+            ],
+            CardNumber = creditCard.CardNumber,
+            CardHolderName = creditCard.CardHolderName,
+            ExpirationDate = creditCard.ExpirationDate,
+            Cvv = creditCard.Cvv,
         };
 
+        trip.Amount = room.Price * (decimal)Math.Floor((trip.EndDate - trip.StartDate).TotalDays) + trip.TicketBookings.Count * ticketType.Price;
+
         response = await tripPlanningHttpClient.PostAsJsonAsync("/api/saga/v1/trips", trip, cancellationToken: TestContext.Current.CancellationToken);
+
+        // Assert
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+
+        // Act
         var tripResponse = await response.Content.ReadFromJsonAsync<Trip>(cancellationToken: TestContext.Current.CancellationToken);
 
         // Assert
@@ -128,7 +134,7 @@ public class SagaTripPlannerIntegrationTest
         // Assert - now it must be in Confirmed state
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         Assert.NotNull(tripResponse);
-        Assert.Equal(Saga.TripPlanner.TripPlanningService.Infrastructure.Entity.TripStatus.Confirmed, tripResponse.Status);
+        Assert.Equal(TripStatus.Confirmed, tripResponse.Status);
     }
 
 }
