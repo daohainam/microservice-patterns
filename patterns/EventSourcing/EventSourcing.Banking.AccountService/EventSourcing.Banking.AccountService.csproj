@@ -12,10 +12,8 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\..\MicroservicePatterns.ServiceDefaults\MicroservicePatterns.ServiceDefaults.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Apis\" />
+    <ProjectReference Include="..\..\..\MicroservicePatterns.Shared\MicroservicePatterns.Shared.csproj" />
+    <ProjectReference Include="..\EventSourcing.Infrastructure\EventSourcing.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>

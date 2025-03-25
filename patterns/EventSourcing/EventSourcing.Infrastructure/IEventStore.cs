@@ -9,6 +9,6 @@ public interface IEventStore
 
 public enum StreamStates
 {
-    NoStream,
+    New,
     Existing
 }

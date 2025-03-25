@@ -1,5 +1,6 @@
 ﻿using Aspire.Npgsql.EntityFrameworkCore.PostgreSQL;
 using EventSourcing.Infrastructure.Postgresql;
+using MicroservicePatterns.DatabaseMigrationHelpers;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -36,4 +37,10 @@ public static class Extensions
 
         return builder;
     }
+
+    public static Task<IHost> MigrateEventStoreDatabaseAsync(this IHost app)
+    {
+        return app.MigrateDbContextAsync<EventStoreDbContext>();
+    }
+
 }

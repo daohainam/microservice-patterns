@@ -189,8 +189,13 @@ public static class ExternalServiceRegistrationExtentions
         sagaPaymentService.WithParentRelationship(sagaTripPlanningService);
         #endregion
 
-        #region Event Sourcing Catalog
-        //builder.AddProject<Projects.EventSourcing_Catalog_ProductService>("eventsourcing-catalog-productservice");
+        #region Event Sourcing Account
+
+        var esAccountDb = postgres.AddDefaultDatabase<Projects.EventSourcing_Banking_AccountService>();
+        var esAccountkService = builder.AddProjectWithPostfix<Projects.EventSourcing_Banking_AccountService>()
+            .WithReference(esAccountDb, Consts.DefaultDatabase)
+            .WaitFor(esAccountDb);
+
         #endregion
 
         return builder;
