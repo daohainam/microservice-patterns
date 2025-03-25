@@ -1,26 +1,25 @@
 <Solution>
   <Folder Name="/patterns/" />
-  <Folder Name="/patterns/CQRS/">
+  <Folder Name="/patterns/CQRS/" Id="c459ff3a-68c2-ad78-baef-e0e01c7bab60">
     <Project Path="patterns/CQRS/CQRS.Library.BookService/CQRS.Library.BookService.csproj" />
     <Project Path="patterns/CQRS/CQRS.Library.BorrowerService/CQRS.Library.BorrowerService.csproj" />
     <Project Path="patterns/CQRS/CQRS.Library.BorrowingHistoryService/CQRS.Library.BorrowingHistoryService.csproj" />
     <Project Path="patterns/CQRS/CQRS.Library.BorrowingService/CQRS.Library.BorrowingService.csproj" />
     <Project Path="patterns/CQRS/CQRS.Library.IntegrationEvents/CQRS.Library.IntegrationEvents.csproj" />
   </Folder>
-  <Folder Name="/patterns/EventSourcing/">
-    <Project Path="patterns/EventSourcing/EventSourcing.Catalog.IntegrationEvents/EventSourcing.Catalog.IntegrationEvents.csproj" />
-    <Project Path="patterns/EventSourcing/EventSourcing.Catalog.ProductService/EventSourcing.Catalog.ProductService.csproj" />
+  <Folder Name="/patterns/EventSourcing/" Id="982c6223-ba77-ddab-c7a8-4452830e8aa7">
+    <Project Path="patterns/EventSourcing/EventSourcing.Banking.AccountService/EventSourcing.Banking.AccountService.csproj" />
     <Project Path="patterns/EventSourcing/EventSourcing.Infrastructure/EventSourcing.Infrastructure.csproj" />
   </Folder>
-  <Folder Name="/patterns/Saga/" />
-  <Folder Name="/patterns/Saga/Choreography/">
+  <Folder Name="/patterns/Saga/" Id="7eb114b8-8cc5-0196-4da3-6758e6eb9091" />
+  <Folder Name="/patterns/Saga/Choreography/" Id="efda0b0a-0b94-9563-bd88-ab45d73d032b">
     <Project Path="patterns/Saga/Saga.OnlineStore.CatalogService/Saga.OnlineStore.CatalogService.csproj" />
     <Project Path="patterns/Saga/Saga.OnlineStore.IntegrationEvents/Saga.OnlineStore.IntegrationEvents.csproj" />
     <Project Path="patterns/Saga/Saga.OnlineStore.InventoryService/Saga.OnlineStore.InventoryService.csproj" />
     <Project Path="patterns/Saga/Saga.OnlineStore.OrderService/Saga.OnlineStore.OrderService.csproj" />
     <Project Path="patterns/Saga/Saga.OnlineStore.PaymentService/Saga.OnlineStore.PaymentService.csproj" />
   </Folder>
-  <Folder Name="/patterns/Saga/Orchestration/">
+  <Folder Name="/patterns/Saga/Orchestration/" Id="99e7bd80-9ab2-383f-d9d6-e45baaddd28b">
     <Project Path="patterns/Saga/Saga.TripPlanner.HotelService/Saga.TripPlanner.HotelService.csproj" />
     <Project Path="patterns/Saga/Saga.TripPlanner.IntegrationEvents/Saga.TripPlanner.IntegrationEvents.csproj" />
     <Project Path="patterns/Saga/Saga.TripPlanner.PaymentService/Saga.TripPlanner.PaymentService.csproj" />
