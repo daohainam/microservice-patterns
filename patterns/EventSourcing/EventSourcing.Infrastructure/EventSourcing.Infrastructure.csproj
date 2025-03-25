@@ -10,8 +10,4 @@
     <PackageReference Include="Aspire.Npgsql.EntityFrameworkCore.PostgreSQL" Version="9.1.0" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Postgresql\" />
-  </ItemGroup>
-
 </Project>

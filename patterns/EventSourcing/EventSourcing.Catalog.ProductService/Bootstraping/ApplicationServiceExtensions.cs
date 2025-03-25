@@ -1,5 +1,6 @@
 ﻿using EventBus.Abstractions;
 using EventBus;
+using EventSourcing.Infrastructure;
 
 namespace EventSourcing.Catalog.ProductService.Bootstraping;
 public static class ApplicationServiceExtensions
@@ -8,7 +9,8 @@ public static class ApplicationServiceExtensions
     {
         builder.AddServiceDefaults();
         builder.Services.AddOpenApi();
-        builder.AddNpgsqlDbContext<BookDbContext>(Consts.DefaultDatabase);
+
+        builder.AddEventSourcing(Consts.DefaultDatabase);
 
         builder.AddKafkaProducer("kafka");
         var kafkaTopic = builder.Configuration.GetValue<string>(Consts.Env_EventPublishingTopics);

@@ -21,6 +21,7 @@
 		<ProjectReference Include="..\..\..\MicroservicePatterns.ServiceDefaults\MicroservicePatterns.ServiceDefaults.csproj" />
 		<ProjectReference Include="..\..\..\MicroservicePatterns.Shared\MicroservicePatterns.Shared.csproj" />
 		<ProjectReference Include="..\EventSourcing.Catalog.IntegrationEvents\EventSourcing.Catalog.IntegrationEvents.csproj" />
+		<ProjectReference Include="..\EventSourcing.Infrastructure\EventSourcing.Infrastructure.csproj" />
 	</ItemGroup>
 
 </Project>

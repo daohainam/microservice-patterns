@@ -29,7 +29,7 @@ public static class ProductApi
         return group;
     }
 
-    private static async Task<Results<Ok<Book>, BadRequest>> CreateBook([AsParameters] ApiServices services, Book book)
+    private static async Task<Results<Ok<Product>, BadRequest>> CreateBook([AsParameters] ApiServices services, Product book)
     {
         if (book == null) {
             return TypedResults.BadRequest();
@@ -51,7 +51,7 @@ public static class ProductApi
         return TypedResults.Ok(book);
     }
 
-    private static async Task<Results<NotFound, Ok>> UpdateBook([AsParameters] ApiServices services, Guid id, Book book)
+    private static async Task<Results<NotFound, Ok>> UpdateBook([AsParameters] ApiServices services, Guid id, Product book)
     {
         var existingBook = await services.DbContext.Books.FindAsync(id);
         if (existingBook == null)
