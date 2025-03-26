@@ -18,6 +18,7 @@ public static class AccountApiExetensions
     public static RouteGroupBuilder MapAccountApi(this RouteGroupBuilder group)
     {
         group.MapPost("accounts", AccountApi.OpenAccount);
+        group.MapGet("accounts/{id:guid}", AccountApi.GetAccountById);
 
         return group;
     }
@@ -48,9 +49,32 @@ public static class AccountApi
             });
         }
 
-        await services.EventStore.AppendAsync(account.Id, StreamStates.New, events);
+        await services.EventStore.AppendAsync(account.Id, StreamStates.New, events, cancellationToken: services.CancellationToken);
 
         return TypedResults.Ok();
+    }
+
+    public static async Task<Results<Ok<Account>, BadRequest, NotFound>> GetAccountById([AsParameters] ApiServices services, Guid id)
+    {
+        if (id == Guid.Empty)
+        {
+            return TypedResults.BadRequest();
+        }
+
+        var account = await services.EventStore.FindAsync<Account>(id,
+            typeResolver: TypeResolver,
+            cancellationToken: services.CancellationToken);
+
+        if (account == null)
+            return TypedResults.NotFound();
+
+        return TypedResults.Ok(account);
+    }
+
+    private static Type TypeResolver(string typeName)
+    {
+        var type = Type.GetType(typeName);
+        return type == null ? throw new InvalidOperationException($"Type '{typeName}' not found.") : type;
     }
 }
 

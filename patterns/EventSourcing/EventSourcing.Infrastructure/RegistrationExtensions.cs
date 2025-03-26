@@ -7,7 +7,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
 namespace EventSourcing.Infrastructure;
-public static class Extensions
+public static class RegistrationExtensions
 {
     public static IHostApplicationBuilder AddEventSourcing(this IHostApplicationBuilder builder, string connectionName)
     {

@@ -1,3 +1,5 @@
+using EventSourcing.Banking.AccountService.Apis;
+
 var builder = WebApplication.CreateBuilder(args);
 
 builder.AddServiceDefaults();
@@ -14,6 +16,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+app.MapAccountApi();
 
 await app.MigrateEventStoreDatabaseAsync();
 

@@ -11,4 +11,10 @@ internal class EventStoreDbContext: DbContext
 
     public DbSet<Event> Events { get; set; }
     public DbSet<EventStream> EventStreams { get; set; }
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        modelBuilder.UseIdentityByDefaultColumns(); // or we can use HiLo
+        modelBuilder.Entity<Event>().Property(b => b.Version).HasDefaultValue();
+    }
 }
