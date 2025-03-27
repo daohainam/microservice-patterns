@@ -22,38 +22,50 @@ internal class PostgresqlEventStore : IEventStore
 
         if (state == StreamStates.New)
         {
-            stream = await dbContext.EventStreams.FindAsync(new object?[] { streamId }, cancellationToken: cancellationToken);
+            stream = await dbContext.EventStreams.FindAsync([streamId], cancellationToken: cancellationToken);
             if (stream != null)
             {
                 throw new InvalidOperationException($"Stream '{streamId}' already exists.");
             }
+
+            stream = new EventStream
+            {
+                Id = streamId, 
+                CurrentVersion = 0
+            };
+            dbContext.EventStreams.Add(stream);
         }
         else
         {
-            stream = await dbContext.EventStreams.FindAsync(new object?[] { streamId }, cancellationToken: cancellationToken) ?? throw new InvalidOperationException($"Stream '{streamId}' not found.");
+            stream = await dbContext.EventStreams.FindAsync([streamId], cancellationToken: cancellationToken) ?? throw new InvalidOperationException($"Stream '{streamId}' not found.");
         }
 
         var lastId = Guid.Empty;
+        long version = 0;
 
         foreach (var evt in events)
         {
-            lastId = evt.Id;
-            dbContext.Events.Add(new Event
+            version = dbContext.Database.SqlQueryRaw<long>($"""SELECT nextval("EventVersions")""").Single();
+
+            var @event = new Event
             {
                 Id = lastId,
                 StreamId = streamId,
                 Data = evt.Data,
                 Type = evt.Type,
                 CreatedAtUtc = evt.CreatedAtUtc,
-                Metadata = evt.Metadata,
-                // Version = auto increment
-            });
+                Metadata = evt.Metadata ?? string.Empty,
+                Version = version
+            };
+
+            dbContext.Events.Add(@event);
+
+            stream.CurrentVersion = version;
         }
 
         await dbContext.SaveChangesAsync(cancellationToken);
 
-        return dbContext.Events.Where(evt => evt.Id == lastId).Single().Version;
-
+        return version;
     }
 
     public Task<IEnumerable<Event>> ReadAsync(Guid streamId, long? afterVersion = null, CancellationToken cancellationToken = default)

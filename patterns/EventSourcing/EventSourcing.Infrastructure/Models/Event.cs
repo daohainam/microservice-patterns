@@ -7,5 +7,7 @@ public class Event
     public string Metadata { get; set; } = default!;
     public DateTime CreatedAtUtc { get; set; }
     public Guid StreamId { get; set; }
+    public EventStream Stream { get; set; } = default!;
     public long Version { get; set; }
+
 }

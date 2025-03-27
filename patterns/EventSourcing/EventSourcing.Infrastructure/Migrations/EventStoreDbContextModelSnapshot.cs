@@ -22,6 +22,8 @@ namespace EventSourcing.Infrastructure.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.HasSequence("EventVersions");
+
             modelBuilder.Entity("EventSourcing.Infrastructure.Models.Event", b =>
                 {
                     b.Property<Guid>("Id")
@@ -49,9 +51,9 @@ namespace EventSourcing.Infrastructure.Migrations
                     b.Property<long>("Version")
                         .HasColumnType("bigint");
 
-                    NpgsqlPropertyBuilderExtensions.HasIdentityOptions(b.Property<long>("Version"), null, null, null, null, null, null);
-
                     b.HasKey("Id");
+
+                    b.HasIndex("StreamId");
 
                     b.ToTable("Events");
                 });
@@ -68,6 +70,22 @@ namespace EventSourcing.Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("EventStreams");
+                });
+
+            modelBuilder.Entity("EventSourcing.Infrastructure.Models.Event", b =>
+                {
+                    b.HasOne("EventSourcing.Infrastructure.Models.EventStream", "Stream")
+                        .WithMany("Events")
+                        .HasForeignKey("StreamId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Stream");
+                });
+
+            modelBuilder.Entity("EventSourcing.Infrastructure.Models.EventStream", b =>
+                {
+                    b.Navigation("Events");
                 });
 #pragma warning restore 612, 618
         }

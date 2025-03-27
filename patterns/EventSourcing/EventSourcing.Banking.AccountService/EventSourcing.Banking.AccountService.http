@@ -1,6 +1,14 @@
-@EventSourcing.Banking.AccountService_HostAddress = http://localhost:5128
+@EventSourcing.Banking.AccountService_HostAddress = https://localhost:7211
 
-GET {{EventSourcing.Banking.AccountService_HostAddress}}/weatherforecast/
-Accept: application/json
+POST {{EventSourcing.Banking.AccountService_HostAddress}}/api/eventsourcing/v1/accounts
+Content-Type: application/json
+
+{
+  "id": "00000000-0000-0000-0000-000000000000",
+  "accountNumber": "1234567890",
+  "currency": "USD",
+  "balance": 0,
+  "creditLimit": 0
+}
 
 ###

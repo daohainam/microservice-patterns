@@ -1,10 +1,6 @@
-using EventSourcing.Banking.AccountService.Apis;
-
 var builder = WebApplication.CreateBuilder(args);
 
-builder.AddServiceDefaults();
-
-builder.Services.AddOpenApi();
+builder.AddApplicationServices();
 
 var app = builder.Build();
 
