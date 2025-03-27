@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace EventSourcing.Infrastructure.Postgresql;
 
-internal class EventStoreDbContext: DbContext
+public class EventStoreDbContext: DbContext
 {
     public EventStoreDbContext(DbContextOptions<EventStoreDbContext> options) : base(options)
     {
@@ -15,6 +15,6 @@ internal class EventStoreDbContext: DbContext
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.UseIdentityByDefaultColumns(); // or we can use HiLo
-        modelBuilder.Entity<Event>().Property(b => b.Version).HasDefaultValue();
+        modelBuilder.Entity<Event>().Property(b => b.Version).HasIdentityOptions();
     }
 }
