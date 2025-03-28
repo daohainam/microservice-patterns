@@ -2,7 +2,9 @@
 
 public abstract record AccountEvent(Guid AccountId, DateTime TimeStamp) : IDomainEvent
 {
-    public Guid EventId { get; } = Guid.CreateVersion7();
+    public Guid EventId { get; set; } = Guid.CreateVersion7();
+    public long Version { get; set; }
+    public DateTime CreatedAtUtc { get; set; }
 }
 public record AccountOpenedEvent(Guid AccountId, string AccountNumber, string Currency, decimal InitialBalance, decimal CreditLimit) : AccountEvent(AccountId, DateTime.UtcNow)
 {

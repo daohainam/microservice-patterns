@@ -14,9 +14,6 @@ public class EventStoreDbContext: DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        //modelBuilder.UseIdentityByDefaultColumns(); // or we can use HiLo
-        //modelBuilder.Entity<Event>().Property(b => b.Version).UseIdentityColumn();
-
-        modelBuilder.HasSequence<long>("EventVersions");
+        // modelBuilder.HasSequence<long>("EventVersions");
     }
 }

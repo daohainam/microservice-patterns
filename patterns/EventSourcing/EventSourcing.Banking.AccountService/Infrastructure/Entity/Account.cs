@@ -1,7 +1,6 @@
 ﻿namespace EventSourcing.Banking.AccountService.Infrastructure.Entity;
-public class Account
+public class Account: Aggregate
 {
-    public Guid Id { get; set; }
     public string AccountNumber { get; set; } = default!;
     public string Currency { get; set; } = default!;
     public decimal Balance { get; set; }
@@ -11,10 +10,6 @@ public class Account
     public DateTime BalanceChangedAtUtc { get; set; }
     public List<Transaction> Transactions { get; set; } = [];
 
-    public long Version { get; set; }
-    public IEnumerable<AccountEvent> PendingChanges => _changes;
-
-    private readonly List<AccountEvent> _changes = [];
 
     private Account() { }
 
@@ -27,6 +22,9 @@ public class Account
             Currency = currency,
             Balance = initialBalance,
             CreditLimit = creditLimit,
+            CreatedAtUtc = DateTime.UtcNow,
+            BalanceChangedAtUtc = DateTime.UtcNow,
+            IsClosed = false,
             Version = 0
         };
 
@@ -88,6 +86,7 @@ public class Account
         _changes.Add(evt);
     }
 
+    #region Apply methods
     public void Apply(AccountOpenedEvent evt)
     {
         Id = evt.AccountId;
@@ -96,6 +95,8 @@ public class Account
         Balance = evt.InitialBalance;
         CreatedAtUtc = evt.TimeStamp;
         BalanceChangedAtUtc = evt.TimeStamp;
+        CreditLimit = evt.CreditLimit;
+        IsClosed = false;
     }
 
     public void Apply(MoneyDepositedEvent evt)
@@ -169,5 +170,5 @@ public class Account
 
         CreditLimit = evt.CreditLimit;
     }
-
+    #endregion
 }

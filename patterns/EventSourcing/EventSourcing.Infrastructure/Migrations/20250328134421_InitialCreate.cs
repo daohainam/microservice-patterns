@@ -11,9 +11,6 @@ namespace EventSourcing.Infrastructure.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.CreateSequence(
-                name: "EventVersions");
-
             migrationBuilder.CreateTable(
                 name: "EventStreams",
                 columns: table => new
@@ -63,9 +60,6 @@ namespace EventSourcing.Infrastructure.Migrations
 
             migrationBuilder.DropTable(
                 name: "EventStreams");
-
-            migrationBuilder.DropSequence(
-                name: "EventVersions");
         }
     }
 }

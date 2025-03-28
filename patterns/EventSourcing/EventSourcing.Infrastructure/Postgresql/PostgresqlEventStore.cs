@@ -22,11 +22,13 @@ internal class PostgresqlEventStore : IEventStore
 
         if (state == StreamStates.New)
         {
-            stream = await dbContext.EventStreams.FindAsync([streamId], cancellationToken: cancellationToken);
-            if (stream != null)
-            {
-                throw new InvalidOperationException($"Stream '{streamId}' already exists.");
-            }
+            // stream = await dbContext.EventStreams.FindAsync([streamId], cancellationToken: cancellationToken);
+            // if (stream != null)
+            // {
+            //     throw new InvalidOperationException($"Stream '{streamId}' already exists.");
+            // }
+
+            // we don't need to check if the stream exists, we can just create it, if it doesn't exist then just throw an exception
 
             stream = new EventStream
             {
@@ -41,12 +43,9 @@ internal class PostgresqlEventStore : IEventStore
         }
 
         var lastId = Guid.Empty;
-        long version = 0;
 
         foreach (var evt in events)
         {
-            version = dbContext.Database.SqlQueryRaw<long>($"""SELECT nextval("EventVersions")""").Single();
-
             var @event = new Event
             {
                 Id = lastId,
@@ -55,17 +54,17 @@ internal class PostgresqlEventStore : IEventStore
                 Type = evt.Type,
                 CreatedAtUtc = evt.CreatedAtUtc,
                 Metadata = evt.Metadata ?? string.Empty,
-                Version = version
+                Version = evt.Version
             };
 
             dbContext.Events.Add(@event);
 
-            stream.CurrentVersion = version;
+            stream.CurrentVersion = evt.Version;
         }
 
         await dbContext.SaveChangesAsync(cancellationToken);
 
-        return version;
+        return stream.CurrentVersion;
     }
 
     public Task<IEnumerable<Event>> ReadAsync(Guid streamId, long? afterVersion = null, CancellationToken cancellationToken = default)

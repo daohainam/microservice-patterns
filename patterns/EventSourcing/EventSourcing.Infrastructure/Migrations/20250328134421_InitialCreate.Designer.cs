@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace EventSourcing.Infrastructure.Migrations
 {
     [DbContext(typeof(EventStoreDbContext))]
-    [Migration("20250327204759_InitialCreate")]
+    [Migration("20250328134421_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -24,8 +24,6 @@ namespace EventSourcing.Infrastructure.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
-
-            modelBuilder.HasSequence("EventVersions");
 
             modelBuilder.Entity("EventSourcing.Infrastructure.Models.Event", b =>
                 {

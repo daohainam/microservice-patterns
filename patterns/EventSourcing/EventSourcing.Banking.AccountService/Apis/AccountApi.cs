@@ -45,7 +45,7 @@ public static class AccountApi
                 StreamId = account.Id,
                 Data = JsonSerializer.Serialize(evt),
                 Type = evt.GetType().FullName ?? throw new Exception($"Could not get fullname of type {evt.GetType()}"),
-                CreatedAtUtc = evt.TimeStamp
+                CreatedAtUtc = evt.CreatedAtUtc
             });
         }
 

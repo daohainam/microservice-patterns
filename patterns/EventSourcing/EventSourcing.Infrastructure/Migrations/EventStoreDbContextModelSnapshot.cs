@@ -22,8 +22,6 @@ namespace EventSourcing.Infrastructure.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.HasSequence("EventVersions");
-
             modelBuilder.Entity("EventSourcing.Infrastructure.Models.Event", b =>
                 {
                     b.Property<Guid>("Id")
