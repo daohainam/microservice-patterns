@@ -22,6 +22,9 @@ public class EventSourcingAccountServiceTest
 
     [Theory]
     [InlineData("1234567890", "USD", 100, 2)]
+    [InlineData("1234567891", "USD", 9999999999, 0)]
+    [InlineData("1234567892", "USD", 100, 2)]
+    [InlineData("1234567893", "USD", 100, 2)]
     public async Task Create_Account_And_Reread_Success(string accountNumber, string currency, decimal balance, decimal creditLimit)
     {
         // Arrange

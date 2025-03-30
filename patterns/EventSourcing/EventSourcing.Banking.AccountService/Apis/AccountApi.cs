@@ -43,7 +43,7 @@ public static class AccountApi
             {
                 Id = evt.EventId,
                 StreamId = account.Id,
-                Data = JsonSerializer.Serialize(evt),
+                Data = JsonSerializer.Serialize(evt, evt.GetType()),
                 Type = evt.GetType().FullName ?? throw new Exception($"Could not get fullname of type {evt.GetType()}"),
                 CreatedAtUtc = evt.CreatedAtUtc
             });

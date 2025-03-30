@@ -11,7 +11,7 @@ public class Account: Aggregate
     public List<Transaction> Transactions { get; set; } = [];
 
 
-    private Account() { }
+    public Account() { }
 
     public static Account Create(Guid id, string accountNumber, string currency, decimal initialBalance, decimal creditLimit)
     {

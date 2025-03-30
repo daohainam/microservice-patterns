@@ -67,8 +67,15 @@ internal class PostgresqlEventStore : IEventStore
         return stream.CurrentVersion;
     }
 
-    public Task<IEnumerable<Event>> ReadAsync(Guid streamId, long? afterVersion = null, CancellationToken cancellationToken = default)
+    public Task<List<Event>> ReadAsync(Guid streamId, long? afterVersion = null, CancellationToken cancellationToken = default)
     {
-        throw new NotImplementedException();
+        if (afterVersion == null)
+        {
+            return dbContext.Events.Where(e => e.StreamId == streamId).OrderBy(e => e.Version).ToListAsync(cancellationToken);
+        }
+        else
+        {
+            return dbContext.Events.Where(e => e.StreamId == streamId && e.Version > afterVersion).OrderBy(e => e.Version).ToListAsync(cancellationToken);
+        }
     }
 }
