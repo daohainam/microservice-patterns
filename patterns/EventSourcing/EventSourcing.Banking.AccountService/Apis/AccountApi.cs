@@ -117,11 +117,8 @@ public class AccountApi
         return TypedResults.Ok();
     }
 
-    private static Type TypeResolver(string typeName)
-    {
-        var type = Type.GetType(typeName);
-        return type == null ? throw new InvalidOperationException($"Type '{typeName}' not found.") : type;
-    }
+    private static Type TypeResolver(string typeName) => Type.GetType(typeName) ?? throw new InvalidOperationException($"Type '{typeName}' not found.");
+
 }
 
 public class OpenAccountRequest
