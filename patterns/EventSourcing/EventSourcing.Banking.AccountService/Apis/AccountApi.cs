@@ -19,11 +19,13 @@ public static class AccountApiExetensions
     {
         group.MapPost("accounts", AccountApi.OpenAccount);
         group.MapGet("accounts/{id:guid}", AccountApi.GetAccountById);
+        group.MapPut("accounts/{id:guid}/deposit", AccountApi.Deposit);
+        group.MapPut("accounts/{id:guid}/withdraw", AccountApi.Withdraw);
 
         return group;
     }
 }
-public static class AccountApi
+public class AccountApi
 {
     public static async Task<Results<Ok, BadRequest>> OpenAccount([AsParameters] ApiServices services, OpenAccountRequest request)
     {
@@ -36,20 +38,9 @@ public static class AccountApi
 
         var account = Account.Create(request.Id, request.AccountNumber, request.Currency, request.Balance, request.CreditLimit);
 
-        var events = new List<Event>();
-        foreach (var evt in account.PendingChanges)
-        {
-            events.Add(new Event
-            {
-                Id = evt.EventId,
-                StreamId = account.Id,
-                Data = JsonSerializer.Serialize(evt, evt.GetType()),
-                Type = evt.GetType().FullName ?? throw new Exception($"Could not get fullname of type {evt.GetType()}"),
-                CreatedAtUtc = evt.CreatedAtUtc
-            });
-        }
+        await services.EventStore.AppendAsync(account, StreamStates.New, cancellationToken: services.CancellationToken);
 
-        await services.EventStore.AppendAsync(account.Id, StreamStates.New, events, cancellationToken: services.CancellationToken);
+        services.Logger.LogInformation("Account opened: {Id}", account.Id);
 
         return TypedResults.Ok();
     }
@@ -71,6 +62,61 @@ public static class AccountApi
         return TypedResults.Ok(account);
     }
 
+    internal static async Task<Results<BadRequest, NotFound, Ok>> Deposit([AsParameters] ApiServices services, Guid id, DepositRequest deposit)
+    {
+        if (deposit == null || id == Guid.Empty)
+        {
+            return TypedResults.BadRequest();
+        }
+
+        var account = await services.EventStore.FindAsync<Account>(id,
+            typeResolver: TypeResolver,
+            cancellationToken: services.CancellationToken);
+
+        if (account == null)
+            return TypedResults.NotFound();
+
+        account.Deposit(deposit.Amount);
+
+        await services.EventStore.AppendAsync(account, cancellationToken: services.CancellationToken);
+
+        services.Logger.LogInformation("Account deposited: {Id}, amount: {amount}", account.Id, deposit.Amount);
+
+        return TypedResults.Ok();
+    }
+
+    internal static async Task<Results<BadRequest, NotFound, Ok>> Withdraw([AsParameters] ApiServices services, Guid id, WithdrawRequest withdraw)
+    {
+        if (withdraw == null || id == Guid.Empty)
+        {
+            return TypedResults.BadRequest();
+        }
+
+        var account = await services.EventStore.FindAsync<Account>(id,
+            typeResolver: TypeResolver,
+            cancellationToken: services.CancellationToken);
+
+        if (account == null)
+            return TypedResults.NotFound();
+
+        try
+        {
+            account.Withdraw(withdraw.Amount);
+        }
+        catch (InvalidOperationException ex)
+        {
+            services.Logger.LogError(ex, "Account withdraw failed: {Id}, amount: {amount}", account.Id, withdraw.Amount);
+         
+            return TypedResults.BadRequest();
+        }
+
+        await services.EventStore.AppendAsync(account, cancellationToken: services.CancellationToken);
+
+        services.Logger.LogInformation("Account withdrawed: {Id}, amount: {amount}", account.Id, withdraw.Amount);
+
+        return TypedResults.Ok();
+    }
+
     private static Type TypeResolver(string typeName)
     {
         var type = Type.GetType(typeName);
@@ -85,5 +131,14 @@ public class OpenAccountRequest
     public string Currency { get; set; } = default!;
     public decimal Balance { get; set; }
     public decimal CreditLimit { get; set; }
+}
 
+public record DepositRequest
+{
+    public decimal Amount { get; set; }
+}
+
+public record WithdrawRequest
+{
+    public decimal Amount { get; set; }
 }

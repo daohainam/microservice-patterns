@@ -4,6 +4,7 @@ public class Account: Aggregate
     public string AccountNumber { get; set; } = default!;
     public string Currency { get; set; } = default!;
     public decimal Balance { get; set; }
+    public decimal CurrentCredit { get; set; }
     public decimal CreditLimit { get; set; }
     public bool IsClosed { get; set; }
     public DateTime CreatedAtUtc { get; set; }
@@ -21,6 +22,7 @@ public class Account: Aggregate
             AccountNumber = accountNumber,
             Currency = currency,
             Balance = initialBalance,
+            CurrentCredit = 0,
             CreditLimit = creditLimit,
             CreatedAtUtc = DateTime.UtcNow,
             BalanceChangedAtUtc = DateTime.UtcNow,
@@ -49,16 +51,6 @@ public class Account: Aggregate
 
     public void Withdraw(decimal amount)
     {
-        if (IsClosed)
-        {
-            throw new InvalidOperationException("Account is closed");
-        }
-
-        if (Balance < amount)
-        {
-            throw new InvalidOperationException("Insufficient funds");
-        }
-        
         var evt = new MoneyWithdrawnEvent(Id, amount);
         Apply(evt);
         _changes.Add(evt);
@@ -114,7 +106,18 @@ public class Account: Aggregate
             TimeStamp = evt.TimeStamp
         });
 
-        Balance += evt.Amount;
+        if (CurrentCredit > 0)
+        {
+            var creditToPay = Math.Min(CurrentCredit, evt.Amount);
+            
+            CurrentCredit -= creditToPay;
+            Balance += evt.Amount - creditToPay;
+        }
+        else
+        {
+            Balance += evt.Amount;
+        }
+
         BalanceChangedAtUtc = evt.TimeStamp;
     }
 
@@ -125,7 +128,12 @@ public class Account: Aggregate
             throw new InvalidOperationException("Invalid account id");
         }
 
-        if (Balance - evt.Amount > -CreditLimit)
+        if (IsClosed)
+        {
+            throw new InvalidOperationException("Account is closed");
+        }
+
+        if (Balance + (CreditLimit - CurrentCredit) < evt.Amount)
         {
             throw new InvalidOperationException("Insufficient funds");
         }
@@ -138,7 +146,22 @@ public class Account: Aggregate
             TimeStamp = evt.TimeStamp
         });
 
-        Balance -= evt.Amount;
+        if (Balance >= evt.Amount)
+        {
+            Balance -= evt.Amount;
+        }
+        else
+        {
+            CurrentCredit += evt.Amount - Balance;
+
+            if (CurrentCredit > CreditLimit)
+            {
+                throw new InvalidOperationException("Credit limit exceeded");
+            }
+
+            Balance = 0;
+        }
+
         BalanceChangedAtUtc = evt.TimeStamp;
     }
 

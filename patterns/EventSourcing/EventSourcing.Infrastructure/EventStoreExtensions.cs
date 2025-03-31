@@ -1,4 +1,5 @@
 ﻿using EventSourcing.Infrastructure.Models;
+using EventSourcing.SeedWork;
 using System.Reflection;
 using System.Text.Json;
 
@@ -13,7 +14,7 @@ public static class EventStoreExtensions
     {
         var events = await eventStore.ReadAsync(streamId, afterVersion, cancellationToken: cancellationToken);
 
-        if (events == null || events.Count == 0)
+        if (events == null || !events.Any())
         {
             return default;
         }
@@ -44,5 +45,26 @@ public static class EventStoreExtensions
         }
 
         return instance;
+    }
+
+    public static async Task AppendAsync(this IEventStore eventStore,
+        Aggregate aggregate,
+        StreamStates streamState = StreamStates.Existing,
+        CancellationToken cancellationToken = default)
+    {
+        var events = new List<Event>();
+        foreach (var evt in aggregate.PendingChanges)
+        {
+            events.Add(new Event
+            {
+                Id = evt.EventId,
+                StreamId = aggregate.Id,
+                Data = JsonSerializer.Serialize(evt, evt.GetType()),
+                Type = evt.GetType().FullName ?? throw new Exception($"Could not get fullname of type {evt.GetType()}"),
+                CreatedAtUtc = evt.CreatedAtUtc
+            });
+        }
+
+        await eventStore.AppendAsync(aggregate.Id, streamState, events, cancellationToken);
     }
 }

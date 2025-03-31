@@ -16,6 +16,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\..\MicroservicePatterns.DatabaseMigrationHelpers\MicroservicePatterns.DatabaseMigrationHelpers.csproj" />
+    <ProjectReference Include="..\EventSourcing.SeedWork\EventSourcing.SeedWork.csproj" />
   </ItemGroup>
 
 </Project>
