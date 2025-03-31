@@ -27,6 +27,9 @@
     <Project Path="patterns/Saga/Saga.TripPlanner.TicketService/Saga.TripPlanner.TicketService.csproj" />
     <Project Path="patterns/Saga/Saga.TripPlanner.TripPlanningService/Saga.TripPlanner.TripPlanningService.csproj" />
   </Folder>
+  <Folder Name="/patterns/TransactionalOutbox/" Id="02ea681e-c7d8-13c7-8484-4ac65e1b71e8">
+    <Project Path="patterns/TransactionalOutbox/TransactionalOutbox.Infrastructure/TransactionalOutbox.Infrastructure.csproj" Id="61cade5a-7d9c-4b14-84e4-810c47739df4" />
+  </Folder>
   <Folder Name="/tests/">
     <Project Path="tests/IntegrationTests/IntegrationTests.csproj" />
     <Project Path="tests/Saga.UnitTests/Saga.UnitTests.csproj" />
