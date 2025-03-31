@@ -1,9 +1,4 @@
-﻿using EventSourcing.Banking.AccountService.Infrastructure.Entity;
-using EventSourcing.Infrastructure.Models;
-using Microsoft.AspNetCore.Http.HttpResults;
-using System.Text.Json;
-
-namespace EventSourcing.Banking.AccountService.Apis;
+﻿namespace EventSourcing.Banking.AccountService.Apis;
 public static class AccountApiExetensions
 {
     public static IEndpointRouteBuilder MapAccountApi(this IEndpointRouteBuilder builder)
