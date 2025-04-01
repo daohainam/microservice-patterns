@@ -6,19 +6,19 @@ public static class ApplicationServiceExtensions
         builder.AddServiceDefaults();
         builder.Services.AddOpenApi();
 
-        builder.Services.AddScoped<IUnitOfWork, UnitOfWork>(sp =>
+        if (builder.Configuration.GetConnectionString(Consts.DefaultDatabase) is string connectionString)
         {
-            if (builder.Configuration.GetConnectionString(Consts.DefaultDatabase) is string connectionString)
+            builder.Services.AddScoped<IUnitOfWork, UnitOfWork>(sp =>
             {
                 var connection = new NpgsqlConnection(connectionString);
 
                 return new UnitOfWork(connection);
-            }
-            else
-            {
-                throw new InvalidOperationException($"Connection string '{Consts.DefaultDatabase}' not found.");
-            }
-        });
+            });
+        }
+        else
+        {
+            throw new InvalidOperationException($"Connection string '{Consts.DefaultDatabase}' not found.");
+        }
 
         return builder;
     }
