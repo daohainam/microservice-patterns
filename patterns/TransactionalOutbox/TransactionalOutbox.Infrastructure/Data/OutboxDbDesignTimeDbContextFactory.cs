@@ -9,7 +9,9 @@ namespace TransactionalOutbox.Banking.AccountService.Infrastructure.Data
         public OutboxDbContext CreateDbContext(string[] args)
         {
             var optionsBuilder = new DbContextOptionsBuilder<OutboxDbContext>();
-            optionsBuilder.UseNpgsql("Host=localhost;Database=TransactionalOutbox;Username=postgres;Password=postgres");
+            optionsBuilder.UseNpgsql("Host=localhost;Database=TransactionalOutbox;Username=postgres;Password=postgres",
+                o => o.MigrationsHistoryTable("__OutboxMigrationsHistory")
+                );
 
             return new OutboxDbContext(optionsBuilder.Options);
         }

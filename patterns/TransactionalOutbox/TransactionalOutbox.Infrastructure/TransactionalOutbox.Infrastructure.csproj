@@ -15,6 +15,10 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <ProjectReference Include="..\..\..\EventBus\EventBus.csproj" />
+	  <ProjectReference Include="..\..\..\MicroservicePatterns.DatabaseMigrationHelpers\MicroservicePatterns.DatabaseMigrationHelpers.csproj" />
 	  <ProjectReference Include="..\TransactionalOutbox.Abstractions\TransactionalOutbox.Abstractions.csproj" />
+	  <ProjectReference Include="..\TransactionalOutbox.IntegrationEvents\TransactionalOutbox.IntegrationEvents.csproj" />
+	  <ProjectReference Include="..\TransactionalOutbox.Publisher.Polling\TransactionalOutbox.Publisher.Polling.csproj" />
 	</ItemGroup>
 </Project>

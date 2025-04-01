@@ -1,11 +1,6 @@
 using Aspire.Hosting;
 using EventSourcing.Banking.AccountService.Apis;
 using EventSourcing.Banking.AccountService.Infrastructure.Entity;
-using RabbitMQ.Client;
-using Saga.TripPlanner.HotelService.Infrastructure.Entity;
-using Saga.TripPlanner.PaymentService.Infrastructure.Entity;
-using Saga.TripPlanner.TicketService.Infrastructure.Entity;
-using System.Net.Http;
 using System.Net.Http.Json;
 
 namespace IntegrationTests.Tests;

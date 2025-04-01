@@ -64,6 +64,8 @@ public class AccountApi
             ProcessedDate = null,
         });
 
+        await services.UnitOfWork.AccountDbContext.SaveChangesAsync();
+        await services.UnitOfWork.OutboxMessageRepository.SaveChangesAsync();
         await services.UnitOfWork.CommitTransactionAsync(services.CancellationToken);
 
         services.Logger.LogInformation("Account opened: {Id}", account.Id);

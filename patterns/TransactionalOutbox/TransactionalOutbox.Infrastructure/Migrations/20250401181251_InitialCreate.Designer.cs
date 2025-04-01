@@ -12,7 +12,7 @@ using TransactionalOutbox.Infrastructure.Data;
 namespace TransactionalOutbox.Infrastructure.Migrations
 {
     [DbContext(typeof(OutboxDbContext))]
-    [Migration("20250401110952_InitialCreate")]
+    [Migration("20250401181251_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />

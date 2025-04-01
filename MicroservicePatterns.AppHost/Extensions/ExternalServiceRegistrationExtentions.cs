@@ -199,13 +199,11 @@ public static class ExternalServiceRegistrationExtentions
 
         #region Transactional Outbox Account
         var outboxAccountDb = postgres.AddDefaultDatabase<Projects.TransactionalOutbox_Banking_AccountService>();
-        var outboxDb = postgres.AddDefaultDatabase<Projects.TransactionalOutbox_Banking_AccountService>("Outbox");
 
         var outboxAccountService = builder.AddProjectWithPostfix<Projects.TransactionalOutbox_Banking_AccountService>()
             .WithEnvironment(Consts.Env_EventPublishingTopics, GetTopicName<Projects.TransactionalOutbox_Banking_AccountService>())
             .WithReference(kafka)
             .WithReference(outboxAccountDb, Consts.DefaultDatabase)
-            .WithReference(outboxDb, $"{Consts.DefaultDatabase}-OutBox")
             .WaitFor(outboxAccountDb)
             .WaitFor(kafka);
         #endregion

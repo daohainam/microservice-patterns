@@ -1,7 +1,4 @@
-﻿using TransactionalOutbox.Infrastructure;
-using TransactionalOutbox.Banking.AccountService.Apis;
-
-namespace TransactionalOutbox.Banking.AccountService;
+﻿namespace TransactionalOutbox.Banking.AccountService;
 public class ApiServices(
     IUnitOfWork unitOfWork,
     ILogger<AccountApi> logger,

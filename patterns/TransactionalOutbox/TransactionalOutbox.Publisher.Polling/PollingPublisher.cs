@@ -1,7 +1,6 @@
 ﻿using EventBus.Abstractions;
 using EventBus.Events;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using System.Text.Json;
 using TransactionalOutbox.Abstractions;
 
@@ -42,6 +41,7 @@ public class PollingPublisher
                     }
                     await eventPublisher.PublishAsync(@event);
                     await repository.MarkAsProcessedAsync(message);
+                    await repository.SaveChangesAsync();
 
                     logger.LogInformation("Published message {MessageId}", message.Id);
                 }
@@ -50,6 +50,10 @@ public class PollingPublisher
                     logger.LogError(ex, "Failed to publish message {MessageId}", message.Id);
                     await repository.MarkAsFailedAsync(message);
                 }
+            }
+
+            if (!cancellationToken.IsCancellationRequested) {
+                await Task.Delay(1000, cancellationToken);
             }
         }
     }

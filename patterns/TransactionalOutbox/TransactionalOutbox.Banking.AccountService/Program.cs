@@ -15,7 +15,6 @@ app.UseHttpsRedirection();
 app.MapAccountApi();
 
 await app.MigrateDbContextAsync<AccountDbContext>();
-await app.MigrateDbContextAsync<OutboxDbContext>();
-
+await app.MigrateOutboxDbContextAsync();
 
 app.Run();

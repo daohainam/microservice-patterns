@@ -34,9 +34,15 @@ namespace TransactionalOutbox.Infrastructure
 
         public Task MarkAsProcessedAsync(OutboxMessage message)
         {
+            message.ProcessedCount++;
             message.ProcessedDate = DateTime.UtcNow;
 
             return Task.CompletedTask;
+        }
+
+        public Task SaveChangesAsync()
+        {
+            return dbContext.SaveChangesAsync();
         }
     }
 }

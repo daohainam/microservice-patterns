@@ -8,6 +8,7 @@ global using TransactionalOutbox.Banking.AccountService.Bootstraping;
 global using TransactionalOutbox.Banking.AccountService.Infrastructure.Data;
 global using TransactionalOutbox.Banking.AccountService.Infrastructure.Entity;
 global using TransactionalOutbox.IntegrationEvents;
+global using TransactionalOutbox.Infrastructure;
 global using TransactionalOutbox.Infrastructure.Data;
 global using MicroservicePatterns.DatabaseMigrationHelpers;
-
+global using EventBus.Kafka;

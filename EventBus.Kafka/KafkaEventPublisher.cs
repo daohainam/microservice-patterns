@@ -5,7 +5,7 @@ public class KafkaEventPublisher(string topic, IProducer<string, MessageEnvelop>
 {
     public async Task<bool> PublishAsync<TEvent>(TEvent @event) where TEvent : IntegrationEvent
     {
-        var json = JsonSerializer.Serialize(@event);
+        var json = JsonSerializer.Serialize(@event, @event.GetType());
         logger.LogInformation("Publishing event {type} to topic {topic}: {event}", @event.GetType().Name, topic, json);
 
         try

@@ -1,4 +1,7 @@
-﻿namespace TransactionalOutbox.Banking.AccountService.Bootstraping;
+﻿using EventBus.Abstractions;
+using EventBus;
+
+namespace TransactionalOutbox.Banking.AccountService.Bootstraping;
 public static class ApplicationServiceExtensions
 {
     public static IHostApplicationBuilder AddApplicationServices(this IHostApplicationBuilder builder)
@@ -7,10 +10,9 @@ public static class ApplicationServiceExtensions
         builder.Services.AddOpenApi();
 
         builder.AddNpgsqlDbContext<AccountDbContext>(Consts.DefaultDatabase);
-        builder.AddNpgsqlDbContext<OutboxDbContext>($"{Consts.DefaultDatabase}-OutBox");
+        builder.AddTransactionalOutbox(Consts.DefaultDatabase);
 
-        if (builder.Configuration.GetConnectionString(Consts.DefaultDatabase) is string connectionString
-            && builder.Configuration.GetConnectionString($"{Consts.DefaultDatabase}-OutBox") is string outboxConnectionString)
+        if (builder.Configuration.GetConnectionString(Consts.DefaultDatabase) is string connectionString)
         {
             builder.Services.AddScoped<IUnitOfWork, UnitOfWork>(sp =>
             {
@@ -23,6 +25,18 @@ public static class ApplicationServiceExtensions
         {
             throw new InvalidOperationException($"Connection string '{Consts.DefaultDatabase}' not found.");
         }
+
+        builder.AddKafkaProducer("kafka");
+        var kafkaTopic = builder.Configuration.GetValue<string>(Consts.Env_EventPublishingTopics);
+        if (!string.IsNullOrEmpty(kafkaTopic))
+        {
+            builder.AddKafkaEventPublisher(kafkaTopic);
+        }
+        else
+        {
+            builder.Services.AddTransient<IEventPublisher, NullEventPublisher>();
+        }
+
 
         return builder;
     }

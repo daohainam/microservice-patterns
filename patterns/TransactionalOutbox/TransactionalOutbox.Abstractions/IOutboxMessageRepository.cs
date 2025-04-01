@@ -5,4 +5,5 @@ public interface IOutboxMessageRepository
     Task<IEnumerable<OutboxMessage>> GetUnprocessedMessagesAsync();
     Task MarkAsProcessedAsync(OutboxMessage message);
     Task MarkAsFailedAsync(OutboxMessage message, bool recoverable = true);
+    Task SaveChangesAsync();
 }
