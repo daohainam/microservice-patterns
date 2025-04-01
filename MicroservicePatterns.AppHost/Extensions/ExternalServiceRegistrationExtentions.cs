@@ -119,8 +119,7 @@ public static class ExternalServiceRegistrationExtentions
             .WithReference(kafka)
             .WithReference(sagaBankCardDb, Consts.DefaultDatabase)
             .WaitFor(sagaBankCardDb)
-            .WaitFor(kafka)
-            .WithParentRelationship(sagaOrderService);
+            .WaitFor(kafka);
 
 
         sagaBankCardService.WithParentRelationship(sagaOrderService);
@@ -196,6 +195,19 @@ public static class ExternalServiceRegistrationExtentions
             .WithReference(esAccountDb, Consts.DefaultDatabase)
             .WaitFor(esAccountDb);
 
+        #endregion
+
+        #region Transactional Outbox Account
+        var outboxAccountDb = postgres.AddDefaultDatabase<Projects.TransactionalOutbox_Banking_AccountService>();
+        var outboxDb = postgres.AddDefaultDatabase<Projects.TransactionalOutbox_Banking_AccountService>("Outbox");
+
+        var outboxAccountService = builder.AddProjectWithPostfix<Projects.TransactionalOutbox_Banking_AccountService>()
+            .WithEnvironment(Consts.Env_EventPublishingTopics, GetTopicName<Projects.TransactionalOutbox_Banking_AccountService>())
+            .WithReference(kafka)
+            .WithReference(outboxAccountDb, Consts.DefaultDatabase)
+            .WithReference(outboxDb, $"{Consts.DefaultDatabase}-OutBox")
+            .WaitFor(outboxAccountDb)
+            .WaitFor(kafka);
         #endregion
 
         return builder;

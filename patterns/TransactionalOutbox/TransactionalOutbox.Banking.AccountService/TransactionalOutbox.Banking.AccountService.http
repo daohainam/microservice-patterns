@@ -1,6 +1,6 @@
 @EventSourcing.Banking.AccountService_HostAddress = https://localhost:7282
 
-POST {{EventSourcing.Banking.AccountService_HostAddress}}/api/eventsourcing/v1/accounts
+POST {{EventSourcing.Banking.AccountService_HostAddress}}/api/outbox/v1/accounts
 Content-Type: application/json
 
 {

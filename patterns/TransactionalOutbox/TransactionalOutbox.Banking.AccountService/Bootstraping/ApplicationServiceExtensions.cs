@@ -6,7 +6,11 @@ public static class ApplicationServiceExtensions
         builder.AddServiceDefaults();
         builder.Services.AddOpenApi();
 
-        if (builder.Configuration.GetConnectionString(Consts.DefaultDatabase) is string connectionString)
+        builder.AddNpgsqlDbContext<AccountDbContext>(Consts.DefaultDatabase);
+        builder.AddNpgsqlDbContext<OutboxDbContext>($"{Consts.DefaultDatabase}-OutBox");
+
+        if (builder.Configuration.GetConnectionString(Consts.DefaultDatabase) is string connectionString
+            && builder.Configuration.GetConnectionString($"{Consts.DefaultDatabase}-OutBox") is string outboxConnectionString)
         {
             builder.Services.AddScoped<IUnitOfWork, UnitOfWork>(sp =>
             {

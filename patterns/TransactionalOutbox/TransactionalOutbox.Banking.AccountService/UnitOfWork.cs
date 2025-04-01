@@ -53,11 +53,6 @@ public class UnitOfWork : IUnitOfWork, IDisposable
         }
         catch
         {
-            if (transaction != null)
-            {
-                await transaction.RollbackAsync(cancellationToken);
-            }
-
             await connection.CloseAsync();
             throw;
         }
@@ -91,7 +86,7 @@ public class UnitOfWork : IUnitOfWork, IDisposable
             {
                 if (connection.State == ConnectionState.Open)
                 {
-                    transaction?.Rollback();
+                    connection.Close();
                 }
 
                 transaction?.Dispose();

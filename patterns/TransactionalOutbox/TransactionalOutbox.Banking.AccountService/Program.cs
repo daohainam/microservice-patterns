@@ -14,6 +14,8 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.MapAccountApi();
 
-//await app.MigrateEventStoreDatabaseAsync();
+await app.MigrateDbContextAsync<AccountDbContext>();
+await app.MigrateDbContextAsync<OutboxDbContext>();
+
 
 app.Run();
