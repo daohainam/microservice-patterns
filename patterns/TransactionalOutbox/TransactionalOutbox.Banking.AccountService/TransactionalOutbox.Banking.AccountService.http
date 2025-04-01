@@ -1,0 +1,14 @@
+@EventSourcing.Banking.AccountService_HostAddress = https://localhost:7282
+
+POST {{EventSourcing.Banking.AccountService_HostAddress}}/api/eventsourcing/v1/accounts
+Content-Type: application/json
+
+{
+  "id": "00000000-0000-0000-0000-000000000000",
+  "accountNumber": "1234567890",
+  "currency": "USD",
+  "balance": 0,
+  "creditLimit": 0
+}
+
+###

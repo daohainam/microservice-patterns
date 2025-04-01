@@ -1,6 +1,6 @@
 ﻿using EventBus.Events;
 
-namespace EventSourcing.Banking.IntegrationEvents;
+namespace TransactionalOutbox.IntegrationEvents;
 
 public class AccountOpenedIntegrationEvent: IntegrationEvent
 {

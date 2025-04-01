@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="EntityFramework" Version="6.5.1" />
+    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.3" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.3">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\MicroservicePatterns.ServiceDefaults\MicroservicePatterns.ServiceDefaults.csproj" />
+    <ProjectReference Include="..\..\..\MicroservicePatterns.Shared\MicroservicePatterns.Shared.csproj" />
+    <ProjectReference Include="..\TransactionalOutbox.Infrastructure\TransactionalOutbox.Infrastructure.csproj" />
+    <ProjectReference Include="..\TransactionalOutbox.IntegrationEvents\TransactionalOutbox.IntegrationEvents.csproj" />
+  </ItemGroup>
+
+</Project>
