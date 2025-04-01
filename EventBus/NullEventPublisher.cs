@@ -11,9 +11,9 @@ namespace EventBus
             logger.LogInformation("NullEventPublisher is used");
         }
 
-        public Task PublishAsync<TEvent>(TEvent @event) where TEvent : IntegrationEvent
+        public Task<bool> PublishAsync<TEvent>(TEvent @event) where TEvent : IntegrationEvent
         {
-            return Task.CompletedTask;
+            return Task.FromResult(true);
         }
     }
 }

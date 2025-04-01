@@ -7,11 +7,11 @@ namespace TestHelpers
     {
         public List<IntegrationEvent> Events { get; } = [];
 
-        public Task PublishAsync<TEvent>(TEvent @event) where TEvent : IntegrationEvent
+        public Task<bool> PublishAsync<TEvent>(TEvent @event) where TEvent : IntegrationEvent
         {
             Events.Add(@event);
 
-            return Task.CompletedTask;
+            return Task.FromResult(true);
         }
     }
 }
