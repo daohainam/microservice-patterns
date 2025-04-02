@@ -206,6 +206,14 @@ public static class ExternalServiceRegistrationExtentions
             .WithReference(outboxAccountDb, Consts.DefaultDatabase)
             .WaitFor(outboxAccountDb)
             .WaitFor(kafka);
+
+        var outboxConsumingService = builder.AddProjectWithPostfix<Projects.TransactionalOutbox_MessageConsumingService>()
+            .WithReference(kafka)
+            .WithEnvironment(Consts.Env_EventConsumingTopics, GetTopicName<Projects.TransactionalOutbox_Banking_AccountService>())
+            .WaitFor(kafka);
+
+        outboxConsumingService.WithParentRelationship(outboxAccountService);
+
         #endregion
 
         return builder;
