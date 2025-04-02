@@ -216,6 +216,13 @@ public static class ExternalServiceRegistrationExtentions
 
         #endregion
 
+        #region Idempotent Consumer Catalog
+        var idempotentCatalogDb = postgres.AddDefaultDatabase<Projects.IdempotentConsumer_CatalogService>();
+        var idempotentCatalogService = builder.AddProjectWithPostfix<Projects.IdempotentConsumer_CatalogService>()
+            .WithReference(idempotentCatalogDb, Consts.DefaultDatabase)
+            .WaitFor(idempotentCatalogDb);
+        #endregion
+
         return builder;
     }
 

@@ -1,0 +1,18 @@
+@IdempotentConsumer.CatalogService_HostAddress = https://localhost:7871
+
+GET {{IdempotentConsumer.CatalogService_HostAddress}}/api/idempotentconsumer/v1/products
+Accept: application/json
+
+###
+POST {{IdempotentConsumer.CatalogService_HostAddress}}/api/idempotentconsumer/v1/products
+Content-Type: application/json
+CallId: 70689C14-084E-425B-9706-498C9015192B
+
+{
+  "Id": "00000000-0000-0000-0000-000000000000",
+  "Name": "Test Product",
+  "Description": "Test Description",
+  "Price": 999
+}
+
+###
