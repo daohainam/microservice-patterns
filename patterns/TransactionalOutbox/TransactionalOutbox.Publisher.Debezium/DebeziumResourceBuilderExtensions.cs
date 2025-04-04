@@ -1,55 +1,86 @@
 ﻿using Aspire.Hosting;
 
-namespace TransactionalOutbox.Publisher.Debezium
+namespace TransactionalOutbox.Publisher.Debezium;
+
+public static class DebeziumBuilderExtensions
 {
-    public static class DebeziumResourceBuilderExtensions
+    private const int DebeziumConnectPort = 8083;
+
+    public static IResourceBuilder<KafkaServerResource> WithDebezium(this IResourceBuilder<KafkaServerResource> builder, Action<IResourceBuilder<DebeziumContainerResource>>? configureContainer = null, string? containerName = null)
     {
-        public static IResourceBuilder<DebeziumResource> AddEventStore(
-        this IDistributedApplicationBuilder builder,
-        string name,
-        int? httpPort = null,
-        int? tcpPort = null)
-        {
-            var resource = new DebeziumResource(name);
+        ArgumentNullException.ThrowIfNull(builder);
 
-            return builder.AddResource(resource)
-                          .WithImage(DebeziumContainerImageTags.Image)
-                          .WithImageRegistry(DebeziumContainerImageTags.Registry)
-                          .WithImageTag(DebeziumContainerImageTags.Tag)
-                          .WithEndpoint(port: tcpPort, targetPort: DebeziumResource.DefaultTcpPort, name: DebeziumResource.TcpEndpointName)
-                          .WithHttpEndpoint(port: httpPort, targetPort: DebeziumResource.DefaultHttpPort, name: DebeziumResource.HttpEndpointName)
-                          .WithEnvironment(ConfigureDebeziumContainer);
+        if (builder.ApplicationBuilder.Resources.OfType<DebeziumContainerResource>().SingleOrDefault() is { } existingDebeziumContainerResource)
+        {
+            var builderForExistingResource = builder.ApplicationBuilder.CreateResourceBuilder(existingDebeziumContainerResource);
+            configureContainer?.Invoke(builderForExistingResource);
+            return builder;
         }
+        else
+        {
+            containerName ??= $"{builder.Resource.Name}-debezium";
 
-        private static void ConfigureDebeziumContainer(EnvironmentCallbackContext context)
-        {
-        }
+            var debezium = new DebeziumContainerResource(containerName);
+            var debeziumBuilder = builder.ApplicationBuilder.AddResource(debezium)
+                .WithImage(DebeziumContainerImageTags.Image, DebeziumContainerImageTags.Tag)
+                .WithImageRegistry(DebeziumContainerImageTags.Registry)
+                .WithEndpoint(targetPort: DebeziumConnectPort)
+                .WaitFor(builder)
+                .WithParentRelationship(builder)
+                .ExcludeFromManifest();
 
-        public static IResourceBuilder<DebeziumResource> WithKafka(this IResourceBuilder<DebeziumResource> builder, string server)
-        {
-            return builder
-                .WithEnvironment("KAFKA_CONNECT_BOOTSTRAP_SERVERS", server);
-        }
+            builder.ApplicationBuilder.Eventing.Subscribe<AfterEndpointsAllocatedEvent>((e, ct) =>
+            {
+                var kafkaResources = builder.ApplicationBuilder.Resources.OfType<KafkaServerResource>();
 
-        public static IResourceBuilder<DebeziumResource> WithDataVolume(this IResourceBuilder<DebeziumResource> builder)
-        {
-            return builder
-                .WithVolume("debezium-volume-data", "/var/lib/debezium-data");
-        }
-        public static IResourceBuilder<DebeziumResource> WithLogsVolume(this IResourceBuilder<DebeziumResource> builder)
-        {
-            return builder
-                .WithVolume("debezium-volume-logs", "/var/log/debezium")
-                ;
+                int i = 0;
+                foreach (var kafkaResource in kafkaResources)
+                {
+                    if (kafkaResource.InternalEndpoint.IsAllocated)
+                    {
+                        var endpoint = kafkaResource.InternalEndpoint;
+                        int index = i;
+                        debeziumBuilder.WithEnvironment(context => ConfigureDebeziumContainer(context, endpoint, index));
+                    }
+
+                    i++;
+                }
+                return Task.CompletedTask;
+            });
+
+            configureContainer?.Invoke(debeziumBuilder);
+
+            return builder;
         }
     }
 
-    internal static class DebeziumContainerImageTags
+    private static void ConfigureDebeziumContainer(EnvironmentCallbackContext context, EndpointReference endpoint, int index)
     {
-        internal const string Registry = "quay.io";
+        var bootstrapServers = context.ExecutionContext.IsRunMode
+            ? ReferenceExpression.Create($"{endpoint.Resource.Name}:{endpoint.Property(EndpointProperty.TargetPort)}")
+            : ReferenceExpression.Create($"{endpoint.Property(EndpointProperty.Host)}:{endpoint.Property(EndpointProperty.Port)}");
 
-        internal const string Image = "debezium/connect";
+        context.EnvironmentVariables.Add("BOOTSTRAP_SERVERS", bootstrapServers);
+        context.EnvironmentVariables.Add("GROUP_ID", $"{index}");
+        context.EnvironmentVariables.Add("CONFIG_STORAGE_TOPIC", "my_connect_configs");
+        context.EnvironmentVariables.Add("OFFSET_STORAGE_TOPIC", "my_connect_offsets");
+        context.EnvironmentVariables.Add("STATUS_STORAGE_TOPIC", "my_connect_status");
+        context.EnvironmentVariables.Add("CONNECT_KEY_CONVERTER", "org.apache.kafka.connect.json.JsonConverter");
+        context.EnvironmentVariables.Add("CONNECT_VALUE_CONVERTER", "org.apache.kafka.connect.json.JsonConverter");
+        context.EnvironmentVariables.Add("CONNECT_INTERNAL_KEY_CONVERTER", "org.apache.kafka.connect.json.JsonConverter");
+        context.EnvironmentVariables.Add("CONNECT_INTERNAL_VALUE_CONVERTER", "org.apache.kafka.connect.json.JsonConverter");
+        context.EnvironmentVariables.Add("CONNECT_REST_ADVERTISED_HOST_NAME", "connect");
+        context.EnvironmentVariables.Add("CONNECT_PLUGIN_PATH", "/kafka/connect,/usr/share/java");
 
-        internal const string Tag = "latest";
+
     }
+}
+
+internal static class DebeziumContainerImageTags
+{
+    internal const string Registry = "docker.io";
+
+    internal const string Image = "debezium/connect";
+
+    internal const string Tag = "3.0.0.Final";
 }

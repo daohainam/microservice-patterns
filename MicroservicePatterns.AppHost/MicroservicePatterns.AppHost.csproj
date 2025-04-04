@@ -38,6 +38,7 @@
     <ProjectReference Include="..\patterns\Saga\Saga.TripPlanner.TripPlanningService\Saga.TripPlanner.TripPlanningService.csproj" />
     <ProjectReference Include="..\patterns\TransactionalOutbox\TransactionalOutbox.Banking.AccountService\TransactionalOutbox.Banking.AccountService.csproj" />
     <ProjectReference Include="..\patterns\TransactionalOutbox\TransactionalOutbox.MessageConsumingService\TransactionalOutbox.MessageConsumingService.csproj" />
+    <ProjectReference Include="..\patterns\TransactionalOutbox\TransactionalOutbox.Publisher.Debezium\TransactionalOutbox.Publisher.Debezium.csproj" IsAspireProjectResource="false" />
   </ItemGroup>
 
 </Project>

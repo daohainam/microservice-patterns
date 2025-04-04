@@ -1,5 +1,6 @@
 ﻿using MicroservicePatterns.Shared;
 using Microsoft.Extensions.Configuration;
+using TransactionalOutbox.Publisher.Debezium;
 
 namespace MicroservicePatterns.AppHost.Extensions;
 public static class ExternalServiceRegistrationExtentions
@@ -14,7 +15,7 @@ public static class ExternalServiceRegistrationExtentions
         if (!builder.Configuration.GetValue("IsTest", false))
         {
             cache = cache.WithLifetime(ContainerLifetime.Persistent).WithDataVolume().WithRedisInsight();
-            kafka = kafka.WithLifetime(ContainerLifetime.Persistent).WithDataVolume().WithKafkaUI();
+            kafka = kafka.WithLifetime(ContainerLifetime.Persistent).WithDataVolume().WithKafkaUI().WithDebezium();
             mongoDb = mongoDb.WithLifetime(ContainerLifetime.Persistent).WithDataVolume().WithMongoExpress();
             postgres = postgres.WithLifetime(ContainerLifetime.Persistent).WithDataVolume().WithPgWeb();
         }
