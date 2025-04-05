@@ -8,11 +8,11 @@ namespace TransactionalOutbox.Publisher.Polling;
 public class PollingPublisher
 {
     private readonly IEventPublisher eventPublisher;
-    private readonly IOutboxMessageRepository repository;
+    private readonly IPollingOutboxMessageRepository repository;
     private readonly ILogger<PollingPublisher> logger;
     private readonly PollingPublisherOptions options = new();
 
-    public PollingPublisher(IEventPublisher eventPublisher, IOutboxMessageRepository outboxMessageRepository, ILogger<PollingPublisher> logger, Action<PollingPublisherOptions>? configureOptions = null)
+    public PollingPublisher(IEventPublisher eventPublisher, IPollingOutboxMessageRepository outboxMessageRepository, ILogger<PollingPublisher> logger, Action<PollingPublisherOptions>? configureOptions = null)
     {
         this.eventPublisher = eventPublisher;
         this.repository = outboxMessageRepository;
@@ -57,7 +57,7 @@ public class PollingPublisher
             }
         }
     }
-    private IntegrationEvent? RebuildEvent(OutboxMessage message)
+    private IntegrationEvent? RebuildEvent(PollingOutboxMessage message)
     {
         var type = options.PayloadTypeRsolver(message.PayloadType);
 

@@ -1,5 +1,6 @@
 ﻿namespace TransactionalOutbox.Infrastructure;
-public class OutboxMessageRepositoryOptions
+public class PollingOutboxMessageRepositoryOptions
 {
     public int MaxRetries { get; set; } = 3;
 }
+

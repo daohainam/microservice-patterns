@@ -37,7 +37,7 @@ internal class TransactionalOutboxService : BackgroundService
 
         var publisher = new PollingPublisher(
             this.eventPublisher,
-            new OutboxMessageRepository(new OutboxMessageRepositoryOptions(), dbContext),
+            new PollingOutboxMessageRepository(new PollingOutboxMessageRepositoryOptions(), dbContext),
             publisherLogger,
             options => options.PayloadTypeRsolver = (type) => eventAssembly.GetType(type) ?? throw new Exception($"Could not get type {type}")
         );

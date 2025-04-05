@@ -57,15 +57,25 @@ public class AccountApi
             CreditLimit = account.CreditLimit,
         };
 
-        await services.UnitOfWork.OutboxMessageRepository.AddAsync(new Abstractions.OutboxMessage() {
+        var message = new Abstractions.PollingOutboxMessage()
+        {
             CreationDate = DateTime.UtcNow,
             PayloadType = typeof(AccountOpenedIntegrationEvent).FullName ?? throw new Exception($"Could not get fullname of type {evt.GetType()}"),
             Payload = JsonSerializer.Serialize(evt),
             ProcessedDate = null,
+        };
+        await services.UnitOfWork.OutboxForPollingRepository.AddAsync(message);
+        await services.UnitOfWork.OutboxForLogTailingRepository.AddAsync(new Abstractions.LogTailingOutboxMessage() { 
+            Id = message.Id,
+            CreationDate = message.CreationDate,
+            Payload = message.Payload,
+            PayloadType = message.PayloadType
         });
 
         await services.UnitOfWork.AccountDbContext.SaveChangesAsync();
-        await services.UnitOfWork.OutboxMessageRepository.SaveChangesAsync();
+        await services.UnitOfWork.OutboxForPollingRepository.SaveChangesAsync();
+        await services.UnitOfWork.OutboxForLogTailingRepository.SaveChangesAsync();
+
         await services.UnitOfWork.CommitTransactionAsync(services.CancellationToken);
 
         services.Logger.LogInformation("Account opened: {Id}", account.Id);
@@ -130,7 +140,7 @@ public class AccountApi
             Credit = account.CurrentCredit,
         };
 
-        await services.UnitOfWork.OutboxMessageRepository.AddAsync(new Abstractions.OutboxMessage()
+        await services.UnitOfWork.OutboxForPollingRepository.AddAsync(new Abstractions.PollingOutboxMessage()
         {
             CreationDate = DateTime.UtcNow,
             PayloadType = typeof(BalanceChangedIntegrationEvent).FullName ?? throw new Exception($"Could not get fullname of type {evt.GetType()}"),
@@ -196,7 +206,7 @@ public class AccountApi
             Credit = account.CurrentCredit,
         };
 
-        await services.UnitOfWork.OutboxMessageRepository.AddAsync(new Abstractions.OutboxMessage()
+        await services.UnitOfWork.OutboxForPollingRepository.AddAsync(new Abstractions.PollingOutboxMessage()
         {
             CreationDate = DateTime.UtcNow,
             PayloadType = typeof(BalanceChangedIntegrationEvent).FullName ?? throw new Exception($"Could not get fullname of type {evt.GetType()}"),

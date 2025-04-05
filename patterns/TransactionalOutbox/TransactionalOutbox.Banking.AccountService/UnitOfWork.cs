@@ -2,6 +2,7 @@
 using Npgsql;
 using System.Data;
 using System.Diagnostics;
+using TransactionalOutbox.Abstractions;
 using TransactionalOutbox.Banking.AccountService.Infrastructure.Data;
 using TransactionalOutbox.Infrastructure;
 using TransactionalOutbox.Infrastructure.Data;
@@ -11,14 +12,16 @@ public class UnitOfWork : IUnitOfWork, IDisposable
 {
     public AccountDbContext AccountDbContext => accountDbContext ?? throw new Exception("AccountDbContext is not initialized.");
 
-    public OutboxMessageRepository OutboxMessageRepository => outboxMessageRepository ?? throw new Exception("OutboxMessageRepository is not initialized.");
+    public IPollingOutboxMessageRepository OutboxForPollingRepository => outboxForPollingRepository ?? throw new Exception("OutboxForPollingRepository is not initialized.");
+    public ILogTailingOutboxMessageRepository OutboxForLogTailingRepository => outboxForLogTailingRepository ?? throw new Exception("OutboxForLogTailingRepository is not initialized.");
 
     private readonly NpgsqlConnection connection;
 
     private NpgsqlTransaction? transaction; 
     private AccountDbContext? accountDbContext;
     private OutboxDbContext? outboxDbContext;
-    private OutboxMessageRepository? outboxMessageRepository;
+    private PollingOutboxMessageRepository? outboxForPollingRepository;
+    private LogTailingOutboxMessageRepository? outboxForLogTailingRepository;
     private bool disposedValue;
 
     public UnitOfWork(NpgsqlConnection connection)
@@ -49,7 +52,8 @@ public class UnitOfWork : IUnitOfWork, IDisposable
             outboxDbContext = new OutboxDbContext(outboxDbContextOptions);
             await outboxDbContext.Database.UseTransactionAsync(transaction, cancellationToken: cancellationToken);
 
-            outboxMessageRepository = new OutboxMessageRepository(new OutboxMessageRepositoryOptions(), outboxDbContext);
+            outboxForPollingRepository = new PollingOutboxMessageRepository(new PollingOutboxMessageRepositoryOptions(), outboxDbContext);
+            outboxForLogTailingRepository = new LogTailingOutboxMessageRepository(outboxDbContext);
         }
         catch
         {

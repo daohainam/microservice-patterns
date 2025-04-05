@@ -24,7 +24,7 @@ public static class DebeziumBuilderExtensions
             var debeziumBuilder = builder.ApplicationBuilder.AddResource(debezium)
                 .WithImage(DebeziumContainerImageTags.Image, DebeziumContainerImageTags.Tag)
                 .WithImageRegistry(DebeziumContainerImageTags.Registry)
-                .WithEndpoint(targetPort: DebeziumConnectPort)
+                .WithHttpEndpoint(targetPort: DebeziumConnectPort)
                 .WaitFor(builder)
                 .WithParentRelationship(builder)
                 .ExcludeFromManifest();
@@ -45,10 +45,29 @@ public static class DebeziumBuilderExtensions
 
                     i++;
                 }
+
+
+                var debeziumResources = builder.ApplicationBuilder.Resources.OfType<DebeziumContainerResource>();
+                if (debeziumResources != null)
+                {
+
+                }
+
                 return Task.CompletedTask;
             });
 
             configureContainer?.Invoke(debeziumBuilder);
+
+            debeziumBuilder.ApplicationBuilder
+                .Eventing.Subscribe<ResourceReadyEvent>((e, ct) =>
+                {
+                    debeziumBuilder.WithEnvironment(context =>
+                    {
+                        return Task.CompletedTask;
+                    });
+
+                    return Task.CompletedTask;
+                });
 
             return builder;
         }

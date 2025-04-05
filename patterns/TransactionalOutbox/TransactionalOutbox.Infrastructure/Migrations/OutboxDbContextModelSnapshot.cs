@@ -22,7 +22,29 @@ namespace TransactionalOutbox.Infrastructure.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("TransactionalOutbox.Abstractions.OutboxMessage", b =>
+            modelBuilder.Entity("TransactionalOutbox.Abstractions.LogTailingOutboxMessage", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreationDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Payload")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("PayloadType")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("LogTailingOutboxMessages");
+                });
+
+            modelBuilder.Entity("TransactionalOutbox.Abstractions.PollingOutboxMessage", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -49,7 +71,7 @@ namespace TransactionalOutbox.Infrastructure.Migrations
 
                     b.HasIndex("ProcessedDate", "ProcessedCount", "CreationDate");
 
-                    b.ToTable("OutboxMessages");
+                    b.ToTable("PollingOutboxMessages");
                 });
 #pragma warning restore 612, 618
         }

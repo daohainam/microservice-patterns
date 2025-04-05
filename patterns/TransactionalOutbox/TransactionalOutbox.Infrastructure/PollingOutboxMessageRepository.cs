@@ -4,21 +4,20 @@ using TransactionalOutbox.Infrastructure.Data;
 
 namespace TransactionalOutbox.Infrastructure
 {
-    public class OutboxMessageRepository(OutboxMessageRepositoryOptions options, OutboxDbContext dbContext) : IOutboxMessageRepository
+    public class PollingOutboxMessageRepository(PollingOutboxMessageRepositoryOptions options, OutboxDbContext dbContext) : IPollingOutboxMessageRepository
     {
-        public Task AddAsync(OutboxMessage message)
+        public Task AddAsync(PollingOutboxMessage message)
         {
-            dbContext.OutboxMessages.Add(message);
-
+            dbContext.PollingOutboxMessages.Add(message);
             return Task.CompletedTask;
         }
 
-        public async Task<IEnumerable<OutboxMessage>> GetUnprocessedMessagesAsync()
+        public async Task<IEnumerable<PollingOutboxMessage>> GetUnprocessedMessagesAsync()
         {
-            return await dbContext.OutboxMessages.Where(m => m.ProcessedDate == null && m.ProcessedCount < options.MaxRetries).ToListAsync();
+            return await dbContext.PollingOutboxMessages.Where(m => m.ProcessedDate == null && m.ProcessedCount < options.MaxRetries).ToListAsync();
         }
 
-        public Task MarkAsFailedAsync(OutboxMessage message, bool recoverable = true)
+        public Task MarkAsFailedAsync(PollingOutboxMessage message, bool recoverable = true)
         {
             if (recoverable)
             {
@@ -32,7 +31,7 @@ namespace TransactionalOutbox.Infrastructure
             return Task.CompletedTask;
         }
 
-        public Task MarkAsProcessedAsync(OutboxMessage message)
+        public Task MarkAsProcessedAsync(PollingOutboxMessage message)
         {
             message.ProcessedCount++;
             message.ProcessedDate = DateTime.UtcNow;
