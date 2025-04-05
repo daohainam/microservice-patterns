@@ -1,4 +1,5 @@
 ﻿using Aspire.Hosting;
+using System.Xml.Linq;
 
 namespace TransactionalOutbox.Publisher.Debezium;
 
@@ -6,32 +7,45 @@ public static class DebeziumBuilderExtensions
 {
     private const int DebeziumConnectPort = 8083;
 
-    public static IResourceBuilder<KafkaServerResource> WithDebezium(this IResourceBuilder<KafkaServerResource> builder, Action<IResourceBuilder<DebeziumContainerResource>>? configureContainer = null, string? containerName = null)
+    public static IResourceBuilder<DebeziumContainerResource> AddDebezium(this IDistributedApplicationBuilder builder,
+        IResourceBuilder<KafkaServerResource> kafkaServerResourceBuilder,
+        Action<IResourceBuilder<DebeziumContainerResource>>? configureContainer = null,
+        string? name = null,
+        int? port = null)
     {
         ArgumentNullException.ThrowIfNull(builder);
 
-        if (builder.ApplicationBuilder.Resources.OfType<DebeziumContainerResource>().SingleOrDefault() is { } existingDebeziumContainerResource)
+        if (builder.Resources.OfType<DebeziumContainerResource>().SingleOrDefault() is { } existingDebeziumContainerResource)
         {
-            var builderForExistingResource = builder.ApplicationBuilder.CreateResourceBuilder(existingDebeziumContainerResource);
+            var builderForExistingResource = builder.CreateResourceBuilder(existingDebeziumContainerResource);
             configureContainer?.Invoke(builderForExistingResource);
-            return builder;
+            return builderForExistingResource;
         }
         else
         {
-            containerName ??= $"{builder.Resource.Name}-debezium";
+            name ??= "debezium";
+            port ??= DebeziumConnectPort;
 
-            var debezium = new DebeziumContainerResource(containerName);
-            var debeziumBuilder = builder.ApplicationBuilder.AddResource(debezium)
+            var debezium = new DebeziumContainerResource(name);
+            var debeziumBuilder = builder.AddResource(debezium)
                 .WithImage(DebeziumContainerImageTags.Image, DebeziumContainerImageTags.Tag)
                 .WithImageRegistry(DebeziumContainerImageTags.Registry)
-                .WithHttpEndpoint(targetPort: DebeziumConnectPort)
-                .WaitFor(builder)
-                .WithParentRelationship(builder)
-                .ExcludeFromManifest();
+                .WithHttpEndpoint(targetPort: DebeziumConnectPort, port: port)
+                .WithEnvironment("GROUP_ID", "1")
+                .WithEnvironment("CONFIG_STORAGE_TOPIC", "my_connect_configs")
+                .WithEnvironment("OFFSET_STORAGE_TOPIC", "my_connect_offsets")
+                .WithEnvironment("STATUS_STORAGE_TOPIC", "my_connect_status")
+                .WithEnvironment("CONNECT_KEY_CONVERTER", "org.apache.kafka.connect.json.JsonConverter")
+                .WithEnvironment("CONNECT_VALUE_CONVERTER", "org.apache.kafka.connect.json.JsonConverter")
+                .WithEnvironment("CONNECT_INTERNAL_KEY_CONVERTER", "org.apache.kafka.connect.json.JsonConverter")
+                .WithEnvironment("CONNECT_INTERNAL_VALUE_CONVERTER", "org.apache.kafka.connect.json.JsonConverter")
+                .WithEnvironment("CONNECT_REST_ADVERTISED_HOST_NAME", "connect")
+                .WithEnvironment("CONNECT_PLUGIN_PATH", "/kafka/connect,/usr/share/java")
+                .WaitFor(kafkaServerResourceBuilder);
 
-            builder.ApplicationBuilder.Eventing.Subscribe<AfterEndpointsAllocatedEvent>((e, ct) =>
+            builder.Eventing.Subscribe<AfterEndpointsAllocatedEvent>((e, ct) =>
             {
-                var kafkaResources = builder.ApplicationBuilder.Resources.OfType<KafkaServerResource>();
+                var kafkaResources = builder.Resources.OfType<KafkaServerResource>();
 
                 int i = 0;
                 foreach (var kafkaResource in kafkaResources)
@@ -40,17 +54,10 @@ public static class DebeziumBuilderExtensions
                     {
                         var endpoint = kafkaResource.InternalEndpoint;
                         int index = i;
-                        debeziumBuilder.WithEnvironment(context => ConfigureDebeziumContainer(context, endpoint, index));
+                        debeziumBuilder.WithEnvironment("BOOTSTRAP_SERVERS", kafkaResource.InternalEndpoint);
                     }
 
                     i++;
-                }
-
-
-                var debeziumResources = builder.ApplicationBuilder.Resources.OfType<DebeziumContainerResource>();
-                if (debeziumResources != null)
-                {
-
                 }
 
                 return Task.CompletedTask;
@@ -58,40 +65,8 @@ public static class DebeziumBuilderExtensions
 
             configureContainer?.Invoke(debeziumBuilder);
 
-            debeziumBuilder.ApplicationBuilder
-                .Eventing.Subscribe<ResourceReadyEvent>((e, ct) =>
-                {
-                    debeziumBuilder.WithEnvironment(context =>
-                    {
-                        return Task.CompletedTask;
-                    });
-
-                    return Task.CompletedTask;
-                });
-
-            return builder;
+            return debeziumBuilder;
         }
-    }
-
-    private static void ConfigureDebeziumContainer(EnvironmentCallbackContext context, EndpointReference endpoint, int index)
-    {
-        var bootstrapServers = context.ExecutionContext.IsRunMode
-            ? ReferenceExpression.Create($"{endpoint.Resource.Name}:{endpoint.Property(EndpointProperty.TargetPort)}")
-            : ReferenceExpression.Create($"{endpoint.Property(EndpointProperty.Host)}:{endpoint.Property(EndpointProperty.Port)}");
-
-        context.EnvironmentVariables.Add("BOOTSTRAP_SERVERS", bootstrapServers);
-        context.EnvironmentVariables.Add("GROUP_ID", $"{index}");
-        context.EnvironmentVariables.Add("CONFIG_STORAGE_TOPIC", "my_connect_configs");
-        context.EnvironmentVariables.Add("OFFSET_STORAGE_TOPIC", "my_connect_offsets");
-        context.EnvironmentVariables.Add("STATUS_STORAGE_TOPIC", "my_connect_status");
-        context.EnvironmentVariables.Add("CONNECT_KEY_CONVERTER", "org.apache.kafka.connect.json.JsonConverter");
-        context.EnvironmentVariables.Add("CONNECT_VALUE_CONVERTER", "org.apache.kafka.connect.json.JsonConverter");
-        context.EnvironmentVariables.Add("CONNECT_INTERNAL_KEY_CONVERTER", "org.apache.kafka.connect.json.JsonConverter");
-        context.EnvironmentVariables.Add("CONNECT_INTERNAL_VALUE_CONVERTER", "org.apache.kafka.connect.json.JsonConverter");
-        context.EnvironmentVariables.Add("CONNECT_REST_ADVERTISED_HOST_NAME", "connect");
-        context.EnvironmentVariables.Add("CONNECT_PLUGIN_PATH", "/kafka/connect,/usr/share/java");
-
-
     }
 }
 

@@ -1,4 +1,5 @@
-﻿using MicroservicePatterns.Shared;
+﻿using Aspire.Hosting;
+using MicroservicePatterns.Shared;
 using Microsoft.Extensions.Configuration;
 using TransactionalOutbox.Publisher.Debezium;
 
@@ -15,7 +16,7 @@ public static class ExternalServiceRegistrationExtentions
         if (!builder.Configuration.GetValue("IsTest", false))
         {
             cache = cache.WithLifetime(ContainerLifetime.Persistent).WithDataVolume().WithRedisInsight();
-            kafka = kafka.WithLifetime(ContainerLifetime.Persistent).WithDataVolume().WithKafkaUI().WithDebezium();
+            kafka = kafka.WithLifetime(ContainerLifetime.Persistent).WithDataVolume().WithKafkaUI();
             mongoDb = mongoDb.WithLifetime(ContainerLifetime.Persistent).WithDataVolume().WithMongoExpress();
             postgres = postgres.WithLifetime(ContainerLifetime.Persistent).WithDataVolume().WithPgWeb();
         }
@@ -200,11 +201,13 @@ public static class ExternalServiceRegistrationExtentions
 
         #region Transactional Outbox Account
         var outboxAccountDb = postgres.AddDefaultDatabase<Projects.TransactionalOutbox_Banking_AccountService>();
+        var debetzium = builder.AddDebezium(kafka);
 
         var outboxAccountService = builder.AddProjectWithPostfix<Projects.TransactionalOutbox_Banking_AccountService>()
             .WithEnvironment(Consts.Env_EventPublishingTopics, GetTopicName<Projects.TransactionalOutbox_Banking_AccountService>())
             .WithReference(kafka)
             .WithReference(outboxAccountDb, Consts.DefaultDatabase)
+            .WithReference(debetzium)
             .WaitFor(outboxAccountDb)
             .WaitFor(kafka);
 
