@@ -12,3 +12,5 @@ global using TransactionalOutbox.Infrastructure;
 global using TransactionalOutbox.Infrastructure.Data;
 global using MicroservicePatterns.DatabaseMigrationHelpers;
 global using EventBus.Kafka;
+global using EventBus.Abstractions;
+global using EventBus;

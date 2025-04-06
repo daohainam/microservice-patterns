@@ -1,7 +1,4 @@
-﻿using EventBus.Abstractions;
-using EventBus;
-
-namespace TransactionalOutbox.Banking.AccountService.Bootstraping;
+﻿namespace TransactionalOutbox.Banking.AccountService.Bootstraping;
 public static class ApplicationServiceExtensions
 {
     public static IHostApplicationBuilder AddApplicationServices(this IHostApplicationBuilder builder)
@@ -37,6 +34,14 @@ public static class ApplicationServiceExtensions
             builder.Services.AddTransient<IEventPublisher, NullEventPublisher>();
         }
 
+        var debeziumConnectionString = builder.Configuration.GetConnectionString("debezium");
+        if (debeziumConnectionString != null)
+        {
+            builder.Services.AddHttpClient("debezium", client =>
+            {
+                client.BaseAddress = new Uri(debeziumConnectionString);
+            });
+        }
 
         return builder;
     }

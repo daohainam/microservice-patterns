@@ -1,4 +1,4 @@
-﻿namespace TransactionalOutbox.Publisher.Debezium;
+﻿namespace TransactionalOutbox.Aspire.Debezium;
 public sealed partial class DebeziumContainerResource : ContainerResource, IResourceWithConnectionString
 {
     internal const string PrimaryEndpointName = "http";

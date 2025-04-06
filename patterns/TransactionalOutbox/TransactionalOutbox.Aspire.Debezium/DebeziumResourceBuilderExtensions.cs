@@ -1,7 +1,7 @@
 ﻿using Aspire.Hosting;
 using System.Xml.Linq;
 
-namespace TransactionalOutbox.Publisher.Debezium;
+namespace TransactionalOutbox.Aspire.Debezium;
 
 public static class DebeziumBuilderExtensions
 {
