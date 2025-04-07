@@ -131,7 +131,7 @@ public class TripPlanningApi
                 else
                 {
                     services.Logger.LogInformation("Failed to book hotel rooms");
-                    trip.Status = TripStatus.TicketsCancelled;
+                    trip.Status = TripStatus.HotelRoomBookingFailed;
                     await services.DbContext.SaveChangesAsync(cancellationToken);
                 }
             }
@@ -169,13 +169,13 @@ public class TripPlanningApi
                 var hotelRoomResponse = await sagaServices.HotelHttpClient.PutAsJsonAsync("/api/saga/v1/bookings", roomBookingIds, cancellationToken: cancellationToken);
                 if (hotelRoomResponse.IsSuccessStatusCode)
                 {
-                    trip.Status = TripStatus.HotelRoomBookingCancelled;
+                    trip.Status = TripStatus.HotelRoomBookingFailed;
                     await services.DbContext.SaveChangesAsync(cancellationToken);
                 }
 
                 // if hotel room cancellation fails, we need to retry in next loop
             }
-            else if (trip.Status == TripStatus.HotelRoomBookingCancelled)
+            else if (trip.Status == TripStatus.HotelRoomBookingFailed)
             {
                 // cancel tickets
                 services.Logger.LogInformation("[Compensating transaction] Cancelling tickets");

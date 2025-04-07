@@ -25,8 +25,8 @@ public enum TripStatus
     TicketsBooked,
     HotelRoomsBooked,
     Rejected,
-    HotelRoomBookingCancelled,
-    TicketsCancelled,
+    HotelRoomBookingFailed,
+    TicketsFailed,
     PaymentFailed,
     Confirmed
 }
