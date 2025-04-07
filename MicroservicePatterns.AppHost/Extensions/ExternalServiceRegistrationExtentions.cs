@@ -201,13 +201,11 @@ public static class ExternalServiceRegistrationExtentions
 
         #region Transactional Outbox Account
         var outboxAccountDb = postgres.AddDefaultDatabase<Projects.TransactionalOutbox_Banking_AccountService>();
-        var debetzium = builder.AddDebezium(kafka);
 
         var outboxAccountService = builder.AddProjectWithPostfix<Projects.TransactionalOutbox_Banking_AccountService>()
             .WithEnvironment(Consts.Env_EventPublishingTopics, GetTopicName<Projects.TransactionalOutbox_Banking_AccountService>())
             .WithReference(kafka)
             .WithReference(outboxAccountDb, Consts.DefaultDatabase)
-            .WithReference(debetzium)
             .WaitFor(outboxAccountDb)
             .WaitFor(kafka);
 
@@ -225,6 +223,19 @@ public static class ExternalServiceRegistrationExtentions
         var idempotentCatalogService = builder.AddProjectWithPostfix<Projects.IdempotentConsumer_CatalogService>()
             .WithReference(idempotentCatalogDb, Consts.DefaultDatabase)
             .WaitFor(idempotentCatalogDb);
+        #endregion
+
+        #region WebHook 
+        var webhookDb = postgres.AddDefaultDatabase<Projects.WebHook_DeliveryService>();
+
+        var webHookDeliveryService = builder.AddProjectWithPostfix<Projects.WebHook_DeliveryService>()
+            .WithReference(webhookDb, Consts.DefaultDatabase)
+            .WaitFor(webhookDb);
+
+        builder.AddProjectWithPostfix<Projects.WebHook_DeliveryService_EventConsumer>()
+            .WithReference(webHookDeliveryService)
+            .WaitFor(webHookDeliveryService);
+
         #endregion
 
         return builder;

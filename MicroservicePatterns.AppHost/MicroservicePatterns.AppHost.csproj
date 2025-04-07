@@ -39,6 +39,8 @@
     <ProjectReference Include="..\patterns\TransactionalOutbox\TransactionalOutbox.Aspire.Debezium\TransactionalOutbox.Aspire.Debezium.csproj" IsAspireProjectResource="false" />
     <ProjectReference Include="..\patterns\TransactionalOutbox\TransactionalOutbox.Banking.AccountService\TransactionalOutbox.Banking.AccountService.csproj" />
     <ProjectReference Include="..\patterns\TransactionalOutbox\TransactionalOutbox.MessageConsumingService\TransactionalOutbox.MessageConsumingService.csproj" />
+    <ProjectReference Include="..\patterns\WebHook\WebHook.DeliveryService.EventConsumer\WebHook.DeliveryService.EventConsumer.csproj" />
+    <ProjectReference Include="..\patterns\WebHook\WebHook.DeliveryService\WebHook.DeliveryService.csproj" />
   </ItemGroup>
 
 </Project>

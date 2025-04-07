@@ -40,6 +40,10 @@
     <Project Path="patterns/TransactionalOutbox/TransactionalOutbox.Publisher.Debezium/TransactionalOutbox.Publisher.Debezium.csproj" Id="cd898e04-3693-4e33-bb19-b800a3f7b5be" />
     <Project Path="patterns/TransactionalOutbox/TransactionalOutbox.Publisher.Polling/TransactionalOutbox.Publisher.Polling.csproj" />
   </Folder>
+  <Folder Name="/patterns/WebHook-CloudEvents/" Id="2bc28142-ff86-4b72-a127-793bf8ee055d">
+    <Project Path="patterns/WebHook/WebHook.DeliveryService.EventConsumer/WebHook.DeliveryService.EventConsumer.csproj" />
+    <Project Path="patterns/WebHook/WebHook.DeliveryService/WebHook.DeliveryService.csproj" />
+  </Folder>
   <Folder Name="/tests/">
     <Project Path="tests/IntegrationTests/IntegrationTests.csproj" />
     <Project Path="tests/Saga.UnitTests/Saga.UnitTests.csproj" />
