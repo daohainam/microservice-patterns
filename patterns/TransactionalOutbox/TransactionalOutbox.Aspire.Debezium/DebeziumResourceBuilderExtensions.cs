@@ -1,4 +1,5 @@
 ﻿using Aspire.Hosting;
+using Aspire.Hosting.ApplicationModel;
 using System.Xml.Linq;
 
 namespace TransactionalOutbox.Aspire.Debezium;
@@ -8,7 +9,6 @@ public static class DebeziumBuilderExtensions
     private const int DebeziumConnectPort = 8083;
 
     public static IResourceBuilder<DebeziumContainerResource> AddDebezium(this IDistributedApplicationBuilder builder,
-        IResourceBuilder<KafkaServerResource> kafkaServerResourceBuilder,
         Action<IResourceBuilder<DebeziumContainerResource>>? configureContainer = null,
         string? name = null,
         int? port = null)
@@ -40,8 +40,7 @@ public static class DebeziumBuilderExtensions
                 .WithEnvironment("CONNECT_INTERNAL_KEY_CONVERTER", "org.apache.kafka.connect.json.JsonConverter")
                 .WithEnvironment("CONNECT_INTERNAL_VALUE_CONVERTER", "org.apache.kafka.connect.json.JsonConverter")
                 .WithEnvironment("CONNECT_REST_ADVERTISED_HOST_NAME", "connect")
-                .WithEnvironment("CONNECT_PLUGIN_PATH", "/kafka/connect,/usr/share/java")
-                .WaitFor(kafkaServerResourceBuilder);
+                .WithEnvironment("CONNECT_PLUGIN_PATH", "/kafka/connect,/usr/share/java");
 
             builder.Eventing.Subscribe<AfterEndpointsAllocatedEvent>((e, ct) =>
             {
