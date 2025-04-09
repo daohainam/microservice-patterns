@@ -35,21 +35,29 @@ async Task RegisterDebeziumPublisherAsync(WebApplication app)
     {
         var connectionStringBuilder = new NpgsqlConnectionStringBuilder(app.Configuration.GetConnectionString(Consts.DefaultDatabase));
 
-        var response = await httpClient.PostAsJsonAsync("/connectors", new ConnectorRegistration() { 
-            Name = "account-service-connector",
-            Config = new ConnectorConfig()
+        try
+        {
+            var response = await httpClient.PostAsJsonAsync("/connectors", new ConnectorRegistration()
             {
-                DatabaseHostname = connectionStringBuilder.Host!,
-                DatabaseName = connectionStringBuilder.Database!,
-                DatabasePassword = connectionStringBuilder.Password!,
-                DatabasePort = connectionStringBuilder.Port.ToString(),
-                DatabaseUser = connectionStringBuilder.Username!,
-                DatabaseServerName = "banking",
-                TopicPrefix = "banking-account-01",
-                KafkaHistoryBootstrapServers = app.Configuration.GetConnectionString("kafka")!
-            }
-        });
+                Name = "account-service-connector",
+                Config = new ConnectorConfig()
+                {
+                    DatabaseHostname = connectionStringBuilder.Host!,
+                    DatabaseName = connectionStringBuilder.Database!,
+                    DatabasePassword = connectionStringBuilder.Password!,
+                    DatabasePort = connectionStringBuilder.Port.ToString(),
+                    DatabaseUser = connectionStringBuilder.Username!,
+                    DatabaseServerName = "banking",
+                    TopicPrefix = "banking-account-01",
+                    KafkaHistoryBootstrapServers = app.Configuration.GetConnectionString("kafka")!
+                }
+            });
 
-        app.Logger.LogInformation("Connector registration sent, response: {r}-{s}", response.StatusCode, response.ReasonPhrase);
+            app.Logger.LogInformation("Connector registration sent, response: {r}-{s}", response.StatusCode, response.ReasonPhrase);
+        }
+        catch (Exception ex)
+        {
+            app.Logger.LogError(ex, "Failed to register debezium connector");
+        }
     }
 }

@@ -9,10 +9,6 @@ public class DeliveryCreatedEvent: DeliveryEvent
 {
 }
 
-public class DeliveryLocationChangedEvent: DeliveryEvent
-{
-}
-
-public class DeliveryStatusChangedEvent: DeliveryEvent
+public class DeliveryUpdatedEvent: DeliveryEvent
 {
 }

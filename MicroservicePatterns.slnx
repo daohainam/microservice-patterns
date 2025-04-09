@@ -41,7 +41,9 @@
     <Project Path="patterns/TransactionalOutbox/TransactionalOutbox.Publisher.Polling/TransactionalOutbox.Publisher.Polling.csproj" />
   </Folder>
   <Folder Name="/patterns/WebHook-CloudEvents/" Id="2bc28142-ff86-4b72-a127-793bf8ee055d">
+    <Project Path="patterns/WebHook/WebHook.DeliveryService.DispatchService/WebHook.DeliveryService.DispatchService.csproj" />
     <Project Path="patterns/WebHook/WebHook.DeliveryService.EventConsumer/WebHook.DeliveryService.EventConsumer.csproj" />
+    <Project Path="patterns/WebHook/WebHook.DeliveryService.Infrastructure/WebHook.DeliveryService.Infrastructure.csproj" Id="fcee94a4-0f59-4d24-8552-34ecca86ad14" />
     <Project Path="patterns/WebHook/WebHook.DeliveryService/WebHook.DeliveryService.csproj" />
   </Folder>
   <Folder Name="/tests/">

@@ -5,7 +5,7 @@ public static class ApplicationServiceExtensions
     {
         builder.AddServiceDefaults();
         builder.Services.AddOpenApi();
-        builder.AddNpgsqlDbContext<DeliveryServiceApiDbContext>(Consts.DefaultDatabase);
+        builder.AddNpgsqlDbContext<DeliveryServiceDbContext>(Consts.DefaultDatabase);
 
         return builder;
     }

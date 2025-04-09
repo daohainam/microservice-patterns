@@ -226,11 +226,15 @@ public static class ExternalServiceRegistrationExtentions
         #endregion
 
         #region WebHook 
-        var webhookDb = postgres.AddDefaultDatabase<Projects.WebHook_DeliveryService>();
+        var webhookDeliveryServiceDb = postgres.AddDefaultDatabase<Projects.WebHook_DeliveryService>();
 
         var webHookDeliveryService = builder.AddProjectWithPostfix<Projects.WebHook_DeliveryService>()
-            .WithReference(webhookDb, Consts.DefaultDatabase)
-            .WaitFor(webhookDb);
+            .WithReference(webhookDeliveryServiceDb, Consts.DefaultDatabase)
+            .WaitFor(webhookDeliveryServiceDb);
+
+        builder.AddProjectWithPostfix<Projects.WebHook_DeliveryService_DispatchService>()
+            .WithReference(webHookDeliveryService)
+            .WithReference(webhookDeliveryServiceDb);
 
         builder.AddProjectWithPostfix<Projects.WebHook_DeliveryService_EventConsumer>()
             .WithReference(webHookDeliveryService)

@@ -1,4 +1,7 @@
-﻿namespace WebHook.DeliveryService.Apis;
+﻿using System.Text.Json;
+using WebHook.DeliveryService.DomainEvents;
+
+namespace WebHook.DeliveryService.Apis;
 public static class DeliveryServiceApiExtensions
 {
     public static IEndpointRouteBuilder MapDeliveryServiceApi(this IEndpointRouteBuilder builder)
@@ -42,6 +45,29 @@ public class DeliveryServiceApi
             delivery.Id = Guid.CreateVersion7();
 
         await services.DbContext.Deliveries.AddAsync(delivery);
+
+        var deliveryCreatedEvent = new DeliveryCreatedEvent()
+        {
+            CreatedAt = DateTime.UtcNow,
+            Id = delivery.Id,
+        };
+        var deliveryCreatedEventJson = JsonSerializer.Serialize(deliveryCreatedEvent);
+
+        foreach (var subcribtion in services.DbContext.WebHookSubscriptions)
+        {
+            var queueItem = new DeliveryEventQueueItem
+            {
+                Id = Guid.CreateVersion7(),
+                WebHookSubscriptionId = subcribtion.Id,
+                Message = deliveryCreatedEventJson,
+                ScheduledAt = DateTime.UtcNow,
+                IsProcessed = false,
+                IsSuccess = false,
+                RetryTimes = 0,
+            };
+            await services.DbContext.QueueItems.AddAsync(queueItem);
+        }
+
         await services.DbContext.SaveChangesAsync();
 
         return TypedResults.Ok(delivery);
@@ -54,9 +80,35 @@ public class DeliveryServiceApi
         {
             return TypedResults.NotFound();
         }
-        existingDelivery.Title = delivery.Title;
-        existingDelivery.Author = delivery.Author;
+        existingDelivery.Sender = delivery.Sender;
+        existingDelivery.Receiver = delivery.Receiver;
+        existingDelivery.SenderAddress = delivery.SenderAddress;
+        existingDelivery.ReceiverAddress = delivery.ReceiverAddress;
+
         services.DbContext.Deliveries.Update(existingDelivery);
+
+        var deliveryUpdatedEvent = new DeliveryUpdatedEvent()
+        {
+            CreatedAt = DateTime.UtcNow,
+            Id = delivery.Id,
+        };
+        var deliveryUpdatedEventJson = JsonSerializer.Serialize(deliveryUpdatedEvent);
+
+        foreach (var subcribtion in services.DbContext.WebHookSubscriptions)
+        {
+            var queueItem = new DeliveryEventQueueItem
+            {
+                Id = Guid.CreateVersion7(),
+                WebHookSubscriptionId = subcribtion.Id,
+                Message = deliveryUpdatedEventJson,
+                ScheduledAt = DateTime.UtcNow,
+                IsProcessed = false,
+                IsSuccess = false,
+                RetryTimes = 0,
+            };
+            await services.DbContext.QueueItems.AddAsync(queueItem);
+        }
+
 
         await services.DbContext.SaveChangesAsync();
 

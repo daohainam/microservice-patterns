@@ -14,6 +14,6 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.MapDeliveryServiceApi();
 
-await app.MigrateDbContextAsync<DeliveryServiceApiDbContext>();
+await app.MigrateDbContextAsync<DeliveryServiceDbContext>();
 
 app.Run();

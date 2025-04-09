@@ -1,5 +1,5 @@
 ﻿namespace WebHook.DeliveryService.Infrastructure.Entity;
-public class WebHookQueueItem
+public class DeliveryEventQueueItem
 {
     public Guid Id { get; set; }
     public string Message { get; set; } = default!;
@@ -7,8 +7,9 @@ public class WebHookQueueItem
     public DateTime ScheduledAt { get; set; }
     public string? ErrorMessage { get; set; }
     public int RetryTimes { get; set; }
+    public bool IsProcessed { get; set; }
     public bool IsSuccess { get; set; }
 
-    public string WebHookId { get; set; } = default!;
-    public WebHook WebHook { get; set; } = default!;
+    public Guid WebHookSubscriptionId { get; set; } = default!;
+    public WebHookSubscription WebHookSubscription { get; set; } = default!;
 }
