@@ -1,6 +1,15 @@
-@WebHook.DeliveryService_HostAddress = http://localhost:5251
+@WebHook.DeliveryService_HostAddress = https://localhost:7143
 
-GET {{WebHook.DeliveryService_HostAddress}}/weatherforecast/
-Accept: application/json
+POST {{WebHook.DeliveryService_HostAddress}}/api/webhook/v1/deliveries/
+Content-Type: application/json
+
+{
+  "Id": "00000000-0000-0000-0000-000000000000",
+  "Sender": "Sender Name",
+  "Receiver": "Receiver Name",
+  "SenderAddress": "Sender Address",
+  "ReceiverAddress": "Receiver Address",
+  "PackageInfo": "Package Info"
+}
 
 ###

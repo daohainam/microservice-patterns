@@ -13,6 +13,7 @@ if (app.Environment.IsDevelopment())
 }
 app.UseHttpsRedirection();
 app.MapDeliveryServiceApi();
+app.MapWebHookApi();
 
 await app.MigrateDbContextAsync<DeliveryServiceDbContext>();
 
