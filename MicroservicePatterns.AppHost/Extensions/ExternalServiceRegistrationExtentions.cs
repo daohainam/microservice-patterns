@@ -234,7 +234,7 @@ public static class ExternalServiceRegistrationExtentions
 
         builder.AddProjectWithPostfix<Projects.WebHook_DeliveryService_DispatchService>()
             .WithReference(webHookDeliveryService)
-            .WithReference(webhookDeliveryServiceDb);
+            .WithReference(webhookDeliveryServiceDb, Consts.DefaultDatabase);
 
         builder.AddProjectWithPostfix<Projects.WebHook_DeliveryService_EventConsumer>()
             .WithReference(webHookDeliveryService)
