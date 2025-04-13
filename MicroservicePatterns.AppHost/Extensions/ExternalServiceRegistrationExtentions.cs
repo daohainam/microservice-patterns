@@ -1,6 +1,7 @@
 ﻿using Aspire.Hosting;
 using MicroservicePatterns.Shared;
 using Microsoft.Extensions.Configuration;
+using System.Net.Http.Json;
 using TransactionalOutbox.Aspire.Debezium;
 
 namespace MicroservicePatterns.AppHost.Extensions;
@@ -230,7 +231,25 @@ public static class ExternalServiceRegistrationExtentions
 
         var webHookDeliveryService = builder.AddProjectWithPostfix<Projects.WebHook_DeliveryService>()
             .WithReference(webhookDeliveryServiceDb, Consts.DefaultDatabase)
-            .WaitFor(webhookDeliveryServiceDb);
+            .WaitFor(webhookDeliveryServiceDb)
+            .WithHttpCommand(
+        path: "/api/webhook/v1/webhooks/",
+        displayName: "Register Test Webhook",
+        commandOptions: new HttpCommandOptions()
+        {
+            Description = """            
+                Register a webhook to receive events from the system.            
+                """,
+            PrepareRequest = (context) =>
+            {
+                context.Request.Content = JsonContent.Create(new { 
+                    Url = "https://localhost:7392/webhook"
+                });
+                return Task.CompletedTask;
+            },
+            IconName = "DocumentLightning",
+            IsHighlighted = true
+        }); ;
 
         var webhookDispatchService = builder.AddProjectWithPostfix<Projects.WebHook_DeliveryService_DispatchService>()
             .WithReference(webHookDeliveryService)
