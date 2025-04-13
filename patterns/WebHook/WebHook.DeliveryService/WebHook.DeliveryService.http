@@ -1,5 +1,14 @@
 @WebHook.DeliveryService_HostAddress = https://localhost:7143
 
+POST {{WebHook.DeliveryService_HostAddress}}/api/webhook/v1/webhooks/
+Content-Type: application/json
+
+{
+  "Url": "https://localhost:7392/webhook"
+}
+
+###
+
 POST {{WebHook.DeliveryService_HostAddress}}/api/webhook/v1/deliveries/
 Content-Type: application/json
 

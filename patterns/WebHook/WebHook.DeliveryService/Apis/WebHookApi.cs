@@ -44,7 +44,7 @@ public class WebHookApi
         {
             Id = Guid.CreateVersion7(),
             Url = webHook.Url,
-            SecretKey = GenerateRandomString(),
+            SecretKey = services.SecretKeyService.GetKey(),
         };
 
         await services.DbContext.WebHookSubscriptions.AddAsync(webHookSubscription);
@@ -52,14 +52,6 @@ public class WebHookApi
         await services.DbContext.SaveChangesAsync();
 
         return TypedResults.Ok(webHookSubscription);
-    }
-
-    private const string AlphanumericCharacters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-
-    public static string GenerateRandomString(int length = 16)
-    {
-        var random = new Random();
-        return new string([.. Enumerable.Repeat(AlphanumericCharacters, length).Select(s => s[random.Next(s.Length)])]);
     }
 
     internal static async Task<Results<NotFound, Ok>> UnregisterWebHook([AsParameters] ApiServices services, Guid id, WebHookSubscription webHook)

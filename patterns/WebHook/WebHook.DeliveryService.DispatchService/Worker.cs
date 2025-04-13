@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using System.Text;
 using WebHook.DeliveryService.Infrastructure.Data;
 
 namespace WebHook.DeliveryService.DispatchService;
@@ -17,21 +18,24 @@ public class Worker(IServiceProvider serviceProvider, ILogger<Worker> logger) : 
 
         while (!stoppingToken.IsCancellationRequested)
         {
-            if (logger.IsEnabled(LogLevel.Information))
-            {
-                logger.LogInformation("DispatchService running at: {time}", DateTimeOffset.Now);
+            using var loggerScope = logger.BeginScope("DispatchService");
+            var nothingToProcess = true;
 
+            try
+            {
                 using var scope = serviceProvider.CreateScope();
                 var dbContext = scope.ServiceProvider.GetRequiredService<DeliveryServiceDbContext>();
 
-                var queueItems = await dbContext.QueueItems.Include(d => d.WebHookSubscription)    
+                var queueItems = await dbContext.QueueItems.Include(d => d.WebHookSubscription)
                     .Where(d => d.ScheduledAt <= DateTime.UtcNow && !d.IsProcessed && d.RetryTimes < 5)
                     .OrderBy(d => d.ScheduledAt)
-                    .Take(10) 
+                    .Take(10)
                     .ToListAsync(stoppingToken);
 
                 foreach (var item in queueItems)
                 {
+                    nothingToProcess = false;
+
                     logger.LogInformation("Processing item with ID: {id}", item.Id);
 
                     var result = await CallWebHookAsync(item.WebHookSubscription.Url, item.WebHookSubscription.SecretKey, item.Message, stoppingToken);
@@ -54,17 +58,42 @@ public class Worker(IServiceProvider serviceProvider, ILogger<Worker> logger) : 
                     await dbContext.SaveChangesAsync(stoppingToken);
                 }
             }
-            await Task.Delay(1000, stoppingToken);
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "An error occurred while processing the queue items.");
+            }
+
+            if (nothingToProcess)
+            {
+                await Task.Delay(5000, stoppingToken);
+            }
         }
     }
 
-    private static async Task<CallWebHookResult> CallWebHookAsync(string url, string secretKey, string message, CancellationToken cancellationToken)
+    private async Task<CallWebHookResult> CallWebHookAsync(string url, string secretKey, string message, CancellationToken cancellationToken)
     {
-        httpClient.DefaultRequestHeaders.Add("X-Key", secretKey);
+        logger.LogInformation("Calling webhook at {url} with message: {message}", url, message);
+
+        if (IsSimulatedUrl(url))
+        {
+            return new CallWebHookResult
+            {
+                IsSuccess = true,
+                ErrorMessage = string.Empty
+            };
+        }
 
         try
         {
-            var response = await httpClient.PostAsync(url, new StringContent(message), cancellationToken);
+            var request = new HttpRequestMessage(HttpMethod.Post, url)
+            {
+                Headers =
+                {
+                    { "X-Key", secretKey }
+                },
+                Content = new StringContent(message, Encoding.UTF8, "application/json")
+            };
+            var response = await httpClient.SendAsync(request, cancellationToken);
 
             if (response.IsSuccessStatusCode)
             {
@@ -99,6 +128,11 @@ public class Worker(IServiceProvider serviceProvider, ILogger<Worker> logger) : 
                 ErrorMessage = $"Unexpected error: {ex.Message}"
             };
         }
+    }
+
+    private static bool IsSimulatedUrl(string url)
+    {
+        return "http://localhost/webhook".Equals(url, StringComparison.OrdinalIgnoreCase);
     }
 }
 

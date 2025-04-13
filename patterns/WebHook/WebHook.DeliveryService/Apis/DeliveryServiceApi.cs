@@ -50,6 +50,11 @@ public class DeliveryServiceApi
         {
             CreatedAt = DateTime.UtcNow,
             Id = delivery.Id,
+            Sender = delivery.Sender,
+            Receiver = delivery.Receiver,
+            SenderAddress = delivery.SenderAddress,
+            ReceiverAddress = delivery.ReceiverAddress,
+            PackageInfo = delivery.PackageInfo,
         };
         var deliveryCreatedEventJson = JsonSerializer.Serialize(deliveryCreatedEvent);
 
@@ -101,6 +106,7 @@ public class DeliveryServiceApi
                 Id = Guid.CreateVersion7(),
                 WebHookSubscriptionId = subcribtion.Id,
                 Message = deliveryUpdatedEventJson,
+                CreatedAt = DateTime.UtcNow,
                 ScheduledAt = DateTime.UtcNow,
                 IsProcessed = false,
                 IsSuccess = false,
