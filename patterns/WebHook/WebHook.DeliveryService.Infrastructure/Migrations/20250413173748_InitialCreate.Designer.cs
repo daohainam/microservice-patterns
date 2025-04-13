@@ -12,7 +12,7 @@ using WebHook.DeliveryService.Infrastructure.Data;
 namespace WebHook.DeliveryService.Infrastructure.Migrations
 {
     [DbContext(typeof(DeliveryServiceDbContext))]
-    [Migration("20250409200029_InitialCreate")]
+    [Migration("20250413173748_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -20,7 +20,7 @@ namespace WebHook.DeliveryService.Infrastructure.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "9.0.3")
+                .HasAnnotation("ProductVersion", "9.0.4")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
@@ -76,6 +76,13 @@ namespace WebHook.DeliveryService.Infrastructure.Migrations
 
                     b.Property<string>("Message")
                         .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("MessageSource")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("MessageType")
                         .HasColumnType("text");
 
                     b.Property<int>("RetryTimes")

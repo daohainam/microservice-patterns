@@ -46,6 +46,8 @@ namespace WebHook.DeliveryService.Infrastructure.Migrations
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
                     Message = table.Column<string>(type: "text", nullable: false),
+                    MessageType = table.Column<string>(type: "text", nullable: true),
+                    MessageSource = table.Column<string>(type: "text", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     ScheduledAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     ErrorMessage = table.Column<string>(type: "text", nullable: true),

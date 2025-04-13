@@ -1,7 +1,11 @@
+using CloudNative.CloudEvents;
+using CloudNative.CloudEvents.Http;
+using CloudNative.CloudEvents.SystemTextJson;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
+using System.Net.Mime;
 using System.Text;
 using WebHook.DeliveryService.Infrastructure.Data;
+using WebHook.DeliveryService.Infrastructure.Entity;
 
 namespace WebHook.DeliveryService.DispatchService;
 
@@ -38,7 +42,7 @@ public class Worker(IServiceProvider serviceProvider, ILogger<Worker> logger) : 
 
                     logger.LogInformation("Processing item with ID: {id}", item.Id);
 
-                    var result = await CallWebHookAsync(item.WebHookSubscription.Url, item.WebHookSubscription.SecretKey, item.Message, stoppingToken);
+                    var result = await CallWebHookAsync(item, stoppingToken);
 
                     if (result.IsSuccess)
                     {
@@ -70,9 +74,10 @@ public class Worker(IServiceProvider serviceProvider, ILogger<Worker> logger) : 
         }
     }
 
-    private async Task<CallWebHookResult> CallWebHookAsync(string url, string secretKey, string message, CancellationToken cancellationToken)
+    private async Task<CallWebHookResult> CallWebHookAsync(DeliveryEventQueueItem item, CancellationToken cancellationToken)
     {
-        logger.LogInformation("Calling webhook at {url} with message: {message}", url, message);
+        var url = item.WebHookSubscription.Url;
+        logger.LogInformation("Calling webhook at {url} with message: {message}", url, item.Message);
 
         if (IsSimulatedUrl(url))
         {
@@ -85,13 +90,24 @@ public class Worker(IServiceProvider serviceProvider, ILogger<Worker> logger) : 
 
         try
         {
+            var cloudEvent = new CloudEvent
+            {
+                Id = Guid.NewGuid().ToString(),
+                Type = item.MessageType,
+                Source = new Uri(item.MessageSource),
+                DataContentType = MediaTypeNames.Application.Json,
+                Data = item.Message
+            };
+
+            var content = cloudEvent.ToHttpContent(ContentMode.Structured, new JsonEventFormatter());
+
             var request = new HttpRequestMessage(HttpMethod.Post, url)
             {
                 Headers =
                 {
-                    { "X-Key", secretKey }
+                    { "X-Key", item.WebHookSubscription.SecretKey}
                 },
-                Content = new StringContent(message, Encoding.UTF8, "application/json")
+                Content = content
             };
             var response = await httpClient.SendAsync(request, cancellationToken);
 

@@ -2,7 +2,9 @@
 public class DeliveryEventQueueItem
 {
     public Guid Id { get; set; }
-    public string Message { get; set; } = default!;
+    public string Message { get; set; } = default!; // JSON string
+    public string? MessageType { get; set; } = default!;
+    public string MessageSource { get; set; } = default!;
     public DateTime CreatedAt { get; set; }
     public DateTime ScheduledAt { get; set; }
     public string? ErrorMessage { get; set; }

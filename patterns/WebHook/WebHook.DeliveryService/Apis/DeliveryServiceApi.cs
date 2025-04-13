@@ -65,6 +65,9 @@ public class DeliveryServiceApi
                 Id = Guid.CreateVersion7(),
                 WebHookSubscriptionId = subcribtion.Id,
                 Message = deliveryCreatedEventJson,
+                MessageType = typeof(DeliveryCreatedEvent).FullName,
+                MessageSource = "https://localhost:7143",
+                CreatedAt = DateTime.UtcNow,
                 ScheduledAt = DateTime.UtcNow,
                 IsProcessed = false,
                 IsSuccess = false,
@@ -96,16 +99,23 @@ public class DeliveryServiceApi
         {
             CreatedAt = DateTime.UtcNow,
             Id = delivery.Id,
+            Sender = delivery.Sender,
+            Receiver = delivery.Receiver,
+            SenderAddress = delivery.SenderAddress,
+            ReceiverAddress = delivery.ReceiverAddress,
+            PackageInfo = delivery.PackageInfo,
         };
         var deliveryUpdatedEventJson = JsonSerializer.Serialize(deliveryUpdatedEvent);
 
-        foreach (var subcribtion in services.DbContext.WebHookSubscriptions)
+        foreach (var subcription in services.DbContext.WebHookSubscriptions)
         {
             var queueItem = new DeliveryEventQueueItem
             {
                 Id = Guid.CreateVersion7(),
-                WebHookSubscriptionId = subcribtion.Id,
+                WebHookSubscriptionId = subcription.Id,
                 Message = deliveryUpdatedEventJson,
+                MessageType = typeof(DeliveryUpdatedEvent).FullName,
+                MessageSource = "https://localhost:7143",
                 CreatedAt = DateTime.UtcNow,
                 ScheduledAt = DateTime.UtcNow,
                 IsProcessed = false,
