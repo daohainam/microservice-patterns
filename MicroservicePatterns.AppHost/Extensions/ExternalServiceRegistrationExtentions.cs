@@ -232,14 +232,17 @@ public static class ExternalServiceRegistrationExtentions
             .WithReference(webhookDeliveryServiceDb, Consts.DefaultDatabase)
             .WaitFor(webhookDeliveryServiceDb);
 
-        builder.AddProjectWithPostfix<Projects.WebHook_DeliveryService_DispatchService>()
+        var webhookDispatchService = builder.AddProjectWithPostfix<Projects.WebHook_DeliveryService_DispatchService>()
             .WithReference(webHookDeliveryService)
             .WithReference(webhookDeliveryServiceDb, Consts.DefaultDatabase)
             .WaitFor(webHookDeliveryService);
 
-        builder.AddProjectWithPostfix<Projects.WebHook_DeliveryService_EventConsumer>()
+        var webhookEventConsumer = builder.AddProjectWithPostfix<Projects.WebHook_DeliveryService_EventConsumer>()
             .WithReference(webHookDeliveryService)
             .WaitFor(webHookDeliveryService);
+
+        webhookDispatchService.WithParentRelationship(webHookDeliveryService);
+        webhookEventConsumer.WithParentRelationship(webHookDeliveryService);
 
         #endregion
 
