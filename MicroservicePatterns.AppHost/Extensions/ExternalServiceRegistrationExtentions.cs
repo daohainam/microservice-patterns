@@ -271,7 +271,7 @@ public static class ExternalServiceRegistrationExtentions
                 });
                 return Task.CompletedTask;
             },
-            IconName = "SendRegular",
+            IconName = "Send",
             IsHighlighted = true
         });
 
