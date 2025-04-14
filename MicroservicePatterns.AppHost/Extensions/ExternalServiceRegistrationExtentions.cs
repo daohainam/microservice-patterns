@@ -11,7 +11,7 @@ public static class ExternalServiceRegistrationExtentions
     {
         var cache = builder.AddRedis("redis");
         var kafka = builder.AddKafka("kafka");
-        var mongoDb = builder.AddMongoDB("mongodb"); 
+        var mongoDb = builder.AddMongoDB("mongodb");
         var postgres = builder.AddPostgres("postgresql");
 
         if (!builder.Configuration.GetValue("IsTest", false))
@@ -86,7 +86,7 @@ public static class ExternalServiceRegistrationExtentions
             .WaitFor(sagaOrderDb)
             .WaitFor(kafka);
 
-        
+
         var sagaCatalogDb = postgres.AddDefaultDatabase<Projects.Saga_OnlineStore_CatalogService>();
         var sagaCatalogService = builder.AddProjectWithPostfix<Projects.Saga_OnlineStore_CatalogService>()
             .WithEnvironment(Consts.Env_EventPublishingTopics, GetTopicName<Projects.Saga_OnlineStore_CatalogService>())
@@ -242,14 +242,38 @@ public static class ExternalServiceRegistrationExtentions
                 """,
             PrepareRequest = (context) =>
             {
-                context.Request.Content = JsonContent.Create(new { 
+                context.Request.Content = JsonContent.Create(new
+                {
                     Url = "https://localhost:7392/webhook"
                 });
                 return Task.CompletedTask;
             },
             IconName = "DocumentLightning",
             IsHighlighted = true
-        }); ;
+        }).WithHttpCommand(
+        path: "/api/webhook/v1/deliveries/",
+        displayName: "Send delivery",
+        commandOptions: new HttpCommandOptions()
+        {
+            Description = """            
+                Send a delivery and activate the webhook.
+                """,
+            PrepareRequest = (context) =>
+            {
+                context.Request.Content = JsonContent.Create(new
+                {
+                    Id = "00000000-0000-0000-0000-000000000000",
+                    Sender = "Sender Name",
+                    Receiver = "Receiver Name",
+                    SenderAddress = "Sender Address",
+                    ReceiverAddress = "Receiver Address",
+                    PackageInfo = "Package Info"
+                });
+                return Task.CompletedTask;
+            },
+            IconName = "SendRegular",
+            IsHighlighted = true
+        });
 
         var webhookDispatchService = builder.AddProjectWithPostfix<Projects.WebHook_DeliveryService_DispatchService>()
             .WithReference(webHookDeliveryService)
