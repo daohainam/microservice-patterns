@@ -1,0 +1,697 @@
+{
+  "$schema": "https://json.schemastore.org/aspire-8.0.json",
+  "resources": {
+    "redis": {
+      "type": "container.v0",
+      "connectionString": "{redis.bindings.tcp.host}:{redis.bindings.tcp.port},password={redis-password.value}",
+      "image": "docker.io/library/redis:7.4",
+      "entrypoint": "/bin/sh",
+      "args": [
+        "-c",
+        "redis-server --requirepass $REDIS_PASSWORD --save 60 1"
+      ],
+      "volumes": [
+        {
+          "name": "microservicepatterns.apphost-46b9f13953-redis-data",
+          "target": "/data",
+          "readOnly": false
+        }
+      ],
+      "env": {
+        "REDIS_PASSWORD": "{redis-password.value}"
+      },
+      "bindings": {
+        "tcp": {
+          "scheme": "tcp",
+          "protocol": "tcp",
+          "transport": "tcp",
+          "targetPort": 6379
+        }
+      }
+    },
+    "kafka": {
+      "type": "container.v0",
+      "connectionString": "{kafka.bindings.tcp.host}:{kafka.bindings.tcp.port}",
+      "image": "docker.io/confluentinc/confluent-local:7.9.0",
+      "volumes": [
+        {
+          "name": "microservicepatterns.apphost-46b9f13953-kafka-data",
+          "target": "/var/lib/kafka/data",
+          "readOnly": false
+        }
+      ],
+      "env": {
+        "KAFKA_LISTENERS": "PLAINTEXT://localhost:29092,CONTROLLER://localhost:29093,PLAINTEXT_HOST://0.0.0.0:9092,PLAINTEXT_INTERNAL://0.0.0.0:9093",
+        "KAFKA_LISTENER_SECURITY_PROTOCOL_MAP": "CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT,PLAINTEXT_INTERNAL:PLAINTEXT",
+        "KAFKA_ADVERTISED_LISTENERS": "PLAINTEXT://{kafka.bindings.tcp.host}:29092,PLAINTEXT_HOST://{kafka.bindings.tcp.host}:{kafka.bindings.tcp.port},PLAINTEXT_INTERNAL://{kafka.bindings.internal.host}:{kafka.bindings.internal.port}",
+        "KAFKA_LOG_DIRS": "/var/lib/kafka/data"
+      },
+      "bindings": {
+        "tcp": {
+          "scheme": "tcp",
+          "protocol": "tcp",
+          "transport": "tcp",
+          "targetPort": 9092
+        },
+        "internal": {
+          "scheme": "tcp",
+          "protocol": "tcp",
+          "transport": "tcp",
+          "targetPort": 9093
+        }
+      }
+    },
+    "mongodb": {
+      "type": "container.v0",
+      "connectionString": "mongodb://admin:{mongodb-password.value}@{mongodb.bindings.tcp.host}:{mongodb.bindings.tcp.port}?authSource=admin\u0026authMechanism=SCRAM-SHA-256",
+      "image": "docker.io/library/mongo:8.0",
+      "volumes": [
+        {
+          "name": "microservicepatterns.apphost-46b9f13953-mongodb-data",
+          "target": "/data/db",
+          "readOnly": false
+        }
+      ],
+      "env": {
+        "MONGO_INITDB_ROOT_USERNAME": "admin",
+        "MONGO_INITDB_ROOT_PASSWORD": "{mongodb-password.value}"
+      },
+      "bindings": {
+        "tcp": {
+          "scheme": "tcp",
+          "protocol": "tcp",
+          "transport": "tcp",
+          "targetPort": 27017
+        }
+      }
+    },
+    "postgresql": {
+      "type": "container.v0",
+      "connectionString": "Host={postgresql.bindings.tcp.host};Port={postgresql.bindings.tcp.port};Username=postgres;Password={postgresql-password.value}",
+      "image": "docker.io/library/postgres:17.2",
+      "volumes": [
+        {
+          "name": "microservicepatterns.apphost-46b9f13953-postgresql-data",
+          "target": "/var/lib/postgresql/data",
+          "readOnly": false
+        }
+      ],
+      "env": {
+        "POSTGRES_HOST_AUTH_METHOD": "scram-sha-256",
+        "POSTGRES_INITDB_ARGS": "--auth-host=scram-sha-256 --auth-local=scram-sha-256",
+        "POSTGRES_USER": "postgres",
+        "POSTGRES_PASSWORD": "{postgresql-password.value}"
+      },
+      "bindings": {
+        "tcp": {
+          "scheme": "tcp",
+          "protocol": "tcp",
+          "transport": "tcp",
+          "targetPort": 5432
+        }
+      }
+    },
+    "CQRS-Library-BookService-Db": {
+      "type": "value.v0",
+      "connectionString": "{postgresql.connectionString};Database=CQRS-Library-BookService-Db"
+    },
+    "CQRS-Library-BookService": {
+      "type": "project.v0",
+      "path": "patterns/CQRS/CQRS.Library.BookService/CQRS.Library.BookService.csproj",
+      "env": {
+        "OTEL_DOTNET_EXPERIMENTAL_OTLP_EMIT_EXCEPTION_LOG_ATTRIBUTES": "true",
+        "OTEL_DOTNET_EXPERIMENTAL_OTLP_EMIT_EVENT_LOG_ATTRIBUTES": "true",
+        "OTEL_DOTNET_EXPERIMENTAL_OTLP_RETRY": "in_memory",
+        "ASPNETCORE_FORWARDEDHEADERS_ENABLED": "true",
+        "HTTP_PORTS": "{CQRS-Library-BookService.bindings.http.targetPort}",
+        "EVENT_PUBLISHING_TOPICS": "CQRS-Library-BookService",
+        "ConnectionStrings__kafka": "{kafka.connectionString}",
+        "ConnectionStrings__DefaultDatabase": "{CQRS-Library-BookService-Db.connectionString}"
+      },
+      "bindings": {
+        "http": {
+          "scheme": "http",
+          "protocol": "tcp",
+          "transport": "http"
+        },
+        "https": {
+          "scheme": "https",
+          "protocol": "tcp",
+          "transport": "http"
+        }
+      }
+    },
+    "CQRS-Library-BorrowerService-Db": {
+      "type": "value.v0",
+      "connectionString": "{postgresql.connectionString};Database=CQRS-Library-BorrowerService-Db"
+    },
+    "CQRS-Library-BorrowerService": {
+      "type": "project.v0",
+      "path": "patterns/CQRS/CQRS.Library.BorrowerService/CQRS.Library.BorrowerService.csproj",
+      "env": {
+        "OTEL_DOTNET_EXPERIMENTAL_OTLP_EMIT_EXCEPTION_LOG_ATTRIBUTES": "true",
+        "OTEL_DOTNET_EXPERIMENTAL_OTLP_EMIT_EVENT_LOG_ATTRIBUTES": "true",
+        "OTEL_DOTNET_EXPERIMENTAL_OTLP_RETRY": "in_memory",
+        "ASPNETCORE_FORWARDEDHEADERS_ENABLED": "true",
+        "HTTP_PORTS": "{CQRS-Library-BorrowerService.bindings.http.targetPort}",
+        "EVENT_PUBLISHING_TOPICS": "CQRS-Library-BorrowerService",
+        "ConnectionStrings__kafka": "{kafka.connectionString}",
+        "ConnectionStrings__DefaultDatabase": "{CQRS-Library-BorrowerService-Db.connectionString}"
+      },
+      "bindings": {
+        "http": {
+          "scheme": "http",
+          "protocol": "tcp",
+          "transport": "http"
+        },
+        "https": {
+          "scheme": "https",
+          "protocol": "tcp",
+          "transport": "http"
+        }
+      }
+    },
+    "CQRS-Library-BorrowingService-Db": {
+      "type": "value.v0",
+      "connectionString": "{postgresql.connectionString};Database=CQRS-Library-BorrowingService-Db"
+    },
+    "CQRS-Library-BorrowingService": {
+      "type": "project.v0",
+      "path": "patterns/CQRS/CQRS.Library.BorrowingService/CQRS.Library.BorrowingService.csproj",
+      "env": {
+        "OTEL_DOTNET_EXPERIMENTAL_OTLP_EMIT_EXCEPTION_LOG_ATTRIBUTES": "true",
+        "OTEL_DOTNET_EXPERIMENTAL_OTLP_EMIT_EVENT_LOG_ATTRIBUTES": "true",
+        "OTEL_DOTNET_EXPERIMENTAL_OTLP_RETRY": "in_memory",
+        "ASPNETCORE_FORWARDEDHEADERS_ENABLED": "true",
+        "HTTP_PORTS": "{CQRS-Library-BorrowingService.bindings.http.targetPort}",
+        "EVENT_PUBLISHING_TOPICS": "CQRS-Library-BorrowingService",
+        "ConnectionStrings__kafka": "{kafka.connectionString}",
+        "ConnectionStrings__DefaultDatabase": "{CQRS-Library-BorrowingService-Db.connectionString}"
+      },
+      "bindings": {
+        "http": {
+          "scheme": "http",
+          "protocol": "tcp",
+          "transport": "http"
+        },
+        "https": {
+          "scheme": "https",
+          "protocol": "tcp",
+          "transport": "http"
+        }
+      }
+    },
+    "CQRS-Library-BorrowingHistoryService-Db": {
+      "type": "value.v0",
+      "connectionString": "{postgresql.connectionString};Database=CQRS-Library-BorrowingHistoryService-Db"
+    },
+    "CQRS-Library-BorrowingHistoryService": {
+      "type": "project.v0",
+      "path": "patterns/CQRS/CQRS.Library.BorrowingHistoryService/CQRS.Library.BorrowingHistoryService.csproj",
+      "env": {
+        "OTEL_DOTNET_EXPERIMENTAL_OTLP_EMIT_EXCEPTION_LOG_ATTRIBUTES": "true",
+        "OTEL_DOTNET_EXPERIMENTAL_OTLP_EMIT_EVENT_LOG_ATTRIBUTES": "true",
+        "OTEL_DOTNET_EXPERIMENTAL_OTLP_RETRY": "in_memory",
+        "ASPNETCORE_FORWARDEDHEADERS_ENABLED": "true",
+        "HTTP_PORTS": "{CQRS-Library-BorrowingHistoryService.bindings.http.targetPort}",
+        "EVENT_CONSUMING_TOPICS": "CQRS-Library-BorrowerService,CQRS-Library-BookService,CQRS-Library-BorrowingService",
+        "ConnectionStrings__kafka": "{kafka.connectionString}",
+        "ConnectionStrings__DefaultDatabase": "{CQRS-Library-BorrowingHistoryService-Db.connectionString}"
+      },
+      "bindings": {
+        "http": {
+          "scheme": "http",
+          "protocol": "tcp",
+          "transport": "http"
+        },
+        "https": {
+          "scheme": "https",
+          "protocol": "tcp",
+          "transport": "http"
+        }
+      }
+    },
+    "Saga-OnlineStore-OrderService-Db": {
+      "type": "value.v0",
+      "connectionString": "{postgresql.connectionString};Database=Saga-OnlineStore-OrderService-Db"
+    },
+    "Saga-OnlineStore-OrderService": {
+      "type": "project.v0",
+      "path": "patterns/Saga/Saga.OnlineStore.OrderService/Saga.OnlineStore.OrderService.csproj",
+      "env": {
+        "OTEL_DOTNET_EXPERIMENTAL_OTLP_EMIT_EXCEPTION_LOG_ATTRIBUTES": "true",
+        "OTEL_DOTNET_EXPERIMENTAL_OTLP_EMIT_EVENT_LOG_ATTRIBUTES": "true",
+        "OTEL_DOTNET_EXPERIMENTAL_OTLP_RETRY": "in_memory",
+        "ASPNETCORE_FORWARDEDHEADERS_ENABLED": "true",
+        "HTTP_PORTS": "{Saga-OnlineStore-OrderService.bindings.http.targetPort}",
+        "EVENT_PUBLISHING_TOPICS": "Saga-OnlineStore-OrderService",
+        "EVENT_CONSUMING_TOPICS": "Saga-OnlineStore-InventoryService,Saga-OnlineStore-PaymentService",
+        "ConnectionStrings__kafka": "{kafka.connectionString}",
+        "ConnectionStrings__DefaultDatabase": "{Saga-OnlineStore-OrderService-Db.connectionString}"
+      },
+      "bindings": {
+        "http": {
+          "scheme": "http",
+          "protocol": "tcp",
+          "transport": "http"
+        },
+        "https": {
+          "scheme": "https",
+          "protocol": "tcp",
+          "transport": "http"
+        }
+      }
+    },
+    "Saga-OnlineStore-CatalogService-Db": {
+      "type": "value.v0",
+      "connectionString": "{postgresql.connectionString};Database=Saga-OnlineStore-CatalogService-Db"
+    },
+    "Saga-OnlineStore-CatalogService": {
+      "type": "project.v0",
+      "path": "patterns/Saga/Saga.OnlineStore.CatalogService/Saga.OnlineStore.CatalogService.csproj",
+      "env": {
+        "OTEL_DOTNET_EXPERIMENTAL_OTLP_EMIT_EXCEPTION_LOG_ATTRIBUTES": "true",
+        "OTEL_DOTNET_EXPERIMENTAL_OTLP_EMIT_EVENT_LOG_ATTRIBUTES": "true",
+        "OTEL_DOTNET_EXPERIMENTAL_OTLP_RETRY": "in_memory",
+        "ASPNETCORE_FORWARDEDHEADERS_ENABLED": "true",
+        "HTTP_PORTS": "{Saga-OnlineStore-CatalogService.bindings.http.targetPort}",
+        "EVENT_PUBLISHING_TOPICS": "Saga-OnlineStore-CatalogService",
+        "ConnectionStrings__kafka": "{kafka.connectionString}",
+        "ConnectionStrings__DefaultDatabase": "{Saga-OnlineStore-CatalogService-Db.connectionString}"
+      },
+      "bindings": {
+        "http": {
+          "scheme": "http",
+          "protocol": "tcp",
+          "transport": "http"
+        },
+        "https": {
+          "scheme": "https",
+          "protocol": "tcp",
+          "transport": "http"
+        }
+      }
+    },
+    "Saga-OnlineStore-InventoryService-Db": {
+      "type": "value.v0",
+      "connectionString": "{postgresql.connectionString};Database=Saga-OnlineStore-InventoryService-Db"
+    },
+    "Saga-OnlineStore-InventoryService": {
+      "type": "project.v0",
+      "path": "patterns/Saga/Saga.OnlineStore.InventoryService/Saga.OnlineStore.InventoryService.csproj",
+      "env": {
+        "OTEL_DOTNET_EXPERIMENTAL_OTLP_EMIT_EXCEPTION_LOG_ATTRIBUTES": "true",
+        "OTEL_DOTNET_EXPERIMENTAL_OTLP_EMIT_EVENT_LOG_ATTRIBUTES": "true",
+        "OTEL_DOTNET_EXPERIMENTAL_OTLP_RETRY": "in_memory",
+        "ASPNETCORE_FORWARDEDHEADERS_ENABLED": "true",
+        "HTTP_PORTS": "{Saga-OnlineStore-InventoryService.bindings.http.targetPort}",
+        "EVENT_PUBLISHING_TOPICS": "Saga-OnlineStore-InventoryService",
+        "EVENT_CONSUMING_TOPICS": "Saga-OnlineStore-CatalogService,Saga-OnlineStore-OrderService,Saga-OnlineStore-PaymentService",
+        "ConnectionStrings__kafka": "{kafka.connectionString}",
+        "ConnectionStrings__DefaultDatabase": "{Saga-OnlineStore-InventoryService-Db.connectionString}"
+      },
+      "bindings": {
+        "http": {
+          "scheme": "http",
+          "protocol": "tcp",
+          "transport": "http"
+        },
+        "https": {
+          "scheme": "https",
+          "protocol": "tcp",
+          "transport": "http"
+        }
+      }
+    },
+    "Saga-OnlineStore-PaymentService-Db": {
+      "type": "value.v0",
+      "connectionString": "{postgresql.connectionString};Database=Saga-OnlineStore-PaymentService-Db"
+    },
+    "Saga-OnlineStore-PaymentService": {
+      "type": "project.v0",
+      "path": "patterns/Saga/Saga.OnlineStore.PaymentService/Saga.OnlineStore.PaymentService.csproj",
+      "env": {
+        "OTEL_DOTNET_EXPERIMENTAL_OTLP_EMIT_EXCEPTION_LOG_ATTRIBUTES": "true",
+        "OTEL_DOTNET_EXPERIMENTAL_OTLP_EMIT_EVENT_LOG_ATTRIBUTES": "true",
+        "OTEL_DOTNET_EXPERIMENTAL_OTLP_RETRY": "in_memory",
+        "ASPNETCORE_FORWARDEDHEADERS_ENABLED": "true",
+        "HTTP_PORTS": "{Saga-OnlineStore-PaymentService.bindings.http.targetPort}",
+        "EVENT_PUBLISHING_TOPICS": "Saga-OnlineStore-PaymentService",
+        "EVENT_CONSUMING_TOPICS": "Saga-OnlineStore-InventoryService",
+        "ConnectionStrings__kafka": "{kafka.connectionString}",
+        "ConnectionStrings__DefaultDatabase": "{Saga-OnlineStore-PaymentService-Db.connectionString}"
+      },
+      "bindings": {
+        "http": {
+          "scheme": "http",
+          "protocol": "tcp",
+          "transport": "http"
+        },
+        "https": {
+          "scheme": "https",
+          "protocol": "tcp",
+          "transport": "http"
+        }
+      }
+    },
+    "Saga-TripPlanner-HotelService-Db": {
+      "type": "value.v0",
+      "connectionString": "{postgresql.connectionString};Database=Saga-TripPlanner-HotelService-Db"
+    },
+    "Saga-TripPlanner-HotelService": {
+      "type": "project.v0",
+      "path": "patterns/Saga/Saga.TripPlanner.HotelService/Saga.TripPlanner.HotelService.csproj",
+      "env": {
+        "OTEL_DOTNET_EXPERIMENTAL_OTLP_EMIT_EXCEPTION_LOG_ATTRIBUTES": "true",
+        "OTEL_DOTNET_EXPERIMENTAL_OTLP_EMIT_EVENT_LOG_ATTRIBUTES": "true",
+        "OTEL_DOTNET_EXPERIMENTAL_OTLP_RETRY": "in_memory",
+        "ASPNETCORE_FORWARDEDHEADERS_ENABLED": "true",
+        "HTTP_PORTS": "{Saga-TripPlanner-HotelService.bindings.http.targetPort}",
+        "EVENT_PUBLISHING_TOPICS": "Saga-TripPlanner-HotelService",
+        "EVENT_CONSUMING_TOPICS": "Saga-TripPlanner-TripPlanningService",
+        "ConnectionStrings__kafka": "{kafka.connectionString}",
+        "ConnectionStrings__DefaultDatabase": "{Saga-TripPlanner-HotelService-Db.connectionString}"
+      },
+      "bindings": {
+        "http": {
+          "scheme": "http",
+          "protocol": "tcp",
+          "transport": "http"
+        },
+        "https": {
+          "scheme": "https",
+          "protocol": "tcp",
+          "transport": "http"
+        }
+      }
+    },
+    "Saga-TripPlanner-TicketService-Db": {
+      "type": "value.v0",
+      "connectionString": "{postgresql.connectionString};Database=Saga-TripPlanner-TicketService-Db"
+    },
+    "Saga-TripPlanner-TicketService": {
+      "type": "project.v0",
+      "path": "patterns/Saga/Saga.TripPlanner.TicketService/Saga.TripPlanner.TicketService.csproj",
+      "env": {
+        "OTEL_DOTNET_EXPERIMENTAL_OTLP_EMIT_EXCEPTION_LOG_ATTRIBUTES": "true",
+        "OTEL_DOTNET_EXPERIMENTAL_OTLP_EMIT_EVENT_LOG_ATTRIBUTES": "true",
+        "OTEL_DOTNET_EXPERIMENTAL_OTLP_RETRY": "in_memory",
+        "ASPNETCORE_FORWARDEDHEADERS_ENABLED": "true",
+        "HTTP_PORTS": "{Saga-TripPlanner-TicketService.bindings.http.targetPort}",
+        "EVENT_PUBLISHING_TOPICS": "Saga-TripPlanner-TicketService",
+        "EVENT_CONSUMING_TOPICS": "Saga-TripPlanner-TripPlanningService",
+        "ConnectionStrings__kafka": "{kafka.connectionString}",
+        "ConnectionStrings__DefaultDatabase": "{Saga-TripPlanner-TicketService-Db.connectionString}"
+      },
+      "bindings": {
+        "http": {
+          "scheme": "http",
+          "protocol": "tcp",
+          "transport": "http"
+        },
+        "https": {
+          "scheme": "https",
+          "protocol": "tcp",
+          "transport": "http"
+        }
+      }
+    },
+    "Saga-TripPlanner-PaymentService-Db": {
+      "type": "value.v0",
+      "connectionString": "{postgresql.connectionString};Database=Saga-TripPlanner-PaymentService-Db"
+    },
+    "Saga-TripPlanner-PaymentService": {
+      "type": "project.v0",
+      "path": "patterns/Saga/Saga.TripPlanner.PaymentService/Saga.TripPlanner.PaymentService.csproj",
+      "env": {
+        "OTEL_DOTNET_EXPERIMENTAL_OTLP_EMIT_EXCEPTION_LOG_ATTRIBUTES": "true",
+        "OTEL_DOTNET_EXPERIMENTAL_OTLP_EMIT_EVENT_LOG_ATTRIBUTES": "true",
+        "OTEL_DOTNET_EXPERIMENTAL_OTLP_RETRY": "in_memory",
+        "ASPNETCORE_FORWARDEDHEADERS_ENABLED": "true",
+        "HTTP_PORTS": "{Saga-TripPlanner-PaymentService.bindings.http.targetPort}",
+        "EVENT_PUBLISHING_TOPICS": "Saga-TripPlanner-PaymentService",
+        "EVENT_CONSUMING_TOPICS": "Saga-TripPlanner-TripPlanningService",
+        "ConnectionStrings__kafka": "{kafka.connectionString}",
+        "ConnectionStrings__DefaultDatabase": "{Saga-TripPlanner-PaymentService-Db.connectionString}"
+      },
+      "bindings": {
+        "http": {
+          "scheme": "http",
+          "protocol": "tcp",
+          "transport": "http"
+        },
+        "https": {
+          "scheme": "https",
+          "protocol": "tcp",
+          "transport": "http"
+        }
+      }
+    },
+    "Saga-TripPlanner-TripPlanningService-Db": {
+      "type": "value.v0",
+      "connectionString": "{postgresql.connectionString};Database=Saga-TripPlanner-TripPlanningService-Db"
+    },
+    "Saga-TripPlanner-TripPlanningService": {
+      "type": "project.v0",
+      "path": "patterns/Saga/Saga.TripPlanner.TripPlanningService/Saga.TripPlanner.TripPlanningService.csproj",
+      "env": {
+        "OTEL_DOTNET_EXPERIMENTAL_OTLP_EMIT_EXCEPTION_LOG_ATTRIBUTES": "true",
+        "OTEL_DOTNET_EXPERIMENTAL_OTLP_EMIT_EVENT_LOG_ATTRIBUTES": "true",
+        "OTEL_DOTNET_EXPERIMENTAL_OTLP_RETRY": "in_memory",
+        "ASPNETCORE_FORWARDEDHEADERS_ENABLED": "true",
+        "HTTP_PORTS": "{Saga-TripPlanner-TripPlanningService.bindings.http.targetPort}",
+        "EVENT_PUBLISHING_TOPICS": "Saga-TripPlanner-TripPlanningService",
+        "EVENT_CONSUMING_TOPICS": "Saga-TripPlanner-TripPlanningService",
+        "ConnectionStrings__kafka": "{kafka.connectionString}",
+        "ConnectionStrings__DefaultDatabase": "{Saga-TripPlanner-TripPlanningService-Db.connectionString}",
+        "services__Saga-TripPlanner-PaymentService__http__0": "{Saga-TripPlanner-PaymentService.bindings.http.url}",
+        "services__Saga-TripPlanner-PaymentService__https__0": "{Saga-TripPlanner-PaymentService.bindings.https.url}",
+        "services__Saga-TripPlanner-TicketService__http__0": "{Saga-TripPlanner-TicketService.bindings.http.url}",
+        "services__Saga-TripPlanner-TicketService__https__0": "{Saga-TripPlanner-TicketService.bindings.https.url}",
+        "services__Saga-TripPlanner-HotelService__http__0": "{Saga-TripPlanner-HotelService.bindings.http.url}",
+        "services__Saga-TripPlanner-HotelService__https__0": "{Saga-TripPlanner-HotelService.bindings.https.url}"
+      },
+      "bindings": {
+        "http": {
+          "scheme": "http",
+          "protocol": "tcp",
+          "transport": "http"
+        },
+        "https": {
+          "scheme": "https",
+          "protocol": "tcp",
+          "transport": "http"
+        }
+      }
+    },
+    "EventSourcing-Banking-AccountService-Db": {
+      "type": "value.v0",
+      "connectionString": "{postgresql.connectionString};Database=EventSourcing-Banking-AccountService-Db"
+    },
+    "EventSourcing-Banking-AccountService": {
+      "type": "project.v0",
+      "path": "patterns/EventSourcing/EventSourcing.Banking.AccountService/EventSourcing.Banking.AccountService.csproj",
+      "env": {
+        "OTEL_DOTNET_EXPERIMENTAL_OTLP_EMIT_EXCEPTION_LOG_ATTRIBUTES": "true",
+        "OTEL_DOTNET_EXPERIMENTAL_OTLP_EMIT_EVENT_LOG_ATTRIBUTES": "true",
+        "OTEL_DOTNET_EXPERIMENTAL_OTLP_RETRY": "in_memory",
+        "ASPNETCORE_FORWARDEDHEADERS_ENABLED": "true",
+        "HTTP_PORTS": "{EventSourcing-Banking-AccountService.bindings.http.targetPort}",
+        "ConnectionStrings__DefaultDatabase": "{EventSourcing-Banking-AccountService-Db.connectionString}"
+      },
+      "bindings": {
+        "http": {
+          "scheme": "http",
+          "protocol": "tcp",
+          "transport": "http"
+        },
+        "https": {
+          "scheme": "https",
+          "protocol": "tcp",
+          "transport": "http"
+        }
+      }
+    },
+    "TransactionalOutbox-Banking-AccountService-Db": {
+      "type": "value.v0",
+      "connectionString": "{postgresql.connectionString};Database=TransactionalOutbox-Banking-AccountService-Db"
+    },
+    "TransactionalOutbox-Banking-AccountService": {
+      "type": "project.v0",
+      "path": "patterns/TransactionalOutbox/TransactionalOutbox.Banking.AccountService/TransactionalOutbox.Banking.AccountService.csproj",
+      "env": {
+        "OTEL_DOTNET_EXPERIMENTAL_OTLP_EMIT_EXCEPTION_LOG_ATTRIBUTES": "true",
+        "OTEL_DOTNET_EXPERIMENTAL_OTLP_EMIT_EVENT_LOG_ATTRIBUTES": "true",
+        "OTEL_DOTNET_EXPERIMENTAL_OTLP_RETRY": "in_memory",
+        "ASPNETCORE_FORWARDEDHEADERS_ENABLED": "true",
+        "HTTP_PORTS": "{TransactionalOutbox-Banking-AccountService.bindings.http.targetPort}",
+        "EVENT_PUBLISHING_TOPICS": "TransactionalOutbox-Banking-AccountService",
+        "ConnectionStrings__kafka": "{kafka.connectionString}",
+        "ConnectionStrings__DefaultDatabase": "{TransactionalOutbox-Banking-AccountService-Db.connectionString}"
+      },
+      "bindings": {
+        "http": {
+          "scheme": "http",
+          "protocol": "tcp",
+          "transport": "http"
+        },
+        "https": {
+          "scheme": "https",
+          "protocol": "tcp",
+          "transport": "http"
+        }
+      }
+    },
+    "TransactionalOutbox-MessageConsumingService": {
+      "type": "project.v0",
+      "path": "patterns/TransactionalOutbox/TransactionalOutbox.MessageConsumingService/TransactionalOutbox.MessageConsumingService.csproj",
+      "env": {
+        "OTEL_DOTNET_EXPERIMENTAL_OTLP_EMIT_EXCEPTION_LOG_ATTRIBUTES": "true",
+        "OTEL_DOTNET_EXPERIMENTAL_OTLP_EMIT_EVENT_LOG_ATTRIBUTES": "true",
+        "OTEL_DOTNET_EXPERIMENTAL_OTLP_RETRY": "in_memory",
+        "ConnectionStrings__kafka": "{kafka.connectionString}",
+        "EVENT_CONSUMING_TOPICS": "TransactionalOutbox-Banking-AccountService"
+      }
+    },
+    "IdempotentConsumer-CatalogService-Db": {
+      "type": "value.v0",
+      "connectionString": "{postgresql.connectionString};Database=IdempotentConsumer-CatalogService-Db"
+    },
+    "IdempotentConsumer-CatalogService": {
+      "type": "project.v0",
+      "path": "patterns/IdempotentConsumer/IdempotentConsumer.CatalogService/IdempotentConsumer.CatalogService.csproj",
+      "env": {
+        "OTEL_DOTNET_EXPERIMENTAL_OTLP_EMIT_EXCEPTION_LOG_ATTRIBUTES": "true",
+        "OTEL_DOTNET_EXPERIMENTAL_OTLP_EMIT_EVENT_LOG_ATTRIBUTES": "true",
+        "OTEL_DOTNET_EXPERIMENTAL_OTLP_RETRY": "in_memory",
+        "ASPNETCORE_FORWARDEDHEADERS_ENABLED": "true",
+        "HTTP_PORTS": "{IdempotentConsumer-CatalogService.bindings.http.targetPort}",
+        "ConnectionStrings__DefaultDatabase": "{IdempotentConsumer-CatalogService-Db.connectionString}"
+      },
+      "bindings": {
+        "http": {
+          "scheme": "http",
+          "protocol": "tcp",
+          "transport": "http"
+        },
+        "https": {
+          "scheme": "https",
+          "protocol": "tcp",
+          "transport": "http"
+        }
+      }
+    },
+    "WebHook-DeliveryService-Db": {
+      "type": "value.v0",
+      "connectionString": "{postgresql.connectionString};Database=WebHook-DeliveryService-Db"
+    },
+    "WebHook-DeliveryService": {
+      "type": "project.v0",
+      "path": "patterns/WebHook/WebHook.DeliveryService/WebHook.DeliveryService.csproj",
+      "env": {
+        "OTEL_DOTNET_EXPERIMENTAL_OTLP_EMIT_EXCEPTION_LOG_ATTRIBUTES": "true",
+        "OTEL_DOTNET_EXPERIMENTAL_OTLP_EMIT_EVENT_LOG_ATTRIBUTES": "true",
+        "OTEL_DOTNET_EXPERIMENTAL_OTLP_RETRY": "in_memory",
+        "ASPNETCORE_FORWARDEDHEADERS_ENABLED": "true",
+        "HTTP_PORTS": "{WebHook-DeliveryService.bindings.http.targetPort}",
+        "ConnectionStrings__DefaultDatabase": "{WebHook-DeliveryService-Db.connectionString}"
+      },
+      "bindings": {
+        "http": {
+          "scheme": "http",
+          "protocol": "tcp",
+          "transport": "http"
+        },
+        "https": {
+          "scheme": "https",
+          "protocol": "tcp",
+          "transport": "http"
+        }
+      }
+    },
+    "WebHook-DeliveryService-DispatchService": {
+      "type": "project.v0",
+      "path": "patterns/WebHook/WebHook.DeliveryService.DispatchService/WebHook.DeliveryService.DispatchService.csproj",
+      "env": {
+        "OTEL_DOTNET_EXPERIMENTAL_OTLP_EMIT_EXCEPTION_LOG_ATTRIBUTES": "true",
+        "OTEL_DOTNET_EXPERIMENTAL_OTLP_EMIT_EVENT_LOG_ATTRIBUTES": "true",
+        "OTEL_DOTNET_EXPERIMENTAL_OTLP_RETRY": "in_memory",
+        "services__WebHook-DeliveryService__http__0": "{WebHook-DeliveryService.bindings.http.url}",
+        "services__WebHook-DeliveryService__https__0": "{WebHook-DeliveryService.bindings.https.url}",
+        "ConnectionStrings__DefaultDatabase": "{WebHook-DeliveryService-Db.connectionString}"
+      }
+    },
+    "WebHook-DeliveryService-EventConsumer": {
+      "type": "project.v0",
+      "path": "patterns/WebHook/WebHook.DeliveryService.EventConsumer/WebHook.DeliveryService.EventConsumer.csproj",
+      "env": {
+        "OTEL_DOTNET_EXPERIMENTAL_OTLP_EMIT_EXCEPTION_LOG_ATTRIBUTES": "true",
+        "OTEL_DOTNET_EXPERIMENTAL_OTLP_EMIT_EVENT_LOG_ATTRIBUTES": "true",
+        "OTEL_DOTNET_EXPERIMENTAL_OTLP_RETRY": "in_memory",
+        "ASPNETCORE_FORWARDEDHEADERS_ENABLED": "true",
+        "HTTP_PORTS": "{WebHook-DeliveryService-EventConsumer.bindings.http.targetPort}",
+        "services__WebHook-DeliveryService__http__0": "{WebHook-DeliveryService.bindings.http.url}",
+        "services__WebHook-DeliveryService__https__0": "{WebHook-DeliveryService.bindings.https.url}"
+      },
+      "bindings": {
+        "http": {
+          "scheme": "http",
+          "protocol": "tcp",
+          "transport": "http"
+        },
+        "https": {
+          "scheme": "https",
+          "protocol": "tcp",
+          "transport": "http"
+        }
+      }
+    },
+    "redis-password": {
+      "type": "parameter.v0",
+      "value": "{redis-password.inputs.value}",
+      "inputs": {
+        "value": {
+          "type": "string",
+          "secret": true,
+          "default": {
+            "generate": {
+              "minLength": 22,
+              "special": false
+            }
+          }
+        }
+      }
+    },
+    "mongodb-password": {
+      "type": "parameter.v0",
+      "value": "{mongodb-password.inputs.value}",
+      "inputs": {
+        "value": {
+          "type": "string",
+          "secret": true,
+          "default": {
+            "generate": {
+              "minLength": 22,
+              "special": false
+            }
+          }
+        }
+      }
+    },
+    "postgresql-password": {
+      "type": "parameter.v0",
+      "value": "{postgresql-password.inputs.value}",
+      "inputs": {
+        "value": {
+          "type": "string",
+          "secret": true,
+          "default": {
+            "generate": {
+              "minLength": 22
+            }
+          }
+        }
+      }
+    }
+  }
+}
