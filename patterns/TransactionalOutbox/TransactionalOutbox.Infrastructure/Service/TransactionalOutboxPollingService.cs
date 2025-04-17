@@ -10,27 +10,27 @@ using TransactionalOutbox.Publisher.Polling;
 
 namespace TransactionalOutbox.Infrastructure.Service;
 
-internal class TransactionalOutboxService : BackgroundService
+internal class TransactionalOutboxPollingService : BackgroundService
 {
     private readonly IEventPublisher eventPublisher;
     private readonly IServiceScopeFactory serviceScopeFactory;
     private readonly ILogger<PollingPublisher> publisherLogger;
-    private readonly ILogger<TransactionalOutboxService> logger;
+    private readonly ILogger<TransactionalOutboxPollingService> logger;
 
     private static readonly Assembly eventAssembly = typeof(AccountOpenedIntegrationEvent).Assembly; 
 
-    public TransactionalOutboxService(IEventPublisher eventPublisher, IServiceScopeFactory serviceScopeFactory, ILoggerFactory loggerFactory)
+    public TransactionalOutboxPollingService(IEventPublisher eventPublisher, IServiceScopeFactory serviceScopeFactory, ILoggerFactory loggerFactory)
     {
         this.eventPublisher = eventPublisher;
         this.serviceScopeFactory = serviceScopeFactory; 
         this.publisherLogger = loggerFactory.CreateLogger<PollingPublisher>();
-        this.logger = loggerFactory.CreateLogger<TransactionalOutboxService>();
+        this.logger = loggerFactory.CreateLogger<TransactionalOutboxPollingService>();
     }
 
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        logger.LogInformation("Starting TransactionOutboxService...");
+        logger.LogInformation("Starting TransactionOutbox polling service...");
 
         using IServiceScope scope = serviceScopeFactory.CreateScope();
         var dbContext = scope.ServiceProvider.GetRequiredService<OutboxDbContext>();

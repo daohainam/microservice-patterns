@@ -34,14 +34,14 @@ public static class ApplicationServiceExtensions
             builder.Services.AddTransient<IEventPublisher, NullEventPublisher>();
         }
 
-        var debeziumConnectionString = builder.Configuration.GetConnectionString("debezium");
-        if (debeziumConnectionString != null)
-        {
-            builder.Services.AddHttpClient("debezium", client =>
-            {
-                client.BaseAddress = new Uri(debeziumConnectionString);
-            });
-        }
+        //var debeziumConnectionString = builder.Configuration.GetConnectionString("debezium");
+        //if (debeziumConnectionString != null)
+        //{
+        //    builder.Services.AddHttpClient("debezium", client =>
+        //    {
+        //        client.BaseAddress = new Uri(debeziumConnectionString);
+        //    });
+        //}
 
         return builder;
     }

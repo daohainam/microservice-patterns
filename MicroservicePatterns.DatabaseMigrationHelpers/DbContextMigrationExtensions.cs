@@ -9,7 +9,7 @@ namespace MicroservicePatterns.DatabaseMigrationHelpers;
 
 public static class DbContextMigrationExtensions
 {
-    public static async Task<IHost> MigrateDbContextAsync<TContext>(this IHost host, CancellationToken cancellationToken = default) where TContext : DbContext
+    public static async Task<IHost> MigrateDbContextAsync<TContext>(this IHost host, Func<DatabaseFacade, CancellationToken?, Task>? postMigration = null, CancellationToken cancellationToken = default) where TContext : DbContext
     {
         using var scope = host.Services.CreateScope();
         var services = scope.ServiceProvider;
@@ -38,6 +38,19 @@ public static class DbContextMigrationExtensions
                     await context.Database.MigrateAsync(cancellationToken);
                 });
                 logger.LogInformation("Migrated database associated with context {DbContextName}", typeof(TContext).Name);
+
+                if (postMigration != null)
+                {
+                    try
+                    {
+                        logger.LogInformation("Invoking postMigration function...");
+
+                        await postMigration.Invoke(context.Database, cancellationToken);
+                    }
+                    catch (Exception ex) {
+                        logger.LogError(ex, "Error invoking postMigration");
+                    }
+                }
             }
             catch (Exception ex)
             {

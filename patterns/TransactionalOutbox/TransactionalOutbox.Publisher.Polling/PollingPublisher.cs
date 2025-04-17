@@ -39,6 +39,8 @@ public class PollingPublisher
                         await repository.MarkAsFailedAsync(message, false); // mark as failed without retry
                         continue;
                     }
+
+                    logger.LogInformation("Publish event from Polling publisher: {m}", message.Payload);
                     await eventPublisher.PublishAsync(@event);
                     await repository.MarkAsProcessedAsync(message);
                     await repository.SaveChangesAsync();
@@ -52,9 +54,8 @@ public class PollingPublisher
                 }
             }
 
-            if (!cancellationToken.IsCancellationRequested) {
-                await Task.Delay(1000, cancellationToken);
-            }
+            if (!messages.Any() && !cancellationToken.IsCancellationRequested)
+                await Task.Delay(5000, cancellationToken);
         }
     }
     private IntegrationEvent? RebuildEvent(PollingOutboxMessage message)

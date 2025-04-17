@@ -13,6 +13,7 @@ public static class ExternalServiceRegistrationExtentions
         var kafka = builder.AddKafka("kafka");
         var mongoDb = builder.AddMongoDB("mongodb");
         var postgres = builder.AddPostgres("postgresql");
+        //var debezium = builder.AddDebezium();
 
         if (!builder.Configuration.GetValue("IsTest", false))
         {
@@ -207,7 +208,9 @@ public static class ExternalServiceRegistrationExtentions
             .WithEnvironment(Consts.Env_EventPublishingTopics, GetTopicName<Projects.TransactionalOutbox_Banking_AccountService>())
             .WithReference(kafka)
             .WithReference(outboxAccountDb, Consts.DefaultDatabase)
+            //.WithReference(debezium)
             .WaitFor(outboxAccountDb)
+            //.WaitFor(debezium)
             .WaitFor(kafka);
 
         var outboxConsumingService = builder.AddProjectWithPostfix<Projects.TransactionalOutbox_MessageConsumingService>()

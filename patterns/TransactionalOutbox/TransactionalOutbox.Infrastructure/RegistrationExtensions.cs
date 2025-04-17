@@ -1,18 +1,19 @@
 ﻿using MicroservicePatterns.DatabaseMigrationHelpers;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Reflection;
 using TransactionalOutbox.Infrastructure.Data;
 using TransactionalOutbox.Infrastructure.Service;
+using TransactionalOutbox.IntegrationEvents;
 
 namespace TransactionalOutbox.Infrastructure;
 public static class RegistrationExtensions
 {
+    private static readonly Assembly eventAssembly = typeof(AccountOpenedIntegrationEvent).Assembly;
+
     public static void AddTransactionalOutbox(this IHostApplicationBuilder builder, string connectionStringName)
     {
         builder.AddNpgsqlDbContext<OutboxDbContext>(connectionStringName,
@@ -21,11 +22,17 @@ public static class RegistrationExtensions
             }
             );
 
-        builder.Services.AddHostedService<TransactionalOutboxService>();
+        builder.Services.AddHostedService<TransactionalOutboxPollingService>();
+        builder.Services.AddSingleton(new TransactionalOutboxLogTailingServiceOptions() { 
+            PayloadTypeRsolver = (type) => eventAssembly.GetType(type) ?? throw new Exception($"Could not get type {type}"),
+            ConnectionString = builder.Configuration.GetConnectionString(connectionStringName) ?? throw new Exception($"Connection string {connectionStringName} not found")
+        });
+        builder.Services.AddHostedService<TransactionalOutboxLogTailingService>();
     }
 
-    public static Task MigrateOutboxDbContextAsync(this IHost host)
+    public static Task MigrateOutboxDbContextAsync(this IHost host, Func<DatabaseFacade, CancellationToken?, Task>? postMigration = null, CancellationToken cancellationToken = default)
     {
-        return host.MigrateDbContextAsync<OutboxDbContext>();
+        return host.MigrateDbContextAsync<OutboxDbContext>(postMigration: postMigration,
+            cancellationToken: cancellationToken);
     }
 }
