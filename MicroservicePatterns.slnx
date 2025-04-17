@@ -37,7 +37,6 @@
     <Project Path="patterns/TransactionalOutbox/TransactionalOutbox.Infrastructure/TransactionalOutbox.Infrastructure.csproj" Id="61cade5a-7d9c-4b14-84e4-810c47739df4" />
     <Project Path="patterns/TransactionalOutbox/TransactionalOutbox.IntegrationEvents/TransactionalOutbox.IntegrationEvents.csproj" Id="cbb658c0-12eb-4bab-8729-0d3da867db29" />
     <Project Path="patterns/TransactionalOutbox/TransactionalOutbox.MessageConsumingService/TransactionalOutbox.MessageConsumingService.csproj" />
-    <Project Path="patterns/TransactionalOutbox/TransactionalOutbox.Publisher.Debezium/TransactionalOutbox.Publisher.Debezium.csproj" Id="cd898e04-3693-4e33-bb19-b800a3f7b5be" />
     <Project Path="patterns/TransactionalOutbox/TransactionalOutbox.Publisher.Polling/TransactionalOutbox.Publisher.Polling.csproj" />
   </Folder>
   <Folder Name="/patterns/WebHook-CloudEvents/" Id="2bc28142-ff86-4b72-a127-793bf8ee055d">
