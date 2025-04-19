@@ -2,6 +2,7 @@
 using EventSourcing.Infrastructure.Postgresql;
 using MicroservicePatterns.DatabaseMigrationHelpers;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -38,9 +39,9 @@ public static class RegistrationExtensions
         return builder;
     }
 
-    public static Task<IHost> MigrateEventStoreDatabaseAsync(this IHost app)
+    public static Task<IHost> MigrateEventStoreDatabaseAsync(this IHost app, Func<DatabaseFacade, CancellationToken?, Task>? postMigration = null)
     {
-        return app.MigrateDbContextAsync<EventStoreDbContext>();
+        return app.MigrateDbContextAsync<EventStoreDbContext>(postMigration: postMigration);
     }
 
 }

@@ -21,7 +21,6 @@ internal class TransactionalOutboxLogTailingService : BackgroundService
     private readonly TransactionalOutboxLogTailingServiceOptions options;
     private readonly IEventPublisher eventPublisher;
     private readonly IServiceScopeFactory serviceScopeFactory;
-    private readonly ILogger<PollingPublisher> publisherLogger;
     private readonly ILogger<TransactionalOutboxLogTailingService> logger;
 
     private static readonly Assembly eventAssembly = typeof(AccountOpenedIntegrationEvent).Assembly; 
@@ -31,7 +30,6 @@ internal class TransactionalOutboxLogTailingService : BackgroundService
         this.options = options;
         this.eventPublisher = eventPublisher;
         this.serviceScopeFactory = serviceScopeFactory; 
-        this.publisherLogger = loggerFactory.CreateLogger<PollingPublisher>();
         this.logger = loggerFactory.CreateLogger<TransactionalOutboxLogTailingService>();
     }
 

@@ -199,6 +199,12 @@ public static class ExternalServiceRegistrationExtentions
             .WithReference(esAccountDb, Consts.DefaultDatabase)
             .WaitFor(esAccountDb);
 
+        var esNotificationService = builder.AddProjectWithPostfix<Projects.EventSourcing_NotificationService>()
+            .WithReference(esAccountDb, connectionName: "EventSourcingDb")
+            .WaitFor(esAccountkService);
+
+        esNotificationService.WithParentRelationship(esAccountkService);
+
         #endregion
 
         #region Transactional Outbox Account

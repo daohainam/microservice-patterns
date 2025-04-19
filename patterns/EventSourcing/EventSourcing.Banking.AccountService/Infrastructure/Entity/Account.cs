@@ -30,7 +30,7 @@ public class Account: Aggregate
             Version = 0
         };
 
-        var evt = new AccountOpenedEvent(id, accountNumber, currency, initialBalance, creditLimit);
+        var evt = new AccountOpenedEvent(id, accountNumber, currency, initialBalance, creditLimit, account.CreatedAtUtc);
         account.Apply(evt);
         account._changes.Add(evt);
 
@@ -44,14 +44,14 @@ public class Account: Aggregate
             throw new InvalidOperationException("Account is closed");
         }
      
-        var evt = new MoneyDepositedEvent(Id, amount);
+        var evt = new MoneyDepositedEvent(Id, amount, DateTime.UtcNow);
         Apply(evt);
         _changes.Add(evt);
     }
 
     public void Withdraw(decimal amount)
     {
-        var evt = new MoneyWithdrawnEvent(Id, amount);
+        var evt = new MoneyWithdrawnEvent(Id, amount, DateTime.UtcNow);
         Apply(evt);
         _changes.Add(evt);
     }
@@ -73,7 +73,7 @@ public class Account: Aggregate
         {
             throw new InvalidOperationException("Account is closed");
         }
-        var evt = new CreditLimitAssignedEvent(Id, creditLimit);
+        var evt = new CreditLimitAssignedEvent(Id, creditLimit, DateTime.UtcNow);
         Apply(evt);
         _changes.Add(evt);
     }
@@ -85,8 +85,8 @@ public class Account: Aggregate
         AccountNumber = evt.AccountNumber;
         Currency = evt.Currency;
         Balance = evt.InitialBalance;
-        CreatedAtUtc = evt.TimeStamp;
-        BalanceChangedAtUtc = evt.TimeStamp;
+        CreatedAtUtc = evt.TimestampUtc;
+        BalanceChangedAtUtc = evt.TimestampUtc;
         CreditLimit = evt.CreditLimit;
         IsClosed = false;
     }
@@ -103,7 +103,7 @@ public class Account: Aggregate
             Id = evt.EventId,
             AccountId = Id,
             Amount = evt.Amount,
-            TimeStamp = evt.TimeStamp
+            TimeStamp = evt.TimestampUtc
         });
 
         if (CurrentCredit > 0)
@@ -118,7 +118,7 @@ public class Account: Aggregate
             Balance += evt.Amount;
         }
 
-        BalanceChangedAtUtc = evt.TimeStamp;
+        BalanceChangedAtUtc = evt.TimestampUtc;
     }
 
     public void Apply(MoneyWithdrawnEvent evt)
@@ -143,7 +143,7 @@ public class Account: Aggregate
             Id = evt.EventId,
             AccountId = Id,
             Amount = -evt.Amount,
-            TimeStamp = evt.TimeStamp
+            TimeStamp = evt.TimestampUtc
         });
 
         if (Balance >= evt.Amount)
@@ -162,7 +162,7 @@ public class Account: Aggregate
             Balance = 0;
         }
 
-        BalanceChangedAtUtc = evt.TimeStamp;
+        BalanceChangedAtUtc = evt.TimestampUtc;
     }
 
     public void Apply(AccountClosedEvent evt)

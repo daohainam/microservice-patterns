@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk.Worker">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UserSecretsId>dotnet-EventSourcing.NotificationService-66bec825-73fa-42f5-b359-48d1a638ec81</UserSecretsId>
+  </PropertyGroup>
+
+  <ItemGroup>
+	  <PackageReference Include="Aspire.Npgsql.EntityFrameworkCore.PostgreSQL" Version="9.2.0" />
+	  <PackageReference Include="Microsoft.Extensions.Hosting" Version="9.0.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\MicroservicePatterns.ServiceDefaults\MicroservicePatterns.ServiceDefaults.csproj" />
+    <ProjectReference Include="..\EventSourcing.Infrastructure\EventSourcing.Infrastructure.csproj" />
+  </ItemGroup>
+</Project>

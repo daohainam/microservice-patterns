@@ -27,6 +27,7 @@
     <ProjectReference Include="..\patterns\CQRS\CQRS.Library.BorrowerService\CQRS.Library.BorrowerService.csproj" />
     <ProjectReference Include="..\patterns\CQRS\CQRS.Library.BorrowingService\CQRS.Library.BorrowingService.csproj" />
     <ProjectReference Include="..\patterns\CQRS\CQRS.Library.BorrowingHistoryService\CQRS.Library.BorrowingHistoryService.csproj" />
+    <ProjectReference Include="..\patterns\EventSourcing\EventSourcing.NotificationService\EventSourcing.NotificationService.csproj" />
     <ProjectReference Include="..\patterns\IdempotentConsumer\IdempotentConsumer.CatalogService\IdempotentConsumer.CatalogService.csproj" />
     <ProjectReference Include="..\patterns\Saga\Saga.OnlineStore.CatalogService\Saga.OnlineStore.CatalogService.csproj" />
     <ProjectReference Include="..\patterns\Saga\Saga.OnlineStore.InventoryService\Saga.OnlineStore.InventoryService.csproj" />
