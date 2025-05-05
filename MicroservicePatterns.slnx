@@ -16,6 +16,10 @@
   <Folder Name="/patterns/IdempotentConsumer/" Id="b10270f0-be94-41a4-8e3e-19b8524c3336">
     <Project Path="patterns/IdempotentConsumer/IdempotentConsumer.CatalogService/IdempotentConsumer.CatalogService.csproj" />
   </Folder>
+  <Folder Name="/patterns/ResiliencePatterns/" Id="908b7541-86aa-492a-857c-371bdbc0fff5">
+    <Project Path="patterns/ResiliencePatterns/ResiliencePatterns.Core/ResiliencePatterns.Core.csproj" Id="aa719a9d-8ba4-412c-b94b-4c321330e6ce" />
+    <Project Path="patterns/ResiliencePatterns/ResiliencePatterns.Strategies/ResiliencePatterns.Strategies.csproj" Id="d365ff50-932b-4a9e-93ec-b99c6dc62ae0" />
+  </Folder>
   <Folder Name="/patterns/Saga/" Id="7eb114b8-8cc5-0196-4da3-6758e6eb9091" />
   <Folder Name="/patterns/Saga/Choreography/" Id="efda0b0a-0b94-9563-bd88-ab45d73d032b">
     <Project Path="patterns/Saga/Saga.OnlineStore.CatalogService/Saga.OnlineStore.CatalogService.csproj" />
