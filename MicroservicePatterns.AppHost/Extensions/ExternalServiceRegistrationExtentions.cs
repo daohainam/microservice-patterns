@@ -217,7 +217,30 @@ public static class ExternalServiceRegistrationExtentions
             //.WithReference(debezium)
             .WaitFor(outboxAccountDb)
             //.WaitFor(debezium)
-            .WaitFor(kafka);
+            .WaitFor(kafka)
+            .WithHttpCommand(
+        path: "/api/outbox/v1/accounts",
+        displayName: "Register new account",
+        commandOptions: new HttpCommandOptions()
+        {
+            Description = """            
+                Register a new account.            
+                """,
+            PrepareRequest = (context) =>
+            {
+                context.Request.Content = JsonContent.Create(new
+                {
+                    Id = "00000000-0000-0000-0000-000000000000",
+                    AccountNumber = "1234567890",
+                    Currency = "USD",
+                    Balance = 0,
+                    CreditLimit = 0
+                });
+                return Task.CompletedTask;
+            },
+            IconName = "Send",
+            IsHighlighted = true
+        });
 
         var outboxConsumingService = builder.AddProjectWithPostfix<Projects.TransactionalOutbox_MessageConsumingService>()
             .WithReference(kafka)
