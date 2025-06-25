@@ -1,11 +1,9 @@
-﻿using CQRS.Library.BorrowingHistoryService.Infrastructure.Data;
-
-namespace CQRS.Library.BorrowingHistoryService.EventHandlers;
+﻿namespace CQRS.Library.BorrowingHistoryService.EventHandlers;
 public class BookBorrowingIntegrationEventHandler(BorrowingHistoryDbContext dbContext, ILogger<BookBorrowingIntegrationEventHandler> logger) :
-    IRequestHandler<BookBorrowedIntegrationEvent>,
-    IRequestHandler<BookReturnedIntegrationEvent>
+    INotificationHandler<BookBorrowedIntegrationEvent>,
+    INotificationHandler<BookReturnedIntegrationEvent>
 {
-    public async Task Handle(BookBorrowedIntegrationEvent request, CancellationToken cancellationToken)
+    public async ValueTask Handle(BookBorrowedIntegrationEvent request, CancellationToken cancellationToken)
     {
         logger.LogInformation("Handling book borrowed event: {bookId}", request.BookId);
 
@@ -32,7 +30,7 @@ public class BookBorrowingIntegrationEventHandler(BorrowingHistoryDbContext dbCo
         await dbContext.SaveChangesAsync(cancellationToken);
     }
 
-    public async Task Handle(BookReturnedIntegrationEvent request, CancellationToken cancellationToken)
+    public async ValueTask Handle(BookReturnedIntegrationEvent request, CancellationToken cancellationToken)
     {
         logger.LogInformation("Handling borrowing updated event: {id}", request.BorrowingId);
 

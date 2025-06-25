@@ -8,6 +8,6 @@ global using Saga.TripPlanner.PaymentService.Infrastructure.Data;
 global using Saga.TripPlanner.PaymentService.Infrastructure.Entity;
 global using EventBus.Abstractions;
 global using Saga.TripPlanner.IntegrationEvents;
-global using MediatR;
+global using Mediator;
 global using EventBus;
 global using MicroservicePatterns.Shared;

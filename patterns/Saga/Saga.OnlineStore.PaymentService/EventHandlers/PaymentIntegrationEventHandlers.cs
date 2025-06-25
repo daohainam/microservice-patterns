@@ -2,9 +2,9 @@
 public class PaymentIntegrationEventHandlers(PaymentDbContext dbContext,
     IEventPublisher eventPublisher,
     ILogger<PaymentIntegrationEventHandlers> logger) :
-    IRequestHandler<OrderItemsReservedIntegrationEvent>
+    INotificationHandler<OrderItemsReservedIntegrationEvent>
 {
-    public async Task Handle(OrderItemsReservedIntegrationEvent request, CancellationToken cancellationToken)
+    public async ValueTask Handle(OrderItemsReservedIntegrationEvent request, CancellationToken cancellationToken)
     {
         // this event is sent by Payment service when it approves payment for an order
         logger.LogInformation("Handling order items reserved event: {id}", request.OrderId);
