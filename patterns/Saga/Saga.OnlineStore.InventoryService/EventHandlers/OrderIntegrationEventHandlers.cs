@@ -2,8 +2,8 @@
 public class OrderIntegrationEventHandlers(InventoryDbContext dbContext,
     IEventPublisher eventPublisher,
     ILogger<ProductIntegrationEventHandlers> logger) :
-    IRequestHandler<OrderPlacedIntegrationEvent>,
-    IRequestHandler<OrderPaymentRejectedIntegrationEvent>
+    INotificationHandler<OrderPlacedIntegrationEvent>,
+    INotificationHandler<OrderPaymentRejectedIntegrationEvent>
 {
     public async Task Handle(OrderPlacedIntegrationEvent request, CancellationToken cancellationToken)
     {

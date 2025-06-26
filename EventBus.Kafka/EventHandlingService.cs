@@ -77,7 +77,7 @@ public class EventHandlingService : BackgroundService
                 logger.LogInformation("Processing message {t}: {message}", message.MessageTypeName, message.Message);
 
                 // here we must use a scope to resolve the mediator since a background service is registered as a singleton service
-                await mediator.Send(@event, cancellationToken);
+                await mediator.Publish(@event, cancellationToken);
             }
             else
             {

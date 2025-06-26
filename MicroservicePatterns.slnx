@@ -1,13 +1,13 @@
 <Solution>
   <Folder Name="/patterns/" />
-  <Folder Name="/patterns/CQRS/" Id="c459ff3a-68c2-ad78-baef-e0e01c7bab60">
+  <Folder Name="/patterns/CQRS/">
     <Project Path="patterns/CQRS/CQRS.Library.BookService/CQRS.Library.BookService.csproj" />
     <Project Path="patterns/CQRS/CQRS.Library.BorrowerService/CQRS.Library.BorrowerService.csproj" />
     <Project Path="patterns/CQRS/CQRS.Library.BorrowingHistoryService/CQRS.Library.BorrowingHistoryService.csproj" />
     <Project Path="patterns/CQRS/CQRS.Library.BorrowingService/CQRS.Library.BorrowingService.csproj" />
     <Project Path="patterns/CQRS/CQRS.Library.IntegrationEvents/CQRS.Library.IntegrationEvents.csproj" />
   </Folder>
-  <Folder Name="/patterns/EventSourcing/" Id="982c6223-ba77-ddab-c7a8-4452830e8aa7">
+  <Folder Name="/patterns/EventSourcing/">
     <Project Path="patterns/EventSourcing/EventSourcing.Banking.AccountService/EventSourcing.Banking.AccountService.csproj" />
     <Project Path="patterns/EventSourcing/EventSourcing.Infrastructure/EventSourcing.Infrastructure.csproj" />
     <Project Path="patterns/EventSourcing/EventSourcing.NotificationService/EventSourcing.NotificationService.csproj" />
@@ -20,15 +20,15 @@
     <Project Path="patterns/ResiliencePatterns/ResiliencePatterns.Core/ResiliencePatterns.Core.csproj" Id="aa719a9d-8ba4-412c-b94b-4c321330e6ce" />
     <Project Path="patterns/ResiliencePatterns/ResiliencePatterns.Strategies/ResiliencePatterns.Strategies.csproj" Id="d365ff50-932b-4a9e-93ec-b99c6dc62ae0" />
   </Folder>
-  <Folder Name="/patterns/Saga/" Id="7eb114b8-8cc5-0196-4da3-6758e6eb9091" />
-  <Folder Name="/patterns/Saga/Choreography/" Id="efda0b0a-0b94-9563-bd88-ab45d73d032b">
+  <Folder Name="/patterns/Saga/" />
+  <Folder Name="/patterns/Saga/Choreography/">
     <Project Path="patterns/Saga/Saga.OnlineStore.CatalogService/Saga.OnlineStore.CatalogService.csproj" />
     <Project Path="patterns/Saga/Saga.OnlineStore.IntegrationEvents/Saga.OnlineStore.IntegrationEvents.csproj" />
     <Project Path="patterns/Saga/Saga.OnlineStore.InventoryService/Saga.OnlineStore.InventoryService.csproj" />
     <Project Path="patterns/Saga/Saga.OnlineStore.OrderService/Saga.OnlineStore.OrderService.csproj" />
     <Project Path="patterns/Saga/Saga.OnlineStore.PaymentService/Saga.OnlineStore.PaymentService.csproj" />
   </Folder>
-  <Folder Name="/patterns/Saga/Orchestration/" Id="99e7bd80-9ab2-383f-d9d6-e45baaddd28b">
+  <Folder Name="/patterns/Saga/Orchestration/">
     <Project Path="patterns/Saga/Saga.TripPlanner.HotelService/Saga.TripPlanner.HotelService.csproj" />
     <Project Path="patterns/Saga/Saga.TripPlanner.IntegrationEvents/Saga.TripPlanner.IntegrationEvents.csproj" />
     <Project Path="patterns/Saga/Saga.TripPlanner.PaymentService/Saga.TripPlanner.PaymentService.csproj" />
@@ -57,6 +57,7 @@
   </Folder>
   <Project Path="EventBus.Kafka/EventBus.Kafka.csproj" />
   <Project Path="EventBus/EventBus.csproj" />
+  <Project Path="Mediator/Mediator.csproj" Id="1c90d9cb-60e0-481b-9765-e084f53828c0" />
   <Project Path="MicroservicePatterns.AppHost/MicroservicePatterns.AppHost.csproj" />
   <Project Path="MicroservicePatterns.DatabaseMigrationHelpers/MicroservicePatterns.DatabaseMigrationHelpers.csproj" />
   <Project Path="MicroservicePatterns.ServiceDefaults/MicroservicePatterns.ServiceDefaults.csproj" />

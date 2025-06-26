@@ -2,9 +2,9 @@
 public class OrderIntegrationEventHandlers(OrderDbContext dbContext,
     IEventPublisher eventPublisher,
     ILogger<OrderIntegrationEventHandlers> logger) :
-    IRequestHandler<OrderItemsReservationFailedIntegrationEvent>,
-    IRequestHandler<OrderPaymentApprovedIntegrationEvent>,
-    IRequestHandler<OrderPaymentRejectedIntegrationEvent>
+    INotificationHandler<OrderItemsReservationFailedIntegrationEvent>,
+    INotificationHandler<OrderPaymentApprovedIntegrationEvent>,
+    INotificationHandler<OrderPaymentRejectedIntegrationEvent>
 {
     public async Task Handle(OrderItemsReservationFailedIntegrationEvent request, CancellationToken cancellationToken)
     {

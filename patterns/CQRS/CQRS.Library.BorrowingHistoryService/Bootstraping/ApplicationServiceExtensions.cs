@@ -8,8 +8,8 @@ public static class ApplicationServiceExtensions
         builder.AddServiceDefaults();
         builder.Services.AddOpenApi();
         builder.AddNpgsqlDbContext<BorrowingHistoryDbContext>(Consts.DefaultDatabase);
-        builder.Services.AddMediatR(cfg => {
-            cfg.RegisterServicesFromAssembly(typeof(Program).Assembly);
+        builder.Services.AddMediator(cfg => {
+            cfg.ServiceAssemblies.Add(typeof(Program).Assembly);
         });
 
         var eventConsumingTopics = builder.Configuration.GetValue<string>(Consts.Env_EventConsumingTopics);

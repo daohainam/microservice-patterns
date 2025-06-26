@@ -5,7 +5,7 @@ global using CQRS.Library.BorrowingHistoryService.Infrastructure.Entity;
 global using CQRS.Library.IntegrationEvents;
 global using EventBus;
 global using EventBus.Kafka;
-global using MediatR;
+global using Mediator;
 global using MicroservicePatterns.DatabaseMigrationHelpers;
 global using MicroservicePatterns.Shared.Pagination;
 global using Microsoft.AspNetCore.Http.HttpResults;

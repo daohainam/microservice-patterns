@@ -11,8 +11,8 @@ public static class ApplicationServiceExtensions
         builder.Services.AddOpenApi();
         builder.AddNpgsqlDbContext<OrderDbContext>(Consts.DefaultDatabase);
 
-        builder.Services.AddMediatR(cfg => {
-            cfg.RegisterServicesFromAssembly(typeof(Program).Assembly);
+        builder.Services.AddMediator(cfg => {
+            cfg.ServiceAssemblies.Add(typeof(Program).Assembly);
         });
 
         builder.AddKafkaProducer("kafka");

@@ -1,6 +1,6 @@
 ﻿namespace Saga.OnlineStore.InventoryService.EventHandlers;
 public class ProductIntegrationEventHandlers(InventoryDbContext dbContext, ILogger<ProductIntegrationEventHandlers> logger) :
-    IRequestHandler<ProductCreatedIntegrationEvent>
+    INotificationHandler<ProductCreatedIntegrationEvent>
 {
     public async Task Handle(ProductCreatedIntegrationEvent request, CancellationToken cancellationToken)
     {

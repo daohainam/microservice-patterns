@@ -2,7 +2,7 @@
 public class PaymentIntegrationEventHandlers(PaymentDbContext dbContext,
     IEventPublisher eventPublisher,
     ILogger<PaymentIntegrationEventHandlers> logger) :
-    IRequestHandler<OrderItemsReservedIntegrationEvent>
+    INotificationHandler<OrderItemsReservedIntegrationEvent>
 {
     public async Task Handle(OrderItemsReservedIntegrationEvent request, CancellationToken cancellationToken)
     {

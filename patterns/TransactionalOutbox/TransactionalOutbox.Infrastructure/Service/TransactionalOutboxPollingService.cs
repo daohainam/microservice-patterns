@@ -1,5 +1,5 @@
 ﻿using EventBus.Abstractions;
-using MediatR;
+using Mediator;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
