@@ -7,7 +7,8 @@ public static class ApplicationServiceExtensions
         builder.Services.AddOpenApi();
         builder.AddNpgsqlDbContext<PaymentDbContext>(Consts.DefaultDatabase);
 
-        builder.Services.AddMediator(options => { 
+        builder.Services.AddMediatR(cfg => {
+            cfg.RegisterServicesFromAssembly(typeof(Program).Assembly);
         });
 
         return builder;

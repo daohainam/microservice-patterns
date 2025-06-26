@@ -7,7 +7,9 @@ public static class ApplicationServiceExtensions
         builder.Services.AddOpenApi();
         builder.AddNpgsqlDbContext<InventoryDbContext>(Consts.DefaultDatabase);
 
-        builder.Services.AddMediator();
+        builder.Services.AddMediatR(cfg => {
+            cfg.RegisterServicesFromAssembly(typeof(Program).Assembly);
+        });
 
         builder.AddKafkaProducer("kafka");
         var kafkaTopic = builder.Configuration.GetValue<string>(Consts.Env_EventPublishingTopics);

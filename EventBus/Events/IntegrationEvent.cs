@@ -1,7 +1,7 @@
-﻿using Mediator;
+﻿using MediatR;
 
 namespace EventBus.Events;
-public class IntegrationEvent: INotification
+public class IntegrationEvent: IRequest
 {
     public Guid EventId { get; private set; }
     public DateTime EventCreationDate { get; private set; }

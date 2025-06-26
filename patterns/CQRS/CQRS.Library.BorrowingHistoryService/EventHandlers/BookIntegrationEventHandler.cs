@@ -2,10 +2,10 @@
 
 namespace CQRS.Library.BorrowingHistoryService.EventHandlers;
 public class BookIntegrationEventHandler(BorrowingHistoryDbContext dbContext, ILogger<BookIntegrationEventHandler> logger) :
-    INotificationHandler<BookCreatedIntegrationEvent>,
-    INotificationHandler<BookUpdatedIntegrationEvent>
+    IRequestHandler<BookCreatedIntegrationEvent>,
+    IRequestHandler<BookUpdatedIntegrationEvent>
 {
-    public async ValueTask Handle(BookCreatedIntegrationEvent request, CancellationToken cancellationToken)
+    public async Task Handle(BookCreatedIntegrationEvent request, CancellationToken cancellationToken)
     {
         logger.LogInformation("Handling book created event: {bookId}", request.BookId);
         dbContext.Books.Add(new Book
@@ -17,7 +17,7 @@ public class BookIntegrationEventHandler(BorrowingHistoryDbContext dbContext, IL
         await dbContext.SaveChangesAsync(cancellationToken);
     }
 
-    public async ValueTask Handle(BookUpdatedIntegrationEvent request, CancellationToken cancellationToken)
+    public async Task Handle(BookUpdatedIntegrationEvent request, CancellationToken cancellationToken)
     {
         logger.LogInformation("Handling book updated event: {bookId}", request.BookId);
         await dbContext.Books.Where(x => x.Id == request.BookId).ExecuteUpdateAsync(setters => setters.SetProperty(b => b.Title, request.Title).SetProperty(b => b.Author, request.Author), cancellationToken: cancellationToken);

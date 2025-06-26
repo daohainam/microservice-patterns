@@ -1,5 +1,4 @@
 ﻿using EventBus.Events;
-using Mediator;
 
 namespace EventBus.Kafka;
 public class EventHandlingService : BackgroundService

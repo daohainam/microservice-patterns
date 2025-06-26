@@ -2,10 +2,10 @@
 public class OrderIntegrationEventHandlers(InventoryDbContext dbContext,
     IEventPublisher eventPublisher,
     ILogger<ProductIntegrationEventHandlers> logger) :
-    INotificationHandler<OrderPlacedIntegrationEvent>,
-    INotificationHandler<OrderPaymentRejectedIntegrationEvent>
+    IRequestHandler<OrderPlacedIntegrationEvent>,
+    IRequestHandler<OrderPaymentRejectedIntegrationEvent>
 {
-    public async ValueTask Handle(OrderPlacedIntegrationEvent request, CancellationToken cancellationToken)
+    public async Task Handle(OrderPlacedIntegrationEvent request, CancellationToken cancellationToken)
     {
         logger.LogInformation("Handling order created event: {id}", request.OrderId);
 
@@ -68,7 +68,7 @@ public class OrderIntegrationEventHandlers(InventoryDbContext dbContext,
             });
         }
     }
-    public async ValueTask Handle(OrderPaymentRejectedIntegrationEvent request, CancellationToken cancellationToken)
+    public async Task Handle(OrderPaymentRejectedIntegrationEvent request, CancellationToken cancellationToken)
     {
         logger.LogInformation("Handling order rejected event: {id}", request.OrderId);
 
