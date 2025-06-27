@@ -27,8 +27,7 @@ internal class Mediator(MediatorRegistrationContainer container, IServiceProvide
                 {
                     try
                     {
-                        var task = (Task)handleMethod.Invoke(handler, [notification, cancellationToken]);
-                        if (task != null)
+                        if (handleMethod.Invoke(handler, [notification, cancellationToken]) is Task task)
                         {
                             await task;
                         }

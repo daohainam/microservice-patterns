@@ -9,8 +9,6 @@ public static class RegistrationExtensions
         var options = new MediatorRegistrationOptions();
         action?.Invoke(options);
 
-        // services.AddTransient(typeof(INotificationHandler<>), typeof(NotificationHandler<>));
-
         var container = services.RegisterHandlers(options.ServiceAssemblies);
         services.AddSingleton(container);
         services.AddSingleton<IMediator, Mediator>();
