@@ -11,14 +11,16 @@ public static class RegistrationExtensions
 
         // services.AddTransient(typeof(INotificationHandler<>), typeof(NotificationHandler<>));
 
-        services.RegisterHandlers(options.ServiceAssemblies);
+        var container = services.RegisterHandlers(options.ServiceAssemblies);
+        services.AddSingleton(container);
         services.AddSingleton<IMediator, Mediator>();
 
         return services;
     }
 
-    private static void RegisterHandlers(this IServiceCollection services, IEnumerable<Assembly> serviceAssemblies)
+    private static MediatorRegistrationContainer RegisterHandlers(this IServiceCollection services, IEnumerable<Assembly> serviceAssemblies)
     {
+        var container = new MediatorRegistrationContainer();
         var assemblies = new List<Assembly>() { Assembly.GetExecutingAssembly() };
         if (serviceAssemblies != null)
         {
@@ -27,23 +29,32 @@ public static class RegistrationExtensions
 
         foreach (var assembly in assemblies)
         {
-            var notificationTypes = assembly
+            var notificationHandlerTypes = assembly
                 .GetTypes()
                 .Where(t => t.IsClass && !t.IsAbstract && t.GetInterfaces().Any(i =>
-                    i.IsGenericType/* && i.GetGenericTypeDefinition().Name == "INotification`1"*/));
+                    i.IsGenericType && i.Name == "INotificationHandler`1"));
 
-            foreach (var notificationType in notificationTypes)
+            if (notificationHandlerTypes.Any())
             {
-                var handlerInterfaces = notificationType
-                    .GetInterfaces()
-                    .Where(i => i.IsGenericType && i.GetGenericTypeDefinition().Name == "INotificationHandler`1");
-
-                foreach (var handlerInterface in handlerInterfaces)
+                foreach (var notificationHandlerType in notificationHandlerTypes)
                 {
-                    services.AddTransient(handlerInterface, notificationType);
+                    var handlerInterfaces = notificationHandlerType
+                        .GetInterfaces()
+                        .Where(i => i.IsGenericType && i.GetGenericTypeDefinition().Name == "INotificationHandler`1");
+
+                    foreach (var handlerInterface in handlerInterfaces)
+                    {
+                        if (handlerInterface.GenericTypeArguments.Length != 1)
+                            continue;
+
+                        var notificationType = handlerInterface.GenericTypeArguments[0];
+                        container.RegisterHandler(notificationType, notificationHandlerType);
+                    }
                 }
             }
         }
+
+        return container;
     }
 }
 
