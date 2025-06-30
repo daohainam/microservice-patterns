@@ -1,5 +1,6 @@
 ﻿using Aspire.Hosting;
 using MicroservicePatterns.Shared;
+using Microsoft.AspNetCore.Routing.Matching;
 using Microsoft.Extensions.Configuration;
 using System.Net.Http.Json;
 using TransactionalOutbox.Aspire.Debezium;
@@ -35,7 +36,28 @@ public static class ExternalServiceRegistrationExtentions
             .WithReference(kafka)
             .WithReference(bookDb, Consts.DefaultDatabase)
             .WaitFor(bookDb)
-            .WaitFor(kafka);
+            .WaitFor(kafka)
+            .WithHttpCommand(
+            path: "/api/cqrs/v1/books",
+            displayName: "Register a test book",
+            commandOptions: new HttpCommandOptions()
+            {
+                Description = "",
+                PrepareRequest = (context) =>
+                {
+                    context.Request.Content = JsonContent.Create(new
+                    {
+                        Id = "019557EE-978C-7CE8-9152-73637B6DC9F5",
+                        Title = "The Fellowship of the Ring",
+                        Author = "J. R. R. Tolkien",
+                    });
+                    return Task.CompletedTask;
+                },
+                GetCommandResult = GetCommandResult,
+                IconName = "BookAdd",
+                IsHighlighted = true
+            }
+        );
 
         var borrowerDb = postgres.AddDefaultDatabase<Projects.CQRS_Library_BorrowerService>();
         var borrowerService = builder.AddProjectWithPostfix<Projects.CQRS_Library_BorrowerService>()
@@ -43,7 +65,30 @@ public static class ExternalServiceRegistrationExtentions
             .WithReference(kafka)
             .WithReference(borrowerDb, Consts.DefaultDatabase)
             .WaitFor(borrowerDb)
-            .WaitFor(kafka);
+            .WaitFor(kafka)
+            .WithHttpCommand(
+                path: "/api/cqrs/v1/borrowers",
+                displayName: "Register a test book borrwer",
+                commandOptions: new HttpCommandOptions()
+                {
+                    Description = "",
+                    PrepareRequest = (context) =>
+                    {
+                        context.Request.Content = JsonContent.Create(new
+                        {
+                            Id = "019557EB-49D7-7007-BEDE-5F22B35963D0",
+                            Name = "John Doe",
+                            Address = "123 Main St",
+                            PhoneNumber = "555-555-5555",
+                            Email = "john.doe@microservice-patterns.com"
+                        });
+                        return Task.CompletedTask;
+                    },
+                    GetCommandResult = GetCommandResult,
+                    IconName = "PersonAdd",
+                    IsHighlighted = true
+                }
+            );
 
         var borrowingDb = postgres.AddDefaultDatabase<Projects.CQRS_Library_BorrowingService>();
         var borrowingService = builder.AddProjectWithPostfix<Projects.CQRS_Library_BorrowingService>()
@@ -51,7 +96,29 @@ public static class ExternalServiceRegistrationExtentions
             .WithReference(kafka)
             .WithReference(borrowingDb, Consts.DefaultDatabase)
             .WaitFor(borrowingDb)
-            .WaitFor(kafka);
+            .WaitFor(kafka)
+            .WithHttpCommand(
+                path: "/api/cqrs/v1/borrowings",
+                displayName: "Borrow the test book",
+                commandOptions: new HttpCommandOptions()
+                {
+                    Description = "",
+                    PrepareRequest = (context) =>
+                    {
+                        context.Request.Content = JsonContent.Create(new
+                        {
+                            Id = "00000000-0000-0000-0000-000000000000",
+                            BorrowerId = "019557EB-49D7-7007-BEDE-5F22B35963D0",
+                            BookId = "019557EE-978C-7CE8-9152-73637B6DC9F5",
+                            ValidUntil = DateTime.UtcNow.AddDays(14),
+                        });
+                        return Task.CompletedTask;
+                    },
+                    GetCommandResult = GetCommandResult,
+                    IconName = "ReceiptAdd",
+                    IsHighlighted = true
+                }
+            );
 
         var borrowingHistoryDb = postgres.AddDefaultDatabase<Projects.CQRS_Library_BorrowingHistoryService>();
         var borrowingHistoryService = builder.AddProjectWithPostfix<Projects.CQRS_Library_BorrowingHistoryService>()
@@ -65,7 +132,23 @@ public static class ExternalServiceRegistrationExtentions
             .WithReference(kafka)
             .WithReference(borrowingHistoryDb, Consts.DefaultDatabase)
             .WaitFor(borrowingHistoryDb)
-            .WaitFor(kafka);
+            .WaitFor(kafka)
+            .WithHttpCommand(
+                path: "/api/cqrs/v1/history/items",
+                displayName: "List borrowed books",
+                commandOptions: new HttpCommandOptions()
+                {
+                    Description = "",
+                    PrepareRequest = (context) =>
+                    {
+                        context.Request.Method = HttpMethod.Get;
+                        return Task.CompletedTask;
+                    },
+                    GetCommandResult = GetCommandResult,
+                    IconName = "BookTemplate",
+                    IsHighlighted = true
+                }
+            );
 
         bookService.WithParentRelationship(borrowingHistoryService);
         borrowerService.WithParentRelationship(borrowingHistoryService);
@@ -322,6 +405,24 @@ public static class ExternalServiceRegistrationExtentions
         #endregion
 
         return builder;
+    }
+
+    private static async Task<ExecuteCommandResult> GetCommandResult(HttpCommandResultContext context)
+    {
+        var logger = context.ServiceProvider.GetRequiredService<ILoggerFactory>().CreateLogger(nameof(GetCommandResult));
+
+        var response = context.Response;
+        if (response is not null)
+        {
+            var content = await response.Content.ReadAsStringAsync(context.CancellationToken);
+            logger.LogInformation("Response: {StatusCode} {ReasonPhrase} {Result}", response.StatusCode, response.ReasonPhrase, content);
+        }
+        else
+        {
+            logger.LogInformation("No response received.");
+        }
+
+        return new ExecuteCommandResult() { Success = true };
     }
 
     private static async Task CreateKafkaTopics(ResourceReadyEvent @event, KafkaServerResource kafkaResource, CancellationToken ct)
