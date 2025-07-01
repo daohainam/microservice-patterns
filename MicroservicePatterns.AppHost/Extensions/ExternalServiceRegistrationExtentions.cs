@@ -280,7 +280,30 @@ public static class ExternalServiceRegistrationExtentions
         var esAccountDb = postgres.AddDefaultDatabase<Projects.EventSourcing_Banking_AccountService>();
         var esAccountkService = builder.AddProjectWithPostfix<Projects.EventSourcing_Banking_AccountService>()
             .WithReference(esAccountDb, Consts.DefaultDatabase)
-            .WaitFor(esAccountDb);
+            .WaitFor(esAccountDb)
+            .WithHttpCommand(
+            path: "/api/eventsourcing/v1/accounts",
+            displayName: "Register an account with random balance",
+            commandOptions: new HttpCommandOptions()
+            {
+                Description = "",
+                PrepareRequest = (context) =>
+                {
+                    context.Request.Content = JsonContent.Create(new
+                    {
+                        Id = Guid.Empty,
+                        AccountNumber = GenerateRandomNumericString(10),
+                        Currency = "USD",
+                        Balance = random.Next(),
+                        CreditLimit = 0
+                    });
+                    return Task.CompletedTask;
+                },
+                GetCommandResult = GetCommandResult,
+                IconName = "BookAdd",
+                IsHighlighted = true
+            }
+        );
 
         var esNotificationService = builder.AddProjectWithPostfix<Projects.EventSourcing_NotificationService>()
             .WithReference(esAccountDb, connectionName: "EventSourcingDb")
@@ -456,5 +479,10 @@ public static class ExternalServiceRegistrationExtentions
         }
     }
 
+    private static readonly Random random = new();
     private static string GetTopicName<TProject>(string postfix = "") => $"{typeof(TProject).Name.Replace('_', '-')}{(string.IsNullOrEmpty(postfix) ? "" : $"-{postfix}")}";
+    private static string GenerateRandomNumericString(int length) 
+    {
+        return new string([.. Enumerable.Repeat("0123456789", length).Select(s => s[random.Next(s.Length)])]);
+    }
 }
