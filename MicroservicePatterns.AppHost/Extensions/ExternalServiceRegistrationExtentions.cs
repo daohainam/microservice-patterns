@@ -169,8 +169,41 @@ public static class ExternalServiceRegistrationExtentions
             .WithReference(kafka)
             .WithReference(sagaOrderDb, Consts.DefaultDatabase)
             .WaitFor(sagaOrderDb)
-            .WaitFor(kafka);
-
+            .WaitFor(kafka)
+            .WithHttpCommand(
+            path: "/api/saga/v1/orders",
+            displayName: "Place a new order",
+            commandOptions: new HttpCommandOptions()
+            {
+                Description = "",
+                PrepareRequest = (context) =>
+                {   context.Request.Content = new StringContent(
+                        """
+                        {
+                          "orderId": "00000000-0000-0000-0000-000000000000",
+                          "customerId": "8A168D02-E235-41F5-A22C-DBDEF71A6D0A",
+                          "customerName": "John Doe",
+                          "customerPhone": "+1234567890",
+                          "shippingAddress": "123 Main St, Springfield, IL 62701",
+                          "paymentCardNumber": "1234567890123456",
+                          "paymentCardName": "John Doe",
+                          "paymentCardExpiration": "12/24",
+                          "paymentCardCvv": "123",
+                          "items": [
+                            {
+                              "productId": "01957eea-c993-714f-bf4a-ca767716031d",
+                              "quantity": 1,
+                              "unitPrice": 9.99
+                            }
+                          ]
+                        }
+                        """, System.Text.Encoding.UTF8, "application/json");
+                    return Task.CompletedTask;
+                },
+                GetCommandResult = GetCommandResult,
+                IconName = "BoxArrowUp",
+                IsHighlighted = true
+            });
 
         var sagaCatalogDb = postgres.AddDefaultDatabase<Projects.Saga_OnlineStore_CatalogService>();
         var sagaCatalogService = builder.AddProjectWithPostfix<Projects.Saga_OnlineStore_CatalogService>()
@@ -178,7 +211,28 @@ public static class ExternalServiceRegistrationExtentions
             .WithReference(kafka)
             .WithReference(sagaCatalogDb, Consts.DefaultDatabase)
             .WaitFor(sagaCatalogDb)
-            .WaitFor(kafka);
+            .WaitFor(kafka)
+            .WithHttpCommand(
+            path: "/api/saga/v1/products",
+            displayName: "Register demo product",
+            commandOptions: new HttpCommandOptions()
+            {
+                Description = "",
+                PrepareRequest = (context) =>
+                {
+                    context.Request.Content = JsonContent.Create(new
+                    {
+                        Id = "01957eea-c993-714f-bf4a-ca767716031d",
+                        Name = "Demo Product",
+                        Description = "Demo Description",
+                        Price = random.Next(1, 100000)
+                    });
+                    return Task.CompletedTask;
+                },
+                GetCommandResult = GetCommandResult,
+                IconName = "AddCircle",
+                IsHighlighted = true
+            });
 
         var sagaInventoryDb = postgres.AddDefaultDatabase<Projects.Saga_OnlineStore_InventoryService>();
         var sagaInventoryService = builder.AddProjectWithPostfix<Projects.Saga_OnlineStore_InventoryService>()
@@ -194,6 +248,25 @@ public static class ExternalServiceRegistrationExtentions
             .WithReference(sagaInventoryDb, Consts.DefaultDatabase)
             .WaitFor(sagaInventoryDb)
             .WaitFor(kafka)
+            .WithHttpCommand(
+            path: "/api/saga/v1/inventory/items/01957eea-c993-714f-bf4a-ca767716031d/restock",
+            displayName: "Add 10 demo products to inventory",
+            commandOptions: new HttpCommandOptions()
+            {
+                Description = "",
+                PrepareRequest = (context) =>
+                {
+                    context.Request.Method = HttpMethod.Put;
+                    context.Request.Content = JsonContent.Create(new
+                    {
+                        Quantity = 10
+                    });
+                    return Task.CompletedTask;
+                },
+                GetCommandResult = GetCommandResult,
+                IconName = "ReceiptAdd",
+                IsHighlighted = true
+            })
             .WithParentRelationship(sagaOrderService);
 
         var sagaBankCardDb = postgres.AddDefaultDatabase<Projects.Saga_OnlineStore_PaymentService>();
@@ -207,7 +280,48 @@ public static class ExternalServiceRegistrationExtentions
             .WithReference(kafka)
             .WithReference(sagaBankCardDb, Consts.DefaultDatabase)
             .WaitFor(sagaBankCardDb)
-            .WaitFor(kafka);
+            .WaitFor(kafka)
+            .WithHttpCommand(
+            path: "/api/saga/v1/cards",
+            displayName: "Register demo bank card to payment service",
+            commandOptions: new HttpCommandOptions()
+            {
+                Description = "",
+                PrepareRequest = (context) =>
+                {
+                    context.Request.Content = JsonContent.Create(new
+                    {
+                        Id = "53974C76-BC26-44CE-9DB2-AE3EBF095A28",
+                        CardNumber = "1234567890123456",
+                        ExpirationDate = "12/30",
+                        CardHolderName = "Test Card Holder",
+                        Cvv = "123"
+                    });
+                    return Task.CompletedTask;
+                },
+                GetCommandResult = GetCommandResult,
+                IconName = "CardUi",
+                IsHighlighted = true
+            })
+            .WithHttpCommand(
+            path: "/api/saga/v1/cards/53974C76-BC26-44CE-9DB2-AE3EBF095A28/deposit",
+            displayName: "Deposit to demo bank card",
+            commandOptions: new HttpCommandOptions()
+            {
+                Description = "",
+                PrepareRequest = (context) =>
+                {
+                    context.Request.Method = HttpMethod.Put;
+                    context.Request.Content = JsonContent.Create(new
+                    {
+                        Amount = 999999
+                    });
+                    return Task.CompletedTask;
+                },
+                GetCommandResult = GetCommandResult,
+                IconName = "WalletCreditCard",
+                IsHighlighted = true
+            });
 
 
         sagaBankCardService.WithParentRelationship(sagaOrderService);
