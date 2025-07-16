@@ -1,5 +1,4 @@
-﻿using Aspire.Npgsql.EntityFrameworkCore.PostgreSQL;
-using EventSourcing.Infrastructure.Postgresql;
+﻿using EventSourcing.Infrastructure.Postgresql;
 using MicroservicePatterns.DatabaseMigrationHelpers;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
