@@ -9,7 +9,7 @@
 
   <ItemGroup>
 	  <PackageReference Include="Confluent.Kafka" Version="2.11.0" />
-	  <PackageReference Include="Microsoft.Extensions.Hosting" Version="9.0.6" />
+	  <PackageReference Include="Microsoft.Extensions.Hosting" Version="9.0.7" />
   </ItemGroup>
 
   <ItemGroup>
