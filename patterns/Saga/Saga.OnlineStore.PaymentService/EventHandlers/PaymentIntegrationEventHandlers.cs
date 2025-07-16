@@ -60,6 +60,6 @@ public class PaymentIntegrationEventHandlers(PaymentDbContext dbContext,
 
     private static string MaskCardNumber(string cardNumber)
     {
-        return cardNumber.Substring(0, 4) + new string('*', cardNumber.Length - 8) + cardNumber.Substring(cardNumber.Length - 4);
+        return cardNumber[..4] + new string('*', cardNumber.Length - 8) + cardNumber[^4..];
     }
 }

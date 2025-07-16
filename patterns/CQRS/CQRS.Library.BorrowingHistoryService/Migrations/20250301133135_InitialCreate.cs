@@ -65,7 +65,7 @@ namespace CQRS.Library.BorrowingHistoryApi.Migrations
             migrationBuilder.CreateIndex(
                 name: "IX_BorrowingHistoryItems_BorrowerId_BookId_ValidUntil_HasRetur~",
                 table: "BorrowingHistoryItems",
-                columns: new[] { "BorrowerId", "BookId", "ValidUntil", "HasReturned" });
+                columns: ["BorrowerId", "BookId", "ValidUntil", "HasReturned"]);
         }
 
         /// <inheritdoc />

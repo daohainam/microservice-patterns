@@ -1,9 +1,6 @@
-﻿using Aspire.Hosting;
-using MicroservicePatterns.Shared;
-using Microsoft.AspNetCore.Routing.Matching;
+﻿using MicroservicePatterns.Shared;
 using Microsoft.Extensions.Configuration;
 using System.Net.Http.Json;
-using TransactionalOutbox.Aspire.Debezium;
 
 namespace MicroservicePatterns.AppHost.Extensions;
 public static class ExternalServiceRegistrationExtentions

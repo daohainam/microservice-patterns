@@ -40,7 +40,7 @@ namespace Saga.OnlineStore.InventoryService.Migrations
             migrationBuilder.CreateIndex(
                 name: "IX_ReservedItems_OrderId_ItemId",
                 table: "ReservedItems",
-                columns: new[] { "OrderId", "ItemId" },
+                columns: ["OrderId", "ItemId"],
                 unique: true);
         }
 

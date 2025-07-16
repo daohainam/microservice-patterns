@@ -44,7 +44,7 @@ namespace TransactionalOutbox.Infrastructure.Migrations
             migrationBuilder.CreateIndex(
                 name: "IX_PollingOutboxMessages_ProcessedDate_ProcessedCount_Creation~",
                 table: "PollingOutboxMessages",
-                columns: new[] { "ProcessedDate", "ProcessedCount", "CreationDate" });
+                columns: ["ProcessedDate", "ProcessedCount", "CreationDate"]);
         }
 
         /// <inheritdoc />

@@ -38,9 +38,6 @@ public class AppFixture : IDisposable
 
     public void Dispose()
     {
-        if (_app != null)
-        {
-            _app.Dispose();
-        }   
+        _app?.Dispose();   
     }
 }

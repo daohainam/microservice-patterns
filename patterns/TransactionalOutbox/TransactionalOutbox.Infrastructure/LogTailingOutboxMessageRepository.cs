@@ -12,7 +12,7 @@ namespace TransactionalOutbox.Infrastructure
             return Task.CompletedTask;
         }
 
-        public Task MarkAsProcessedAsync(PollingOutboxMessage message)
+        public static Task MarkAsProcessedAsync(PollingOutboxMessage message)
         {
             message.ProcessedCount++;
             message.ProcessedDate = DateTime.UtcNow;

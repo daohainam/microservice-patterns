@@ -14,7 +14,7 @@ public static class EventStoreExtensions
     {
         var events = await eventStore.ReadAsync(streamId, afterVersion, cancellationToken: cancellationToken);
 
-        if (events == null || !events.Any())
+        if (events == null || events.Count == 0)
         {
             return default;
         }
@@ -35,12 +35,7 @@ public static class EventStoreExtensions
 
             var evt = JsonSerializer.Deserialize(eventData.Data, type);
 
-            var applyMethod = typeof(T).GetMethod("Apply", BindingFlags.Instance | BindingFlags.Public, [ type ]);
-            if (applyMethod == null)
-            {
-                throw new InvalidOperationException($"Method 'Apply' not found in type '{typeof(T).Name}'.");
-            }
-
+            var applyMethod = typeof(T).GetMethod("Apply", BindingFlags.Instance | BindingFlags.Public, [ type ]) ?? throw new InvalidOperationException($"Method 'Apply' not found in type '{typeof(T).Name}'.");
             applyMethod.Invoke(instance, [evt]);
         }
 
