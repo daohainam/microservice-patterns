@@ -9,7 +9,6 @@ public static class ExternalServiceRegistrationExtentions
     {
         var cache = builder.AddRedis("redis");
         var kafka = builder.AddKafka("kafka");
-        var mongoDb = builder.AddMongoDB("mongodb");
         var postgres = builder.AddPostgres("postgresql");
         //var debezium = builder.AddDebezium();
 
@@ -17,7 +16,6 @@ public static class ExternalServiceRegistrationExtentions
         {
             cache = cache.WithLifetime(ContainerLifetime.Persistent).WithDataVolume().WithRedisInsight();
             kafka = kafka.WithLifetime(ContainerLifetime.Persistent).WithDataVolume().WithKafkaUI();
-            mongoDb = mongoDb.WithLifetime(ContainerLifetime.Persistent).WithDataVolume().WithMongoExpress();
             postgres = postgres.WithLifetime(ContainerLifetime.Persistent).WithDataVolume().WithPgWeb();
         }
 
