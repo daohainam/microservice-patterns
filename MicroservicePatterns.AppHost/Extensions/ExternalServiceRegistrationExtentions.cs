@@ -1,4 +1,5 @@
-﻿using MicroservicePatterns.Shared;
+﻿using MicroservicePatterns.AppHost.OpenTelemetryCollector;
+using MicroservicePatterns.Shared;
 using Microsoft.Extensions.Configuration;
 using System.Net.Http.Json;
 
@@ -19,6 +20,23 @@ public static class ExternalServiceRegistrationExtentions
             postgres = postgres.WithLifetime(ContainerLifetime.Persistent).WithDataVolume().WithPgWeb();
         }
 
+        // Grafana and Prometheus supports
+        var prometheus = builder.AddContainer("prometheus", "prom/prometheus", "v3.5.0")
+       .WithBindMount("../config/prometheus", "/etc/prometheus", isReadOnly: true)
+       .WithArgs("--web.enable-otlp-receiver", "--config.file=/etc/prometheus/prometheus.yml")
+       .WithHttpEndpoint(targetPort: 9090, name: "http");
+
+        var grafana = builder.AddContainer("grafana", "grafana/grafana")
+                             .WithBindMount("../config/grafana/config", "/etc/grafana", isReadOnly: true)
+                             .WithBindMount("../config/grafana/dashboards", "/var/lib/grafana/dashboards", isReadOnly: true)
+                             .WithEnvironment("PROMETHEUS_ENDPOINT", prometheus.GetEndpoint("http"))
+                             .WithHttpEndpoint(targetPort: 3000, name: "http");
+
+        builder.AddOpenTelemetryCollector("otelcollector", "../config/otelcollector/config.yaml")
+               .WithEnvironment("PROMETHEUS_ENDPOINT", $"{prometheus.GetEndpoint("http")}/api/v1/otlp");
+
+
+
         // Uncomment the following line to create Kafka topics automatically when the Kafka server is ready.
         //builder.Eventing.Subscribe<ResourceReadyEvent>(kafka.Resource, async (@event, ct) =>
         //{
@@ -33,6 +51,7 @@ public static class ExternalServiceRegistrationExtentions
             .WithReference(bookDb, Consts.DefaultDatabase)
             .WaitFor(bookDb)
             .WaitFor(kafka)
+            .WithEnvironment("GRAFANA_URL", grafana.GetEndpoint("http"))
             .WithHttpCommand(
             path: "/api/cqrs/v1/books",
             displayName: "Register a test book",
