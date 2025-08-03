@@ -1,9 +1,4 @@
-﻿using CQRS.Library.BorrowingService;
-using CQRS.Library.BorrowingService.Infrastructure.Entity;
-using Microsoft.AspNetCore.Http.HttpResults;
-using Microsoft.AspNetCore.Mvc;
-
-namespace CQRS.Library.BorrowingService.Apis;
+﻿namespace CQRS.Library.BorrowingService.Apis;
 public static class BorrowingApi
 {
     public static IEndpointRouteBuilder MapBorrowingApi(this IEndpointRouteBuilder builder)
