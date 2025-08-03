@@ -556,6 +556,15 @@ public static class ExternalServiceRegistrationExtentions
 
         #endregion
 
+        #region MCP Servers
+        var mcpLibraryServer = builder.AddProjectWithPostfix<Projects.Mcp_CQRS_Library_McpServer>()
+            .WithReference(bookService)
+            .WithReference(borrowerService)
+            .WithReference(borrowingService)
+            .WithReference(borrowingHistoryService);
+        #endregion
+
+
         return builder;
     }
 

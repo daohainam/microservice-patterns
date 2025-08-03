@@ -1,0 +1,8 @@
+{
+  "servers": {
+    "cqrs-library": {
+	  "type": "sse",
+      "url": "https://localhost:7268/sse"
+    }
+  }
+}

@@ -1,0 +1,6 @@
+@Mcp.CQRS.Library.McpServer_HostAddress = http://localhost:5098
+
+GET {{Mcp.CQRS.Library.McpServer_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

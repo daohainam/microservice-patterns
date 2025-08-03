@@ -1,4 +1,7 @@
 <Solution>
+  <Folder Name="/mcp/">
+    <Project Path="mcp/Mcp.CQRS.Library.McpServer/Mcp.CQRS.Library.McpServer.csproj" />
+  </Folder>
   <Folder Name="/patterns/" />
   <Folder Name="/patterns/CQRS/">
     <Project Path="patterns/CQRS/CQRS.Library.BookService/CQRS.Library.BookService.csproj" />
