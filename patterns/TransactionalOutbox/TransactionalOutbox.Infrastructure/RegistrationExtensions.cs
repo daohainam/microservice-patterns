@@ -1,15 +1,4 @@
-﻿using MicroservicePatterns.DatabaseMigrationHelpers;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using System.Reflection;
-using TransactionalOutbox.Infrastructure.Data;
-using TransactionalOutbox.Infrastructure.Service;
-using TransactionalOutbox.IntegrationEvents;
-
-namespace TransactionalOutbox.Infrastructure;
+﻿namespace TransactionalOutbox.Infrastructure;
 public static class RegistrationExtensions
 {
     private static readonly Assembly eventAssembly = typeof(AccountOpenedIntegrationEvent).Assembly;

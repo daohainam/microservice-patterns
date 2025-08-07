@@ -1,8 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
-using TransactionalOutbox.Abstractions;
-using TransactionalOutbox.Infrastructure.Data;
-
-namespace TransactionalOutbox.Infrastructure
+﻿namespace TransactionalOutbox.Infrastructure
 {
     public class LogTailingOutboxMessageRepository(OutboxDbContext dbContext) : ILogTailingOutboxMessageRepository
     {

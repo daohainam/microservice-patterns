@@ -1,0 +1,11 @@
+﻿global using MicroservicePatterns.DatabaseMigrationHelpers;
+global using Microsoft.EntityFrameworkCore;
+global using Microsoft.EntityFrameworkCore.Infrastructure;
+global using Microsoft.Extensions.Configuration;
+global using Microsoft.Extensions.DependencyInjection;
+global using Microsoft.Extensions.Hosting;
+global using System.Reflection;
+global using TransactionalOutbox.Abstractions;
+global using TransactionalOutbox.Infrastructure.Data;
+global using TransactionalOutbox.Infrastructure.Service;
+global using TransactionalOutbox.IntegrationEvents;

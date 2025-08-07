@@ -1,8 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
-using System.Reflection.Metadata;
-using TransactionalOutbox.Abstractions;
-
-namespace TransactionalOutbox.Infrastructure.Data;
+﻿namespace TransactionalOutbox.Infrastructure.Data;
 public class OutboxDbContext: DbContext
 {
     public DbSet<PollingOutboxMessage> PollingOutboxMessages { get; set; } = default!;
