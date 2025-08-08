@@ -1,4 +1,4 @@
-﻿namespace Saga.OnlineStore.InventoryService.EventHandlers;
+﻿namespace Saga.OnlineStore.OrderService.EventHandlers;
 public class OrderIntegrationEventHandlers(OrderDbContext dbContext,
     IEventPublisher eventPublisher,
     ILogger<OrderIntegrationEventHandlers> logger) :

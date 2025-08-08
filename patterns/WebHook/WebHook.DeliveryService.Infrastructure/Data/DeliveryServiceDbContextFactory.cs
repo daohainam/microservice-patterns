@@ -1,8 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
-using WebHook.DeliveryService.Infrastructure.Data;
 
-namespace CoreBanking.Infrastructure.Data;
+namespace WebHook.DeliveryService.Infrastructure.Data;
 public class DeliveryServiceDbContextFactory : IDesignTimeDbContextFactory<DeliveryServiceDbContext>
 {
     public DeliveryServiceDbContext CreateDbContext(string[] args)

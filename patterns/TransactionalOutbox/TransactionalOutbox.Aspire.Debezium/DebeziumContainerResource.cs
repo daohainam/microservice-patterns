@@ -1,13 +1,11 @@
 ﻿using Aspire.Hosting.ApplicationModel;
 
 namespace TransactionalOutbox.Aspire.Debezium;
-public sealed partial class DebeziumContainerResource : ContainerResource, IResourceWithConnectionString
+public sealed partial class DebeziumContainerResource(string name) : ContainerResource(name), IResourceWithConnectionString
 {
     internal const string PrimaryEndpointName = "http";
 
     private EndpointReference? _primaryEndpoint;
-
-    public DebeziumContainerResource(string name) : base(name) { }
 
     public EndpointReference PrimaryEndpoint => _primaryEndpoint ??= new(this, PrimaryEndpointName);
     public ReferenceExpression ConnectionStringExpression {
