@@ -1,4 +1,4 @@
-﻿namespace CQRS.Library.BorrowingService.Infrastructure.Entity;
+﻿namespace Mcp.CQRS.Library.McpServer;
 public class Borrowing
 {
     public Guid Id { get; set; }

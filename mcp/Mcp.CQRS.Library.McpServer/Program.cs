@@ -13,10 +13,13 @@ builder.Services.AddHttpClient("book",
     static client => client.BaseAddress = new("https+http://CQRS-Library-BookService"));
 builder.Services.AddHttpClient("borrower",
     static client => client.BaseAddress = new("https+http://CQRS-Library-BorrowerService"));
+builder.Services.AddHttpClient("borrower",
+    static client => client.BaseAddress = new("https+http://CQRS-Library-BorrowingService"));
 
 builder.Services.AddSingleton<ILibraryService>((services) => new LibraryService(
     services.GetRequiredService<IHttpClientFactory>().CreateClient("book"),
-    services.GetRequiredService<IHttpClientFactory>().CreateClient("borrower")
+    services.GetRequiredService<IHttpClientFactory>().CreateClient("borrower"),
+    services.GetRequiredService<IHttpClientFactory>().CreateClient("borrowing")
     ));
 
 // Add services to the container.

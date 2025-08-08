@@ -45,5 +45,23 @@ public class LibraryTool
         return JsonSerializer.Serialize(borrower);
     }
 
+    [McpServerTool]
+    public static async Task<string> GetBorrowings(ILibraryService libraryService, CancellationToken cancellationToken)
+    {
+        var borrowings = await libraryService.GetBorrowings(cancellationToken);
+        return JsonSerializer.Serialize(borrowings);
+    }
+
+    [McpServerTool]
+    public static async Task<string> GetBorrowingDetails(ILibraryService libraryService, string borrowingId, CancellationToken cancellationToken)
+    {
+        if (!Guid.TryParse(borrowingId, out var parsedBorrowingId))
+        {
+            throw new ArgumentException($"Invalid borrowing ID format: '{borrowingId}'. Expected a valid GUID.", nameof(borrowingId));
+        }
+        var borrowing = await libraryService.GetBorrowingById(parsedBorrowingId, cancellationToken) ?? throw new KeyNotFoundException($"Borrowing with ID '{borrowingId}' not found.");
+        return JsonSerializer.Serialize(borrowing);
+    }
+
 
 }

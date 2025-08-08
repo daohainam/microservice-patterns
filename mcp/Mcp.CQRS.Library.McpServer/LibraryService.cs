@@ -1,6 +1,6 @@
 ﻿
 namespace Mcp.CQRS.Library.McpServer;
-public class LibraryService(HttpClient bookHttpClient, HttpClient borrowerHttpClient) : ILibraryService
+public class LibraryService(HttpClient bookHttpClient, HttpClient borrowerHttpClient, HttpClient borrowingHttpClient) : ILibraryService
 {
     public async Task<Book> GetBookById(Guid bookId, CancellationToken cancellationToken)
     {
@@ -23,6 +23,18 @@ public class LibraryService(HttpClient bookHttpClient, HttpClient borrowerHttpCl
     public async Task<IEnumerable<Borrower>> GetBorrowers(CancellationToken cancellationToken = default)
     {
         var bookResponse = await borrowerHttpClient.GetFromJsonAsync<IEnumerable<Borrower>>("/api/cqrs/v1/borrowers", cancellationToken: cancellationToken) ?? throw new InvalidOperationException("Failed to retrieve borrowers from the borrower service.");
+        return bookResponse;
+    }
+
+    public async Task<Borrowing> GetBorrowingById(Guid borrowerId, CancellationToken cancellationToken)
+    {
+        var bookResponse = await borrowingHttpClient.GetFromJsonAsync<Borrowing>($"/api/cqrs/v1/borrowings/{borrowerId}", cancellationToken: cancellationToken) ?? throw new InvalidOperationException("Failed to retrieve borrower from the borrower service.");
+        return bookResponse;
+    }
+
+    public async Task<IEnumerable<Borrowing>> GetBorrowings(CancellationToken cancellationToken = default)
+    {
+        var bookResponse = await borrowingHttpClient.GetFromJsonAsync<IEnumerable<Borrowing>>("/api/cqrs/v1/borrowings", cancellationToken: cancellationToken) ?? throw new InvalidOperationException("Failed to retrieve borrowers from the borrower service.");
         return bookResponse;
     }
 }
