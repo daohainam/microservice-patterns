@@ -1,0 +1,8 @@
+{
+  "servers": {
+    "cqrs-library": {
+	  "type": "http",
+      "url": "http://localhost:5098"
+    }
+  }
+}

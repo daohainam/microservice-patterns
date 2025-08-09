@@ -8,4 +8,5 @@ public interface ILibraryService
     Task<Borrower> GetBorrowerById(Guid borrowerId, CancellationToken cancellationToken);
     Task<Borrowing> GetBorrowingById(Guid borrowerId, CancellationToken cancellationToken);
     Task<IEnumerable<Borrowing>> GetBorrowings(CancellationToken cancellationToken = default);
+    Task<IEnumerable<BorrowingHistoryItem>> GetBorrowingHistoryItems(Guid? borrowerId, Guid? bookId, string query = "", CancellationToken cancellationToken = default);
 }

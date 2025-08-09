@@ -1,6 +1,8 @@
 ﻿
+using System.Text;
+
 namespace Mcp.CQRS.Library.McpServer;
-public class LibraryService(HttpClient bookHttpClient, HttpClient borrowerHttpClient, HttpClient borrowingHttpClient) : ILibraryService
+public class LibraryService(HttpClient bookHttpClient, HttpClient borrowerHttpClient, HttpClient borrowingHttpClient, HttpClient borrowingHistoryHttpClient) : ILibraryService
 {
     public async Task<Book> GetBookById(Guid bookId, CancellationToken cancellationToken)
     {
@@ -35,6 +37,26 @@ public class LibraryService(HttpClient bookHttpClient, HttpClient borrowerHttpCl
     public async Task<IEnumerable<Borrowing>> GetBorrowings(CancellationToken cancellationToken = default)
     {
         var bookResponse = await borrowingHttpClient.GetFromJsonAsync<IEnumerable<Borrowing>>("/api/cqrs/v1/borrowings", cancellationToken: cancellationToken) ?? throw new InvalidOperationException("Failed to retrieve borrowers from the borrower service.");
+        return bookResponse;
+    }
+
+    public async Task<IEnumerable<BorrowingHistoryItem>> GetBorrowingHistoryItems(Guid? borrowerId, Guid? bookId, string query = "", CancellationToken cancellationToken = default)
+    {
+        var queryString = new StringBuilder();
+        if (borrowerId.HasValue)
+        {
+            queryString.Append($"borrowerId={borrowerId.Value}&");
+        }
+        if (bookId.HasValue)
+        {
+            queryString.Append($"bookId={bookId.Value}&");
+        }
+        if (!string.IsNullOrWhiteSpace(query))
+        {
+            queryString.Append($"query={Uri.EscapeDataString(query)}&");
+        }
+
+        var bookResponse = await borrowingHistoryHttpClient.GetFromJsonAsync<IEnumerable<BorrowingHistoryItem>>($"/api/cqrs/v1/history/items?{queryString}", cancellationToken: cancellationToken) ?? throw new InvalidOperationException("Failed to retrieve borrowing history from the borrowing history service.");
         return bookResponse;
     }
 }

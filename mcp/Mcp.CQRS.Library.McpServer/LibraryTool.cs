@@ -63,5 +63,11 @@ public class LibraryTool
         return JsonSerializer.Serialize(borrowing);
     }
 
+    [McpServerTool]
+    public static async Task<string> GetBorrowingHistoryItems(ILibraryService libraryService, Guid? borrowerId, Guid? bookId, string query, CancellationToken cancellationToken)
+    {
+        var borrowingHistoryItems = await libraryService.GetBorrowingHistoryItems(borrowerId, bookId, query, cancellationToken);
+        return JsonSerializer.Serialize(borrowingHistoryItems);
+    }
 
 }
