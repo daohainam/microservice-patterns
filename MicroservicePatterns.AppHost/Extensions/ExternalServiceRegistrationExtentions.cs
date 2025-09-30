@@ -561,6 +561,14 @@ public static class ExternalServiceRegistrationExtentions
 
         #endregion
 
+        #region Backend for Frontend (BFF) 
+        var productCatalogDb = postgres.AddDefaultDatabase<Projects.BFF_ProductCatalogService>();
+        var bffProductCatalogService = builder.AddProjectWithPostfix<Projects.BFF_ProductCatalogService>()
+            .WithReference(productCatalogDb, Consts.DefaultDatabase)
+            .WaitFor(productCatalogDb)
+            .WithEnvironment("GRAFANA_URL", grafana.GetEndpoint("http"));
+        #endregion
+
         #region MCP Servers
         var mcpLibraryServer = builder.AddProjectWithPostfix<Projects.Mcp_CQRS_Library_McpServer>()
             .WithReference(bookService)
