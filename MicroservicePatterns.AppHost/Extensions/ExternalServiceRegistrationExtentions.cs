@@ -1,4 +1,7 @@
-﻿using MicroservicePatterns.AppHost.OpenTelemetryCollector;
+﻿using Aspire.Hosting;
+using Aspire.Hosting.Yarp;
+using Grpc.Core;
+using MicroservicePatterns.AppHost.OpenTelemetryCollector;
 using MicroservicePatterns.Shared;
 using Microsoft.Extensions.Configuration;
 using System.Net.Http.Json;
@@ -6,6 +9,8 @@ using System.Net.Http.Json;
 namespace MicroservicePatterns.AppHost.Extensions;
 public static class ExternalServiceRegistrationExtentions
 {
+    private static bool GatewayDangerousAcceptAnyServerCertificate = true;
+
     public static IDistributedApplicationBuilder AddApplicationServices(this IDistributedApplicationBuilder builder)
     {
         var cache = builder.AddRedis("redis");
@@ -407,7 +412,7 @@ public static class ExternalServiceRegistrationExtentions
         #region Event Sourcing Account
 
         var esAccountDb = postgres.AddDefaultDatabase<Projects.EventSourcing_Banking_AccountService>();
-        var esAccountkService = builder.AddProjectWithPostfix<Projects.EventSourcing_Banking_AccountService>()
+        var esAccountService = builder.AddProjectWithPostfix<Projects.EventSourcing_Banking_AccountService>()
             .WithReference(esAccountDb, Consts.DefaultDatabase)
             .WaitFor(esAccountDb)
             .WithHttpCommand(
@@ -436,9 +441,9 @@ public static class ExternalServiceRegistrationExtentions
 
         var esNotificationService = builder.AddProjectWithPostfix<Projects.EventSourcing_NotificationService>()
             .WithReference(esAccountDb, connectionName: "EventSourcingDb")
-            .WaitFor(esAccountkService);
+            .WaitFor(esAccountService);
 
-        esNotificationService.WithParentRelationship(esAccountkService);
+        esNotificationService.WithParentRelationship(esAccountService);
 
         #endregion
 
@@ -564,8 +569,48 @@ public static class ExternalServiceRegistrationExtentions
             .WithReference(borrowingHistoryService);
         #endregion
 
+        #region YARP Gateway
+        var yarp = builder.AddYarp("gateway")
+            .WithHostPort(9999)
+            .WithConfiguration(yarp =>
+        {
+            yarp.AddRoute("/api/cqrs/v1/books/{**catch-all}", bookService);
+            yarp.AddRoute("/api/cqrs/v1/borrowers/{**catch-all}", borrowerService);
+            yarp.AddRoute("/api/cqrs/v1/borrowings/{**catch-all}", borrowingService);
+            yarp.AddRoute("/api/cqrs/v1/history/{**catch-all}", borrowingHistoryService);
+
+            yarp.AddRoute("/api/saga/v1/orders/{**catch-all}", sagaOrderService);
+            yarp.AddRoute("/api/saga/v1/products/{**catch-all}", sagaCatalogService);
+            yarp.AddRoute("/api/saga/v1/inventory/{**catch-all}", sagaInventoryService);
+            yarp.AddRoute("/api/saga/v1/cards/{**catch-all}", sagaBankCardService);
+            yarp.AddRoute("/api/saga/v1/trips/{**catch-all}", sagaTripPlanningService);
+            yarp.AddRoute("/api/saga/v1/hotels/{**catch-all}", sagaHotelService);
+            yarp.AddRoute("/api/saga/v1/tickets/{**catch-all}", sagaTicketService);
+            yarp.AddRoute("/api/saga/v1/payments/{**catch-all}", sagaPaymentService);
+
+            yarp.AddRoute("/api/eventsourcing/v1/accounts/{**catch-all}", esAccountService);
+
+            yarp.AddRoute("/api/outbox/v1/accounts/{**catch-all}", outboxAccountService);
+
+            yarp.AddRoute("/api/idempotent/v1/products/{**catch-all}", idempotentCatalogService);
+            
+            yarp.AddRoute("/api/webhook/v1/{**catch-all}", webHookDeliveryService);
+
+            yarp.AddRoute("/mcp/library/{**catch-all}", mcpLibraryServer);
+
+        });
+        #endregion
 
         return builder;
+    }
+
+    // remove this method when you don't want Yarp to access HTTPS services with invalid certificates
+    private static YarpRoute AddRoute(this IYarpConfigurationBuilder yarp, string path, IResourceBuilder<ProjectResource> resource)
+    {
+        var serviceCluster = yarp.AddCluster(resource).WithHttpClientConfig(
+            new Yarp.ReverseProxy.Configuration.HttpClientConfig() { DangerousAcceptAnyServerCertificate = GatewayDangerousAcceptAnyServerCertificate }
+            );
+        return yarp.AddRoute(path, serviceCluster);
     }
 
     private static async Task<ExecuteCommandResult> GetCommandResult(HttpCommandResultContext context)

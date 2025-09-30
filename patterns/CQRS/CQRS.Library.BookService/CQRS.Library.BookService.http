@@ -1,4 +1,5 @@
 @CQRS.Library.BookApi_HostAddress = https://localhost:7141
+@CQRS.Library.BookApi_GatewayAddress = http://localhost:9999
 
 GET {{CQRS.Library.BookApi_HostAddress}}/api/cqrs/v1/books
 Accept: application/json
@@ -17,6 +18,16 @@ Content-Type: application/json
 ###
 
 POST {{CQRS.Library.BookApi_HostAddress}}/api/cqrs/v1/books HTTP/1.1
+Content-Type: application/json
+
+{
+  "Id": "00000000-0000-0000-0000-000000000000",
+  "Title": "Harry Potter and the Philosopher's Stone",
+  "Author": "J. K. Rowling"
+}
+
+###
+POST {{CQRS.Library.BookApi_GatewayAddress}}/api/cqrs/v1/books HTTP/1.1
 Content-Type: application/json
 
 {
