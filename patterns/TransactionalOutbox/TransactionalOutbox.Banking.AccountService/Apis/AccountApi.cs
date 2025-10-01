@@ -127,7 +127,7 @@ public class AccountApi
 
         services.UnitOfWork.AccountDbContext.Transactions.Add(new Transaction
         {
-            Id = Guid.NewGuid(),
+            Id = Guid.CreateVersion7(),
             AccountId = account.Id,
             Amount = deposit.Amount,
             TimeStamp = account.BalanceChangedAtUtc
@@ -193,7 +193,7 @@ public class AccountApi
 
         services.UnitOfWork.AccountDbContext.Transactions.Add(new Transaction
         {
-            Id = Guid.NewGuid(),
+            Id = Guid.CreateVersion7(),
             AccountId = account.Id,
             Amount = withdraw.Amount,
             TimeStamp = account.BalanceChangedAtUtc

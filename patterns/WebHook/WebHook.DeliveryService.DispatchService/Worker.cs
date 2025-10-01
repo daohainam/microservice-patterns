@@ -92,7 +92,7 @@ public class Worker(IServiceProvider serviceProvider, ILogger<Worker> logger) : 
         {
             var cloudEvent = new CloudEvent
             {
-                Id = Guid.NewGuid().ToString(),
+                Id = Guid.CreateVersion7().ToString(),
                 Type = item.MessageType,
                 Source = new Uri(item.MessageSource),
                 DataContentType = MediaTypeNames.Application.Json,

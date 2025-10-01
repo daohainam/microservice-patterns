@@ -25,7 +25,7 @@ public class OrderIntegrationEventHandlers(InventoryDbContext dbContext,
 
                         dbContext.ReservedItems.Add(new ReservedItem()
                         {
-                            Id = Guid.NewGuid(),
+                            Id = Guid.CreateVersion7(),
                             ItemId = requestItem.ProductId,
                             OrderId = request.OrderId,
                             Quantity = requestItem.Quantity,
