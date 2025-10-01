@@ -1,8 +1,8 @@
 ﻿namespace BFF.ProductCatalogService.Infrastructure.Entity;
-public class DimensionValue
+[PrimaryKey(nameof(VariantId), nameof(DimensionId))]
+public class VariantDimensionValue
 {
-    public Guid Id { get; set; }
+    public Guid VariantId { get; set; }
     public string DimensionId { get; set; } = default!;
     public string Value { get; set; } = default!;
-    public string? DisplayValue { get; set; }
 }

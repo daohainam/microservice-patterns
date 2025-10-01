@@ -8,6 +8,7 @@ public class Product
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
     public bool IsActive { get; set; }
+    public bool IsDeleted { get; set; }
     public Guid CategoryId { get; set; } = default!;
     public List<Variant> Variants { get; set; } = [];
     public List<Dimension> Dimensions { get; set; } = [];

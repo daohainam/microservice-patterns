@@ -7,4 +7,5 @@ public class ProductCatalogDbContext(DbContextOptions<ProductCatalogDbContext> o
     public DbSet<Dimension> Dimensions { get; internal set; }
     public DbSet<Variant> Variants { get; internal set; }
     public DbSet<DimensionValue> DimensionValues { get; internal set; }
+    public DbSet<Category> Categories { get; internal set; }
 }
