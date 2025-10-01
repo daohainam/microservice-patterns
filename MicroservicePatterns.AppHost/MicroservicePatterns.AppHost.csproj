@@ -22,9 +22,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\BFF.ProductCatalogService\BFF.ProductCatalogService.csproj" />
-    <ProjectReference Include="..\mcp\Mcp.CQRS.Library.McpServer\Mcp.CQRS.Library.McpServer.csproj" />
-    <ProjectReference Include="..\patterns\EventSourcing\EventSourcing.Banking.AccountService\EventSourcing.Banking.AccountService.csproj" />
+	  <ProjectReference Include="..\mcp\Mcp.CQRS.Library.McpServer\Mcp.CQRS.Library.McpServer.csproj" />
+	  <ProjectReference Include="..\patterns\BFF\BFF.ProductCatalogService\BFF.ProductCatalogService.csproj" />
+	  <ProjectReference Include="..\patterns\EventSourcing\EventSourcing.Banking.AccountService\EventSourcing.Banking.AccountService.csproj" />
     <ProjectReference Include="..\MicroservicePatterns.Shared\MicroservicePatterns.Shared.csproj" IsAspireProjectResource="false" />
     <ProjectReference Include="..\patterns\CQRS\CQRS.Library.BookService\CQRS.Library.BookService.csproj" />
     <ProjectReference Include="..\patterns\CQRS\CQRS.Library.BorrowerService\CQRS.Library.BorrowerService.csproj" />

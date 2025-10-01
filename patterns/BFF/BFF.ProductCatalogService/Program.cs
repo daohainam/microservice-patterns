@@ -17,6 +17,6 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.MapCatalogApi();
 
-//await app.MigrateDbContextAsync<CatalogDbContext>();
+await app.MigrateDbContextAsync<ProductCatalogDbContext>();
 
 app.Run();

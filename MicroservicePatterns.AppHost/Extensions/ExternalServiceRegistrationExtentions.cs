@@ -9,7 +9,7 @@ using System.Net.Http.Json;
 namespace MicroservicePatterns.AppHost.Extensions;
 public static class ExternalServiceRegistrationExtentions
 {
-    private static bool GatewayDangerousAcceptAnyServerCertificate = true;
+    private static readonly bool GatewayDangerousAcceptAnyServerCertificate = true;
 
     public static IDistributedApplicationBuilder AddApplicationServices(this IDistributedApplicationBuilder builder)
     {
@@ -47,6 +47,16 @@ public static class ExternalServiceRegistrationExtentions
         //{
         //    await CreateKafkaTopics(@event, kafka.Resource, ct);
         //});
+
+        #region Backend for Frontend (BFF)
+        var productCategoryDb = postgres.AddDefaultDatabase<Projects.BFF_ProductCatalogService>();
+        var productCategoryService = builder.AddProjectWithPostfix<Projects.BFF_ProductCatalogService>()
+            // .WithReference(kafka)
+            .WithReference(productCategoryDb, Consts.DefaultDatabase)
+            .WaitFor(productCategoryDb)
+            // .WaitFor(kafka)
+            .WithEnvironment("GRAFANA_URL", grafana.GetEndpoint("http"));
+        #endregion
 
         #region CQRS Library
         var bookDb = postgres.AddDefaultDatabase<Projects.CQRS_Library_BookService>();
@@ -559,14 +569,6 @@ public static class ExternalServiceRegistrationExtentions
         webhookDispatchService.WithParentRelationship(webHookDeliveryService);
         webhookEventConsumer.WithParentRelationship(webHookDeliveryService);
 
-        #endregion
-
-        #region Backend for Frontend (BFF) 
-        var productCatalogDb = postgres.AddDefaultDatabase<Projects.BFF_ProductCatalogService>();
-        var bffProductCatalogService = builder.AddProjectWithPostfix<Projects.BFF_ProductCatalogService>()
-            .WithReference(productCatalogDb, Consts.DefaultDatabase)
-            .WaitFor(productCatalogDb)
-            .WithEnvironment("GRAFANA_URL", grafana.GetEndpoint("http"));
         #endregion
 
         #region MCP Servers
