@@ -6,7 +6,7 @@ public class Product
     public string Description { get; set; } = default!;
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
-    public bool IsActive { get; set; } = true;
+    public bool IsActive { get; set; } 
     public List<Variant> Variants { get; set; } = [];
     public List<Dimension> Dimensions { get; set; } = [];
 }

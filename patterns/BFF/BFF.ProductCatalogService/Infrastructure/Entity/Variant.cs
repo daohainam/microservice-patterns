@@ -10,7 +10,7 @@
         public int Stock { get; set; }
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
-        public bool IsActive { get; set; } = true;
+        public bool IsActive { get; set; }
         public List<DimensionValue> DimensionValues { get; set; } = [];
     }
 }
