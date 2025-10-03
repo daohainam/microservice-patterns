@@ -12,7 +12,29 @@ namespace BFF.ProductCatalogService.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
-                name: "Group",
+                name: "Categories",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    Name = table.Column<string>(type: "text", nullable: false),
+                    UrlSlug = table.Column<string>(type: "text", nullable: false),
+                    Description = table.Column<string>(type: "text", nullable: true),
+                    ParentCategoryId = table.Column<string>(type: "text", nullable: true),
+                    SortOrder = table.Column<int>(type: "integer", nullable: false),
+                    CategoryId = table.Column<Guid>(type: "uuid", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Categories", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Categories_Categories_CategoryId",
+                        column: x => x.CategoryId,
+                        principalTable: "Categories",
+                        principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Groups",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
@@ -20,7 +42,7 @@ namespace BFF.ProductCatalogService.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Group", x => x.Id);
+                    table.PrimaryKey("PK_Groups", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -34,6 +56,7 @@ namespace BFF.ProductCatalogService.Migrations
                     CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     IsActive = table.Column<bool>(type: "boolean", nullable: false),
+                    IsDeleted = table.Column<bool>(type: "boolean", nullable: false),
                     CategoryId = table.Column<Guid>(type: "uuid", nullable: false)
                 },
                 constraints: table =>
@@ -48,6 +71,7 @@ namespace BFF.ProductCatalogService.Migrations
                     Id = table.Column<string>(type: "text", nullable: false),
                     Name = table.Column<string>(type: "text", nullable: false),
                     DisplayType = table.Column<string>(type: "text", nullable: false),
+                    DefaultValue = table.Column<string>(type: "text", nullable: false),
                     ProductId = table.Column<Guid>(type: "uuid", nullable: true)
                 },
                 constraints: table =>
@@ -71,9 +95,9 @@ namespace BFF.ProductCatalogService.Migrations
                 {
                     table.PrimaryKey("PK_GroupProduct", x => new { x.GroupsId, x.ProductsId });
                     table.ForeignKey(
-                        name: "FK_GroupProduct_Group_GroupsId",
+                        name: "FK_GroupProduct_Groups_GroupsId",
                         column: x => x.GroupsId,
-                        principalTable: "Group",
+                        principalTable: "Groups",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
@@ -91,12 +115,14 @@ namespace BFF.ProductCatalogService.Migrations
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
                     ProductId = table.Column<Guid>(type: "uuid", nullable: false),
                     Sku = table.Column<string>(type: "text", nullable: false),
+                    BarCode = table.Column<string>(type: "text", nullable: false),
                     Price = table.Column<decimal>(type: "numeric", nullable: false),
                     Description = table.Column<string>(type: "text", nullable: false),
                     Stock = table.Column<int>(type: "integer", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    IsActive = table.Column<bool>(type: "boolean", nullable: false)
+                    IsActive = table.Column<bool>(type: "boolean", nullable: false),
+                    IsDeleted = table.Column<bool>(type: "boolean", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -113,11 +139,11 @@ namespace BFF.ProductCatalogService.Migrations
                 name: "DimensionValues",
                 columns: table => new
                 {
-                    Id = table.Column<string>(type: "text", nullable: false),
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
                     DimensionId = table.Column<string>(type: "text", nullable: false),
                     Value = table.Column<string>(type: "text", nullable: false),
                     DisplayValue = table.Column<string>(type: "text", nullable: true),
-                    VariantId = table.Column<Guid>(type: "uuid", nullable: true)
+                    SortOrder = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -128,12 +154,56 @@ namespace BFF.ProductCatalogService.Migrations
                         principalTable: "Dimensions",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "ProductDimentions",
+                columns: table => new
+                {
+                    ProductId = table.Column<Guid>(type: "uuid", nullable: false),
+                    DimensionId = table.Column<string>(type: "text", nullable: false),
+                    SortOrder = table.Column<int>(type: "integer", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ProductDimentions", x => new { x.ProductId, x.DimensionId });
                     table.ForeignKey(
-                        name: "FK_DimensionValues_Variants_VariantId",
+                        name: "FK_ProductDimentions_Dimensions_DimensionId",
+                        column: x => x.DimensionId,
+                        principalTable: "Dimensions",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_ProductDimentions_Products_ProductId",
+                        column: x => x.ProductId,
+                        principalTable: "Products",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "VariantDimensionValue",
+                columns: table => new
+                {
+                    VariantId = table.Column<Guid>(type: "uuid", nullable: false),
+                    DimensionId = table.Column<string>(type: "text", nullable: false),
+                    Value = table.Column<string>(type: "text", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_VariantDimensionValue", x => new { x.VariantId, x.DimensionId });
+                    table.ForeignKey(
+                        name: "FK_VariantDimensionValue_Variants_VariantId",
                         column: x => x.VariantId,
                         principalTable: "Variants",
-                        principalColumn: "Id");
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Categories_CategoryId",
+                table: "Categories",
+                column: "CategoryId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Dimensions_ProductId",
@@ -146,14 +216,14 @@ namespace BFF.ProductCatalogService.Migrations
                 column: "DimensionId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_DimensionValues_VariantId",
-                table: "DimensionValues",
-                column: "VariantId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_GroupProduct_ProductsId",
                 table: "GroupProduct",
                 column: "ProductsId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ProductDimentions_DimensionId",
+                table: "ProductDimentions",
+                column: "DimensionId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Variants_ProductId",
@@ -165,19 +235,28 @@ namespace BFF.ProductCatalogService.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
+                name: "Categories");
+
+            migrationBuilder.DropTable(
                 name: "DimensionValues");
 
             migrationBuilder.DropTable(
                 name: "GroupProduct");
 
             migrationBuilder.DropTable(
+                name: "ProductDimentions");
+
+            migrationBuilder.DropTable(
+                name: "VariantDimensionValue");
+
+            migrationBuilder.DropTable(
+                name: "Groups");
+
+            migrationBuilder.DropTable(
                 name: "Dimensions");
 
             migrationBuilder.DropTable(
                 name: "Variants");
-
-            migrationBuilder.DropTable(
-                name: "Group");
 
             migrationBuilder.DropTable(
                 name: "Products");

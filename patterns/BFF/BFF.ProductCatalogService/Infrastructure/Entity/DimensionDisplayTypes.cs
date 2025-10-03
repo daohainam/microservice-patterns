@@ -1,4 +1,4 @@
-﻿namespace BFF.ProductCatalogService.Apis;
+﻿namespace BFF.ProductCatalogService.Infrastructure.Entity;
 internal sealed class DimensionDisplayTypes
 {
     // "dropdown", "color", "text", "image", "choice"
@@ -9,4 +9,6 @@ internal sealed class DimensionDisplayTypes
     public const string Choice = "choice";
 
     public static readonly string[] All = [ Text, Color, Image, Dropdown, Choice ];
+
+    public static bool Has(string displayType) => All.Contains(displayType);
 }

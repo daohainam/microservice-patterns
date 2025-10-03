@@ -1,12 +1,9 @@
 ﻿namespace BFF.ProductCatalogService.Infrastructure.Entity;
-public class Category
+public class Brand
 {
     public Guid Id { get; set; } = default!;
     public string Name { get; set; } = default!;
     public string UrlSlug { get; set; } = default!;
     public string? Description { get; set; }
-    public string? ParentCategoryId { get; set; }
-    public int SortOrder { get; set; }
-
-    public List<Category> SubCategories { get; set; } = [];
+    public string? LogoUrl { get; set; }
 }

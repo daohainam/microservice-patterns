@@ -1,4 +1,6 @@
-﻿namespace BFF.ProductCatalogService.Infrastructure.Entity;
+﻿using System.Text.Json.Serialization;
+
+namespace BFF.ProductCatalogService.Infrastructure.Entity;
 public class Dimension
 {
     public string Id { get; set; } = default!;

@@ -1,10 +1,13 @@
 ﻿using BFF.ProductCatalogService.Infrastructure.Entity;
 using Microsoft.AspNetCore.Mvc;
+using System.Globalization;
 
 namespace BFF.ProductCatalogService.Apis;
+
 public static class ProductCatalogApi
 {
     private static readonly string InvalidDisplayType = $"Invalid display type. Valid types are: {string.Join(", ", DimensionDisplayTypes.All)}";
+    private const int defaultPageSize = 10;
 
     public static IEndpointRouteBuilder MapCatalogApi(this IEndpointRouteBuilder builder)
     {
@@ -17,80 +20,274 @@ public static class ProductCatalogApi
 
     public static RouteGroupBuilder MapCatalogApi(this RouteGroupBuilder group)
     {
-        group.MapGet("products", async ([AsParameters] ApiServices services) =>
-        {
-            return await services.DbContext.Products.ToListAsync();
-        });
-        group.MapGet("products/{id:guid}", async ([AsParameters] ApiServices services, Guid id) =>
-        {
-            return await services.DbContext.Products.FindAsync(id);
-        });
-        group.MapPost("products", CreateProduct);
-        group.MapPut("products/{id:guid}", UpdateProduct);
+        group.MapPost("categories", CreateCategory);
 
-        group.MapPost("dimensions", AddDimentions);
+        group.MapPost("groups", CreateGroup);
+
+        group.MapPost("dimensions", CreateDimentions);
         group.MapPost("dimensions/{id}/values", AddDimentionValues);
+        group.MapGet("dimensions", async ([AsParameters] ApiServices services, [FromQuery] int? offset = 0, [FromQuery] int? limit = defaultPageSize) =>
+        {
+            return await services.DbContext.Dimensions
+            .Include(d => d.Values)
+            .Skip(offset!.Value).Take(limit!.Value)
+            .ToListAsync();
+        });
 
-        group.MapPost("categories", AddCategory)
+        #region Products
+        group.MapPost("products", CreateProduct);
+        group.MapPut("products/{productId:guid}", UpdateProduct);
+        group.MapGet("products", async ([AsParameters] ApiServices services, [FromQuery] int? offset = 0, [FromQuery] int? limit = defaultPageSize) =>
+        {
+            return await services.DbContext.Products
+            // .Where(p => !p.IsDeleted) // in this in internal API, we return all products exept deleted ones
+            .Skip(offset!.Value).Take(limit!.Value).ToListAsync();
+        });
+        group.MapGet("products/{productId:guid}", async ([AsParameters] ApiServices services, Guid productId) =>
+        {
+            return await services.DbContext.Products.FindAsync(productId);
+        });
+        group.MapGet("products/{productId:guid}/dimensions", async ([AsParameters] ApiServices services, Guid productId) =>
+        {
+            var dimensions = from pd in services.DbContext.ProductDimentions
+                             join d in services.DbContext.Dimensions on pd.DimensionId equals d.Id
+                             where pd.ProductId == productId
+                             select d;
+
+            return await dimensions.Include(d => d.Values).ToListAsync();
+        });
+        group.MapPost("products/{productId:guid}/dimensions", AddProductDimension);
+        #endregion
+
+        #region Variants
+        group.MapGet("products/{productId:guid}/variants", FindVariants);
+        group.MapPost("products/{productId:guid}/variants", CreateVariant);
+        group.MapPut("products/{productId:guid}/variants/{variantId:guid}", UpdateVariant);
+        #endregion
 
         return group;
     }
 
-    private static async Task<Results<Ok<Category>, BadRequest>> AddCategory([AsParameters] ApiServices services, Category category)
+    private static async Task<Results<Ok<Variant>, BadRequest, NotFound>> UpdateVariant([AsParameters] ApiServices services, Guid productId, Guid variantId, Variant variant)
     {
-        if (category == null)
+        if (variant == null || variant.Id != variantId)
         {
             return TypedResults.BadRequest();
         }
-        if (category.Id == Guid.Empty)
-            category.Id = Guid.CreateVersion7();
-        await services.DbContext.Categories.AddAsync(category);
-        await services.DbContext.SaveChangesAsync();
+        var existingVariant = await services.DbContext.Variants.FindAsync(variantId);
+        if (existingVariant == null || existingVariant.ProductId != productId)
+        {
+            return TypedResults.NotFound();
+        }
 
-        return TypedResults.Ok(category);
+        // do not update stock, it should be updated via inventory service only
+        existingVariant.Sku = variant.Sku;
+        existingVariant.BarCode = variant.BarCode;
+        existingVariant.Price = variant.Price;
+        existingVariant.Description = variant.Description;
+        existingVariant.IsActive = variant.IsActive;
+        existingVariant.IsDeleted = variant.IsDeleted;
+        existingVariant.UpdatedAt = DateTime.UtcNow;
+
+        services.DbContext.Variants.Update(existingVariant);
+        await services.DbContext.SaveChangesAsync();
+        return TypedResults.Ok(existingVariant);
     }
 
-    private static async Task<Results<Ok<DimensionValue>, BadRequest, BadRequest<string>>> AddDimentionValues([AsParameters] ApiServices services, [FromRoute] string id, DimensionValue dimensionValue)
+    private static async Task<Results<Ok<Variant[]>, BadRequest, BadRequest<string>, NotFound>> CreateVariant([AsParameters] ApiServices services, Guid productId, Variant[] variants)
     {
-        if (dimensionValue == null)
+        if (variants == null || variants.Length == 0)
         {
             return TypedResults.BadRequest();
         }
+        
+        var product = await services.DbContext.Products.Include(p => p.Dimensions).ThenInclude(d => d.Values).Where(P => P.Id == productId).SingleOrDefaultAsync();
+        if (product == null)
+        {
+            return TypedResults.NotFound();
+        }
 
-        if (dimensionValue.Id == Guid.Empty)
-            dimensionValue.Id = Guid.CreateVersion7();
+        foreach (var variant in variants)
+        {
+            if (variant.Id == Guid.Empty)
+                variant.Id = Guid.CreateVersion7();
+            variant.ProductId = productId;
 
-        dimensionValue.DimensionId = id;
+            // validate dimension values
+            if (product.Dimensions.Count != variant.DimensionValues!.Count)
+            {
+                return TypedResults.BadRequest("All product dimensions must be specified for the variant.");
+            }
 
-        await services.DbContext.DimensionValues.AddAsync(dimensionValue);
+            foreach (var dim in product.Dimensions)
+            {
+                var variantDimValue = variant.DimensionValues.FirstOrDefault(dv => dv.DimensionId == dim.Id);
+                if (variantDimValue == null)
+                {
+                    return TypedResults.BadRequest($"Dimension '{dim.Id}' must be specified for the variant.");
+                }
+                if (!dim.Values.Any(v => v.Value == variantDimValue.Value))
+                {
+                    return TypedResults.BadRequest($"Invalid value '{variantDimValue.Value}' for dimension '{dim.Id}'.");
+                }
+            }
+
+            await services.DbContext.Variants.AddAsync(variant);
+            foreach (var dimValue in variant.DimensionValues)
+            {
+                dimValue.VariantId = variant.Id;
+                await services.DbContext.VariantDimensionValues.AddAsync(dimValue);
+            }
+        }
+
         await services.DbContext.SaveChangesAsync();
-
-        return TypedResults.Ok(dimensionValue);
+        return TypedResults.Ok(variants);
     }
 
-    private static async Task<Results<Ok<Dimension>, BadRequest, BadRequest<string>>> AddDimentions([AsParameters] ApiServices services, Dimension dimension)
+    private static async Task<Results<Ok<List<Variant>>, NotFound>> FindVariants([AsParameters] ApiServices services, Guid productId)
+    {
+        var product = await services.DbContext.Products.FindAsync(productId);
+        if (product == null)
+        {
+            return TypedResults.NotFound();
+        }
+
+        var variants = await services.DbContext.Variants.Where(v => v.ProductId == productId).ToListAsync();
+        return TypedResults.Ok(variants);
+    }
+
+    private static async Task<Results<Ok, BadRequest, BadRequest<string>>> AddProductDimension([AsParameters] ApiServices services, Guid productId, Dimension dimension)
     {
         if (dimension == null)
         {
             return TypedResults.BadRequest();
         }
 
+        if (productId == Guid.Empty)
+            return TypedResults.BadRequest("Product Id is required.");
+
         if (string.IsNullOrEmpty(dimension.Id))
             return TypedResults.BadRequest("Dimension Id is required.");
-        if (string.IsNullOrEmpty(dimension.DisplayType))
-            dimension.DisplayType = DimensionDisplayTypes.Text;
-        else if (!DimensionDisplayTypes.All.Contains(dimension.DisplayType))
-            return TypedResults.BadRequest(InvalidDisplayType);
 
-        if (!IsValidDimensionId(dimension.Id))
+        var existingDimension = await services.DbContext.ProductDimentions.FindAsync(productId, dimension.Id);
+        if (existingDimension == null)
         {
-            return TypedResults.BadRequest("Dimension Id can only contain alphanumeric characters and underscores.");
+            await services.DbContext.ProductDimentions.AddAsync(new ProductDimention()
+            {
+                ProductId = productId,
+                DimensionId = dimension.Id
+            });
+            await services.DbContext.SaveChangesAsync();
         }
 
-        await services.DbContext.Dimensions.AddAsync(dimension);
+        return TypedResults.Ok();
+    }
+
+    private static async Task<Results<Ok<Group>, BadRequest, BadRequest<string>>> CreateGroup([AsParameters] ApiServices services, Group group)
+    {
+        if (group == null)
+        {
+            return TypedResults.BadRequest();
+        }
+        if (string.IsNullOrEmpty(group.Name))
+        {
+            return TypedResults.BadRequest("Group Name is required.");
+        }
+
+        if (group.Id == Guid.Empty)
+            group.Id = Guid.CreateVersion7();
+
+        await services.DbContext.Groups.AddAsync(group);
         await services.DbContext.SaveChangesAsync();
 
-        return TypedResults.Ok(dimension);
+        return TypedResults.Ok(group);
+    }
+
+    private static async Task<Results<Ok<Category>, BadRequest, BadRequest<string>>> CreateCategory([AsParameters] ApiServices services, Category category)
+    {
+        if (category == null)
+        {
+            return TypedResults.BadRequest();
+        }
+
+        if (string.IsNullOrEmpty(category.Name))
+        {
+            return TypedResults.BadRequest("Category Name is required.");
+        }
+
+        if (string.IsNullOrEmpty(category.UrlSlug))
+        {
+            return TypedResults.BadRequest("Category UrlSlug is required.");
+        }
+
+        if (category.Id == Guid.Empty)
+            category.Id = Guid.CreateVersion7();
+
+        await services.DbContext.Categories.AddAsync(category);
+        await services.DbContext.SaveChangesAsync();
+
+        return TypedResults.Ok(category);
+    }
+
+    private static async Task<Results<Ok<DimensionValue[]>, BadRequest, BadRequest<string>>> AddDimentionValues([AsParameters] ApiServices services, [FromRoute] string id, DimensionValue[] dimensionValues)
+    {
+        if (dimensionValues == null || dimensionValues.Length == 0)
+        {
+            return TypedResults.BadRequest();
+        }
+
+        foreach (var dimensionValue in dimensionValues)
+        {
+            if (dimensionValue.Id == Guid.Empty)
+                dimensionValue.Id = Guid.CreateVersion7();
+
+            dimensionValue.DimensionId = id;
+
+            await services.DbContext.DimensionValues.AddAsync(dimensionValue);
+        }
+        await services.DbContext.SaveChangesAsync();
+
+        return TypedResults.Ok(dimensionValues);
+    }
+
+    private static async Task<Results<Ok<Dimension[]>, BadRequest, BadRequest<string>>> CreateDimentions([AsParameters] ApiServices services, Dimension[] dimensions)
+    {
+        if (dimensions == null || dimensions.Length == 0)
+        {
+            return TypedResults.BadRequest();
+        }
+
+        foreach (var dimension in dimensions)
+        {
+            if (string.IsNullOrEmpty(dimension.Id))
+                return TypedResults.BadRequest("Dimension Id is required.");
+            if (string.IsNullOrEmpty(dimension.DisplayType))
+                dimension.DisplayType = DimensionDisplayTypes.Text;
+            else if (!DimensionDisplayTypes.Has(dimension.DisplayType))
+                return TypedResults.BadRequest(InvalidDisplayType);
+
+            if (!IsValidDimensionId(dimension.Id))
+            {
+                return TypedResults.BadRequest("Dimension Id can only contain alphanumeric characters and underscores.");
+            }
+
+            await services.DbContext.Dimensions.AddAsync(dimension);
+
+            if (dimension.Values != null && dimension.Values.Count > 0)
+            {
+                foreach (var value in dimension.Values)
+                {
+                    if (value.Id == Guid.Empty)
+                        value.Id = Guid.CreateVersion7();
+                    value.DimensionId = dimension.Id;
+                }
+                await services.DbContext.DimensionValues.AddRangeAsync(dimension.Values);
+            }
+        }
+
+        await services.DbContext.SaveChangesAsync();
+
+        return TypedResults.Ok(dimensions);
     }
 
     private static bool IsValidDimensionId(string id)
@@ -100,12 +297,12 @@ public static class ProductCatalogApi
             return false;
         }
 
-        if (!char.IsLetter(id.First()))
+        if (!(id[0] >= 'a' && id[0] <= 'z')) // must start with a lowercase letter
         {
             return false;
         }
 
-        return id.All(c => char.IsLetterOrDigit(c) || c == '_');
+        return id.All(c => c == '_' || (c >= 'a' && c <= 'z') || (c >= '0' && c <= '9')); // only allow lowercase letters, numbers and underscores
     }
 
     private static async Task<Results<Ok<Product>, BadRequest>> CreateProduct([AsParameters] ApiServices services, Product product)
@@ -118,15 +315,18 @@ public static class ProductCatalogApi
         if (product.Id == Guid.Empty)
             product.Id = Guid.CreateVersion7();
 
+        product.CreatedAt = DateTime.UtcNow;
+        product.UpdatedAt = DateTime.UtcNow;
+
         await services.DbContext.Products.AddAsync(product);
         await services.DbContext.SaveChangesAsync();
 
         return TypedResults.Ok(product);
     }
 
-    private static async Task<Results<NotFound, Ok>> UpdateProduct([AsParameters] ApiServices services, Guid id, Product product)
+    private static async Task<Results<NotFound, Ok>> UpdateProduct([AsParameters] ApiServices services, Guid productId, Product product)
     {
-        var existingProduct = await services.DbContext.Products.FindAsync(id);
+        var existingProduct = await services.DbContext.Products.FindAsync(productId);
         if (existingProduct == null)
         {
             return TypedResults.NotFound();
@@ -134,6 +334,10 @@ public static class ProductCatalogApi
 
         existingProduct.Name = product.Name;
         existingProduct.Description = product.Description;
+        existingProduct.IsActive = product.IsActive;
+        existingProduct.UpdatedAt = DateTime.UtcNow;
+        existingProduct.CategoryId = product.CategoryId;
+
         services.DbContext.Products.Update(existingProduct);
 
         await services.DbContext.SaveChangesAsync();
