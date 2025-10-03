@@ -12,8 +12,10 @@ public class BFFProductCatalogTests(AppFixture fixture)
 {
     private DistributedApplication App => fixture.App;
 
-    private async Task<Product?> Create_Test_Product(HttpClient httpClient, Guid categoryId)
+    private async Task<Product?> Create_Test_Product(HttpClient httpClient)
     {
+        var categoryId = Guid.NewGuid();
+        var brandId = Guid.NewGuid();
         var productId = Guid.NewGuid();
 
         var response = await httpClient.PostAsJsonAsync("/api/bff/v1/categories", new Category()
@@ -28,10 +30,22 @@ public class BFFProductCatalogTests(AppFixture fixture)
         // Assert
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
+        // Act
+        response = await httpClient.PostAsJsonAsync("/api/bff/v1/brands", new Brand()
+        {
+            Id = brandId,
+            Name = "Test Brand",
+            Description = "This is a test brand",
+            UrlSlug = "test-brand",
+        }, cancellationToken: TestContext.Current.CancellationToken); 
+        
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+
         response = await httpClient.PostAsJsonAsync("/api/bff/v1/products", new Product()
         {
             Id = productId,
             CategoryId = categoryId,
+            BrandId = brandId,
             Name = "Test Product",
             Description = "This is a test product",
             IsActive = true,
@@ -61,9 +75,8 @@ public class BFFProductCatalogTests(AppFixture fixture)
 
         // Act
         var httpClient = App.CreateHttpClient<Projects.BFF_ProductCatalogService>();
-        var categoryId = Guid.NewGuid();
 
-        var product = await Create_Test_Product(httpClient, categoryId);
+        var product = await Create_Test_Product(httpClient);
 
         Assert.NotNull(product);
         Assert.Equal("Test Product", product.Name);
@@ -119,6 +132,58 @@ public class BFFProductCatalogTests(AppFixture fixture)
         Assert.Contains(dimensions.First(d => d.Id == "size").Values, v => v.Value == "L");
         Assert.Contains(dimensions.First(d => d.Id == "size").Values, v => v.Value == "XL");
 
+        // add dimensions to product
+        response = await httpClient.PostAsJsonAsync($"/api/bff/v1/products/{product.Id}/dimensions", new Dimension[] { new() { Id = "color" }, new() { Id = "size" } }, cancellationToken: TestContext.Current.CancellationToken);
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+
         // add variants to product
+        var variant1 = new Variant()
+        {
+            Id = Guid.NewGuid(),
+            ProductId = product.Id,
+            Sku = "TEST-SKU-001",
+            Price = 19.99m,
+            Stock = 100,
+            BarCode = "1234567890001",
+            Description = "This is a test variant",
+            IsActive = true,
+            IsDeleted = false,
+            DimensionValues =
+            [
+                new() { DimensionId = "color", Value = "ff0000" },
+                new() { DimensionId = "size", Value = "M" }
+            ]
+        };
+
+        var variant2 = new Variant() {
+            Id = Guid.NewGuid(),
+            ProductId = product.Id,
+            Sku = "TEST-SKU-002",
+            Price = 21.99m,
+            Stock = 50,
+            BarCode = "1234567890002",
+            Description = "This is another test variant",
+            IsActive = true,
+            IsDeleted = false,
+            DimensionValues =
+            [
+                new() { DimensionId = "color", Value = "00ff00" },
+                new() { DimensionId = "size", Value = "L" }
+            ]
+        };
+
+        response = await httpClient.PostAsJsonAsync($"/api/bff/v1/products/{product.Id}/variants", new[] { variant1, variant2 }, cancellationToken: TestContext.Current.CancellationToken);
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+
+        // get product and verify variants
+        response = await httpClient.GetAsync($"/api/bff/v1/products/{product.Id}", TestContext.Current.CancellationToken);
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+
+        product = await response.Content.ReadFromJsonAsync<Product>(cancellationToken: TestContext.Current.CancellationToken);
+        Assert.NotNull(product);
+        Assert.Equal(2, product.Variants.Count);
+        Assert.Contains(product.Variants, v => v.Id == variant1.Id && v.Sku == "TEST-SKU-001" && v.Price == 19.99m && v.Stock == 100 && v.DimensionValues.Any(dv => dv.DimensionId == "color" && dv.Value == "ff0000") && v.DimensionValues.Any(dv => dv.DimensionId == "size" && dv.Value == "M"));
     }
 }

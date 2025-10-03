@@ -22,6 +22,31 @@ namespace BFF.ProductCatalogService.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("BFF.ProductCatalogService.Infrastructure.Entity.Brand", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("text");
+
+                    b.Property<string>("LogoUrl")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("UrlSlug")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Brands");
+                });
+
             modelBuilder.Entity("BFF.ProductCatalogService.Infrastructure.Entity.Category", b =>
                 {
                     b.Property<Guid>("Id")
@@ -72,12 +97,7 @@ namespace BFF.ProductCatalogService.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<Guid?>("ProductId")
-                        .HasColumnType("uuid");
-
                     b.HasKey("Id");
-
-                    b.HasIndex("ProductId");
 
                     b.ToTable("Dimensions");
                 });
@@ -124,10 +144,36 @@ namespace BFF.ProductCatalogService.Migrations
                     b.ToTable("Groups");
                 });
 
+            modelBuilder.Entity("BFF.ProductCatalogService.Infrastructure.Entity.Image", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("AltText")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("BaseUrl")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("FileName")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Images");
+                });
+
             modelBuilder.Entity("BFF.ProductCatalogService.Infrastructure.Entity.Product", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("BrandId")
                         .HasColumnType("uuid");
 
                     b.Property<Guid>("CategoryId")
@@ -159,10 +205,12 @@ namespace BFF.ProductCatalogService.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("BrandId");
+
                     b.ToTable("Products");
                 });
 
-            modelBuilder.Entity("BFF.ProductCatalogService.Infrastructure.Entity.ProductDimention", b =>
+            modelBuilder.Entity("BFF.ProductCatalogService.Infrastructure.Entity.ProductDimension", b =>
                 {
                     b.Property<Guid>("ProductId")
                         .HasColumnType("uuid");
@@ -178,6 +226,26 @@ namespace BFF.ProductCatalogService.Migrations
                     b.HasIndex("DimensionId");
 
                     b.ToTable("ProductDimentions");
+                });
+
+            modelBuilder.Entity("BFF.ProductCatalogService.Infrastructure.Entity.ProductImage", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("ImageId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("ProductId")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("SortOrder")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("ProductImages");
                 });
 
             modelBuilder.Entity("BFF.ProductCatalogService.Infrastructure.Entity.Variant", b =>
@@ -240,7 +308,7 @@ namespace BFF.ProductCatalogService.Migrations
 
                     b.HasKey("VariantId", "DimensionId");
 
-                    b.ToTable("VariantDimensionValue");
+                    b.ToTable("VariantDimensionValues");
                 });
 
             modelBuilder.Entity("GroupProduct", b =>
@@ -265,13 +333,6 @@ namespace BFF.ProductCatalogService.Migrations
                         .HasForeignKey("CategoryId");
                 });
 
-            modelBuilder.Entity("BFF.ProductCatalogService.Infrastructure.Entity.Dimension", b =>
-                {
-                    b.HasOne("BFF.ProductCatalogService.Infrastructure.Entity.Product", null)
-                        .WithMany("Dimensions")
-                        .HasForeignKey("ProductId");
-                });
-
             modelBuilder.Entity("BFF.ProductCatalogService.Infrastructure.Entity.DimensionValue", b =>
                 {
                     b.HasOne("BFF.ProductCatalogService.Infrastructure.Entity.Dimension", null)
@@ -281,7 +342,18 @@ namespace BFF.ProductCatalogService.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("BFF.ProductCatalogService.Infrastructure.Entity.ProductDimention", b =>
+            modelBuilder.Entity("BFF.ProductCatalogService.Infrastructure.Entity.Product", b =>
+                {
+                    b.HasOne("BFF.ProductCatalogService.Infrastructure.Entity.Brand", "Brand")
+                        .WithMany()
+                        .HasForeignKey("BrandId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Brand");
+                });
+
+            modelBuilder.Entity("BFF.ProductCatalogService.Infrastructure.Entity.ProductDimension", b =>
                 {
                     b.HasOne("BFF.ProductCatalogService.Infrastructure.Entity.Dimension", "Dimension")
                         .WithMany()
@@ -290,7 +362,7 @@ namespace BFF.ProductCatalogService.Migrations
                         .IsRequired();
 
                     b.HasOne("BFF.ProductCatalogService.Infrastructure.Entity.Product", "Product")
-                        .WithMany()
+                        .WithMany("Dimensions")
                         .HasForeignKey("ProductId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
