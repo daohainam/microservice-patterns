@@ -20,18 +20,22 @@ public static class ProductCatalogApi
 
     public static RouteGroupBuilder MapCatalogApi(this RouteGroupBuilder group)
     {
-        group.MapPost("categories", CreateCategory);
+        var categoryApiGroup = group.MapGroup("categories").WithTags("Category");
+        categoryApiGroup.MapPost("/", CreateCategory);
 
-        group.MapPost("brands", CreateBrand);
-        group.MapGet("brands", FindBrands);
-        group.MapGet("brands/{brandId:guid}", FindBrandById);
-        group.MapPut("brands/{brandId:guid}", UpdateBrand);
+        var brandApiGroup = group.MapGroup("brands").WithTags("Brand");
+        brandApiGroup.MapPost("/", CreateBrand);
+        brandApiGroup.MapGet("/", FindBrands);
+        brandApiGroup.MapGet("/{brandId:guid}", FindBrandById);
+        brandApiGroup.MapPut("/{brandId:guid}", UpdateBrand);
 
-        group.MapPost("groups", CreateGroup);
+        var groupApiGroup = group.MapGroup("groups").WithTags("Group");
+        groupApiGroup.MapPost("/", CreateGroup);
 
-        group.MapPost("dimensions", CreateDimentions);
-        group.MapPost("dimensions/{id}/values", AddDimentionValues);
-        group.MapGet("dimensions", async ([AsParameters] ApiServices services, [FromQuery] int? offset = 0, [FromQuery] int? limit = defaultPageSize) =>
+        var dimensionApiGroup = group.MapGroup("dimensions").WithTags("Dimension");
+        dimensionApiGroup.MapPost("/", CreateDimentions);
+        dimensionApiGroup.MapPost("/{id}/values", AddDimentionValues);
+        dimensionApiGroup.MapGet("/", async ([AsParameters] ApiServices services, [FromQuery] int? offset = 0, [FromQuery] int? limit = defaultPageSize) =>
         {
             return await services.DbContext.Dimensions
             .Include(d => d.Values)
@@ -39,20 +43,23 @@ public static class ProductCatalogApi
             .ToListAsync();
         });
 
-        #region Products
-        group.MapPost("products", CreateProduct);
-        group.MapPut("products/{productId:guid}", UpdateProduct);
-        group.MapGet("products", async ([AsParameters] ApiServices services, [FromQuery] int? offset = 0, [FromQuery] int? limit = defaultPageSize) =>
+        #region Products and Variants
+
+        var productApiGroup = group.MapGroup("products").WithTags("Product");
+
+        productApiGroup.MapPost("/", CreateProduct);
+        productApiGroup.MapPut("/{productId:guid}", UpdateProduct);
+        productApiGroup.MapGet("/", async ([AsParameters] ApiServices services, [FromQuery] int? offset = 0, [FromQuery] int? limit = defaultPageSize) =>
         {
             return await services.DbContext.Products
             // .Where(p => !p.IsDeleted) // in this in internal API, we return all products exept deleted ones
             .Skip(offset!.Value).Take(limit!.Value).ToListAsync();
         });
-        group.MapGet("products/{productId:guid}", async ([AsParameters] ApiServices services, Guid productId) =>
+        productApiGroup.MapGet("/{productId:guid}", async ([AsParameters] ApiServices services, Guid productId) =>
         {
             return await services.DbContext.Products.Include(p => p.Variants).ThenInclude(d => d.DimensionValues).Where(p => p.Id == productId).SingleOrDefaultAsync();
         });
-        group.MapGet("products/{productId:guid}/dimensions", async ([AsParameters] ApiServices services, Guid productId) =>
+        productApiGroup.MapGet("/{productId:guid}/dimensions", async ([AsParameters] ApiServices services, Guid productId) =>
         {
             var dimensions = from pd in services.DbContext.ProductDimentions
                              join d in services.DbContext.Dimensions on pd.DimensionId equals d.Id
@@ -61,18 +68,17 @@ public static class ProductCatalogApi
 
             return await dimensions.Include(d => d.Values).ToListAsync();
         });
-        group.MapPost("products/{productId:guid}/dimensions", AddProductDimension);
-        #endregion
+        productApiGroup.MapPost("/{productId:guid}/dimensions", AddProductDimension);
 
-        #region Variants
-        group.MapGet("products/{productId:guid}/variants", FindVariants);
-        group.MapPost("products/{productId:guid}/variants", CreateVariant);
-        group.MapPut("products/{productId:guid}/variants/{variantId:guid}", UpdateVariant);
+        productApiGroup.MapGet("/{productId:guid}/variants", FindVariants);
+        productApiGroup.MapPost("/{productId:guid}/variants", CreateVariant);
+        productApiGroup.MapPut("/{productId:guid}/variants/{variantId:guid}", UpdateVariant);
         #endregion
 
         return group;
     }
 
+    #region Brands
     private static async Task<Results<Ok<Brand>, BadRequest, BadRequest<string>>> UpdateBrand([AsParameters] ApiServices services, Guid brandId, Brand brand)
     {
         if (brand == null || brand.Id != brandId)
@@ -152,7 +158,9 @@ public static class ProductCatalogApi
 
         return TypedResults.Ok(brand);
     }
+    #endregion
 
+    #region Variants
     private static async Task<Results<Ok<Variant>, BadRequest, NotFound>> UpdateVariant([AsParameters] ApiServices services, Guid productId, Guid variantId, Variant variant)
     {
         if (variant == null || variant.Id != variantId)
@@ -250,6 +258,7 @@ public static class ProductCatalogApi
         var variants = await services.DbContext.Variants.Where(v => v.ProductId == productId).ToListAsync();
         return TypedResults.Ok(variants);
     }
+    #endregion
 
     private static async Task<Results<Ok, BadRequest, BadRequest<string>>> AddProductDimension([AsParameters] ApiServices services, Guid productId, Dimension[] dimensions)
     {
