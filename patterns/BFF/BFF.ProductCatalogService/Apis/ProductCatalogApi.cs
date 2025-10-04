@@ -23,6 +23,9 @@ public static class ProductCatalogApi
         group.MapPost("categories", CreateCategory);
 
         group.MapPost("brands", CreateBrand);
+        group.MapGet("brands", FindBrands);
+        group.MapGet("brands/{brandId:guid}", FindBrandById);
+        group.MapPut("brands/{brandId:guid}", UpdateBrand);
 
         group.MapPost("groups", CreateGroup);
 
@@ -68,6 +71,60 @@ public static class ProductCatalogApi
         #endregion
 
         return group;
+    }
+
+    private static async Task<Results<Ok<Brand>, BadRequest, BadRequest<string>>> UpdateBrand([AsParameters] ApiServices services, Guid brandId, Brand brand)
+    {
+        if (brand == null || brand.Id != brandId)
+        {
+            return TypedResults.BadRequest();
+        }
+
+        var existingBrand = await services.DbContext.Brands.FindAsync(brandId);
+        if (existingBrand == null)
+        {
+            return TypedResults.BadRequest("Brand not found.");
+        }
+        
+        if (string.IsNullOrEmpty(brand.Name))
+        {
+            return TypedResults.BadRequest("Category Name is required.");
+        }
+        
+        if (string.IsNullOrEmpty(brand.UrlSlug))
+        {
+            return TypedResults.BadRequest("Category UrlSlug is required.");
+        }
+        
+        existingBrand.Name = brand.Name;
+        existingBrand.Description = brand.Description;
+        existingBrand.UrlSlug = brand.UrlSlug;
+        existingBrand.LogoUrl = brand.LogoUrl;
+
+        services.DbContext.Brands.Update(existingBrand);
+        await services.DbContext.SaveChangesAsync();
+        
+        return TypedResults.Ok(existingBrand);
+    }
+
+    private static async Task<Results<Ok<Brand>, NotFound>> FindBrandById([AsParameters] ApiServices services, Guid brandId)
+    {
+        var brand = await services.DbContext.Brands.FindAsync(brandId);
+        if (brand == null)
+        {
+            return TypedResults.NotFound();
+        }
+
+        return TypedResults.Ok(brand);
+    }
+
+    private static async Task<Results<Ok<Brand[]>, NotFound>> FindBrands([AsParameters] ApiServices services, [FromQuery] int? offset = 0, [FromQuery] int? limit = defaultPageSize)
+    {
+        var brands = await services.DbContext.Brands
+            .Skip(offset!.Value).Take(limit!.Value)
+            .ToArrayAsync();
+        
+        return TypedResults.Ok(brands);
     }
 
     private static async Task<Results<Ok<Brand>, BadRequest, BadRequest<string>>> CreateBrand([AsParameters] ApiServices services, Brand brand)
