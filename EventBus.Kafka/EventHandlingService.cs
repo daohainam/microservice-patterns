@@ -1,27 +1,17 @@
 ﻿using EventBus.Events;
 
 namespace EventBus.Kafka;
-public class EventHandlingService : BackgroundService
+public class EventHandlingService(IConsumer<string, MessageEnvelop> consumer,
+    EventHandlingWorkerOptions options,
+    IIntegrationEventFactory integrationEventFactory,
+    IServiceScopeFactory serviceScopeFactory,
+    ILoggerFactory loggerFactory) : BackgroundService
 {
-    private readonly IConsumer<string, MessageEnvelop> consumer;
-    private readonly EventHandlingWorkerOptions options;
-    private readonly IIntegrationEventFactory integrationEventFactory;
-    private readonly IServiceScopeFactory serviceScopeFactory;
-    private readonly ILogger logger;
-
-    public EventHandlingService(IConsumer<string, MessageEnvelop> consumer,
-        EventHandlingWorkerOptions options,
-        IIntegrationEventFactory integrationEventFactory,
-        IServiceScopeFactory serviceScopeFactory,
-        ILoggerFactory loggerFactory)
-    {
-        this.consumer = consumer;
-        this.options = options;
-        this.integrationEventFactory = integrationEventFactory;
-        this.serviceScopeFactory = serviceScopeFactory;
-
-        logger = loggerFactory.CreateLogger(options.ServiceName);
-    }
+    private readonly IConsumer<string, MessageEnvelop> consumer = consumer;
+    private readonly EventHandlingWorkerOptions options = options;
+    private readonly IIntegrationEventFactory integrationEventFactory = integrationEventFactory;
+    private readonly IServiceScopeFactory serviceScopeFactory = serviceScopeFactory;
+    private readonly ILogger logger = loggerFactory.CreateLogger(options.ServiceName);
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
