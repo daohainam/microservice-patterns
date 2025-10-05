@@ -1,6 +1,177 @@
-@BFF.ProductCatalogService_HostAddress = http://localhost:5247
+@BFF.ProductCatalogService_HostAddress = https://localhost:7067
 
-GET {{BFF.ProductCatalogService_HostAddress}}/weatherforecast/
-Accept: application/json
+### Create a Category
+POST {{BFF.ProductCatalogService_HostAddress}}/api/bff/v1/categories/
+Content-Type: application/json
 
-###
+{
+  "id": "00000000-0000-0000-0000-000000000001",
+  "name": "Books",
+  "urlSlug": "books",
+  "description": "All book categories"
+}
+
+### Create a Brand
+POST {{BFF.ProductCatalogService_HostAddress}}/api/bff/v1/brands/
+Content-Type: application/json
+
+{
+  "id": "00000000-0000-0000-0000-000000000001",
+  "name": "Brand-1",
+  "urlSlug": "brand-1",
+  "description": "Brand 1",
+  "logoUrl": "https://example.com/logo.png"
+}
+
+### Get Brands (paged)
+GET {{BFF.ProductCatalogService_HostAddress}}/api/bff/v1/brands?offset=0&limit=10
+
+### Get Brand by Id
+GET {{BFF.ProductCatalogService_HostAddress}}/api/bff/v1/brands/00000000-0000-0000-0000-000000000001
+
+### Update Brand
+PUT {{BFF.ProductCatalogService_HostAddress}}/api/bff/v1/brands/00000000-0000-0000-0000-000000000001
+Content-Type: application/json
+
+{
+  "id": "00000000-0000-0000-0000-000000000002",
+  "name": "Acme Updated",
+  "urlSlug": "acme-updated",
+  "description": "Updated description",
+  "logoUrl": "https://example.com/logo2.png"
+}
+
+### Create a Group
+POST {{BFF.ProductCatalogService_HostAddress}}/api/bff/v1/groups/
+Content-Type: application/json
+
+{
+  "id": "00000000-0000-0000-0000-000000000001",
+  "name": "Group A"
+}
+
+### Create Dimensions
+POST {{BFF.ProductCatalogService_HostAddress}}/api/bff/v1/dimensions/
+Content-Type: application/json
+
+[
+  {
+    "id": "color",
+    "displayType": "color",
+    "name": "Color",
+    "defaultValue": "nocolor",
+    "values": [
+      { "id": "00000000-0000-0000-0000-000000000001", "value": "red", "displayValue": "Red" },
+      { "id": "00000000-0000-0000-0000-000000000002", "value": "blue", "displayValue": "Blue" }
+    ]
+  }
+]
+
+### Add Dimension Values
+POST {{BFF.ProductCatalogService_HostAddress}}/api/bff/v1/dimensions/color/values
+Content-Type: application/json
+
+[
+  { "id": "00000000-0000-0000-0000-000000000003", "value": "green" }
+]
+
+### Get Dimensions (paged)
+GET {{BFF.ProductCatalogService_HostAddress}}/api/bff/v1/dimensions?offset=0&limit=10
+
+### Create Product
+POST {{BFF.ProductCatalogService_HostAddress}}/api/bff/v1/products/
+Content-Type: application/json
+
+{
+  "id": "00000000-0000-0000-0000-000000000100",
+  "name": "Sample Product",
+  "description": "A sample product",
+  "isActive": true,
+  "urlSlug": "sample-product-1",
+  "categoryId": "00000000-0000-0000-0000-000000000001",
+  "brandId": "00000000-0000-0000-0000-000000000001",
+  "dimensions": [ { "dimensionId": "color" } ],
+  "variants": [
+    {
+      "id": "00000000-0000-0000-0000-000000001000",
+      "sku": "SKU-001",
+      "barCode": "1234567890",
+      "price": 19.99,
+      "description": "Red variant",
+      "isActive": true,
+      "isDeleted": false,
+      "dimensionValues": [
+        { "dimensionId": "color", "value": "red" }
+      ]
+    }
+  ]
+}
+
+### Update Product
+PUT {{BFF.ProductCatalogService_HostAddress}}/api/bff/v1/products/00000000-0000-0000-0000-000000000100
+Content-Type: application/json
+
+{
+  "id": "00000000-0000-0000-0000-000000000100",
+  "name": "Sample Product Updated",
+  "description": "Updated description",
+  "isActive": true,
+  "categoryId": "00000000-0000-0000-0000-000000000001",
+  "brandId": "00000000-0000-0000-0000-000000000001"
+}
+
+### Get Products (paged)
+GET {{BFF.ProductCatalogService_HostAddress}}/api/bff/v1/products?offset=0&limit=10
+
+### Get Product by Id
+GET {{BFF.ProductCatalogService_HostAddress}}/api/bff/v1/products/00000000-0000-0000-0000-000000000100
+
+### Get Product Dimensions
+GET {{BFF.ProductCatalogService_HostAddress}}/api/bff/v1/products/00000000-0000-0000-0000-000000000100/dimensions
+
+### Add Product Dimensions
+POST {{BFF.ProductCatalogService_HostAddress}}/api/bff/v1/products/00000000-0000-0000-0000-000000000100/dimensions
+Content-Type: application/json
+
+[
+  { "id": "color" }
+]
+
+### Get Product Variants
+GET {{BFF.ProductCatalogService_HostAddress}}/api/bff/v1/products/00000000-0000-0000-0000-000000000100/variants
+
+### Create Product Variants
+POST {{BFF.ProductCatalogService_HostAddress}}/api/bff/v1/products/00000000-0000-0000-0000-000000000100/variants
+Content-Type: application/json
+
+[
+  {
+    "id": "00000000-0000-0000-0000-000000001001",
+    "sku": "SKU-002",
+    "barCode": "1234567891",
+    "price": 29.99,
+    "description": "Green variant",
+    "isActive": true,
+    "isDeleted": false,
+    "dimensionValues": [
+      { "dimensionId": "color", "value": "green" }
+    ]
+  }
+]
+
+### Update Product Variant
+PUT {{BFF.ProductCatalogService_HostAddress}}/api/bff/v1/products/00000000-0000-0000-0000-000000000100/variants/00000000-0000-0000-0000-000000001000
+Content-Type: application/json
+
+{
+  "id": "00000000-0000-0000-0000-000000001000",
+  "sku": "SKU-001-UPDATED",
+  "barCode": "1234567890",
+  "price": 21.99,
+  "description": "Red variant updated",
+  "isActive": true,
+  "isDeleted": false,
+  "dimensionValues": [
+    { "dimensionId": "color", "value": "Red" }
+  ]
+}
