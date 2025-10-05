@@ -1,6 +1,11 @@
-﻿using BFF.ProductCatalogService.Infrastructure.Entity;
+﻿using BFF.ProductCatalogService.Extensions;
+using BFF.ProductCatalogService.Infrastructure.Entity;
+using Confluent.Kafka;
 using Microsoft.AspNetCore.Mvc;
 using System.Globalization;
+using System.Text.Json;
+using TransactionalOutbox.Abstractions;
+using TransactionalOutbox.IntegrationEvents;
 
 namespace BFF.ProductCatalogService.Apis;
 
@@ -414,7 +419,7 @@ public static class ProductCatalogApi
         return id.All(c => c == '_' || (c >= 'a' && c <= 'z') || (c >= '0' && c <= '9')); // only allow lowercase letters, numbers and underscores
     }
 
-    private static async Task<Results<Ok<Product>, BadRequest, BadRequest<string>>> CreateProduct([AsParameters] ApiServices services, Product product)
+    private static async Task<Results<Ok<Product>, BadRequest, BadRequest<string>>> CreateProduct([AsParameters] ApiServicesWithUnitOfWork services, Product product)
     {
         if (product == null)
         {
@@ -429,6 +434,12 @@ public static class ProductCatalogApi
             // we do not allow creating new groups via product creation
             return TypedResults.BadRequest("Only existing groups can be associated with the product.");
         }
+
+        await services.UnitOfWork.BeginTransactionAsync(services.CancellationToken);
+
+        var brand = await services.UnitOfWork.DbContext.Brands.FindAsync(product.BrandId) ?? throw new Exception("Brand not found.");
+        var category = await services.UnitOfWork.DbContext.Categories.FindAsync(product.CategoryId) ?? throw new Exception("Category not found.");
+        var productDimensions = await services.UnitOfWork.DbContext.ProductDimentions.Where(pd => pd.ProductId == product.Id).ToListAsync();
 
         product.CreatedAt = DateTime.UtcNow;
         product.UpdatedAt = DateTime.UtcNow;
@@ -456,7 +467,7 @@ public static class ProductCatalogApi
                 variant.BarCode ??= string.Empty;
                 variant.Sku ??= string.Empty;
 
-                await services.DbContext.Variants.AddAsync(variant);
+                await services.UnitOfWork.DbContext.Variants.AddAsync(variant);
 
                 if (variant.DimensionValues != null && variant.DimensionValues.Count > 0)
                 {
@@ -474,9 +485,23 @@ public static class ProductCatalogApi
             }
         }
 
-        await services.DbContext.Products.AddAsync(product);
 
-        await services.DbContext.SaveChangesAsync();
+        // create outbox event
+        product.Brand = brand;
+        product.Category = category;
+        product.Dimensions = productDimensions;
+        var evt = product.ToProductCreatedEvent();
+
+        await services.UnitOfWork.OutboxForLogTailingRepository.AddAsync(new LogTailingOutboxMessage()
+        {
+            Id = Guid.NewGuid(),
+            CreationDate = DateTime.UtcNow,
+            PayloadType = typeof(AccountOpenedIntegrationEvent).FullName ?? throw new Exception($"Could not get fullname of type {evt.GetType()}"),
+            Payload = JsonSerializer.Serialize(evt),
+        });
+
+        await services.UnitOfWork.DbContext.Products.AddAsync(product);
+        await services.UnitOfWork.DbContext.SaveChangesAsync();
 
         return TypedResults.Ok(product);
     }

@@ -13,8 +13,10 @@ public class Product
     public bool IsActive { get; set; }
     public bool IsDeleted { get; set; }
     public Guid CategoryId { get; set; } = default!;
+    public Category Category { get; set; } = default!;
     public List<Variant> Variants { get; set; } = [];
     public List<ProductDimension> Dimensions { get; set; } = [];
     public List<Group> Groups { get; set; } = [];
     public Brand Brand { get; set; } = default!;
+    public List<ProductImage> Images { get; set; } = [];
 }

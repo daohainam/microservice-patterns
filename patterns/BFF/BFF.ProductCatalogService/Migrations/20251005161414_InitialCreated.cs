@@ -89,20 +89,6 @@ namespace BFF.ProductCatalogService.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "ProductImages",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    ProductId = table.Column<Guid>(type: "uuid", nullable: false),
-                    ImageId = table.Column<Guid>(type: "uuid", nullable: false),
-                    SortOrder = table.Column<int>(type: "integer", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_ProductImages", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "Products",
                 columns: table => new
                 {
@@ -124,6 +110,12 @@ namespace BFF.ProductCatalogService.Migrations
                         name: "FK_Products_Brands_BrandId",
                         column: x => x.BrandId,
                         principalTable: "Brands",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Products_Categories_CategoryId",
+                        column: x => x.CategoryId,
+                        principalTable: "Categories",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -223,6 +215,33 @@ namespace BFF.ProductCatalogService.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "ProductImages",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    ProductId = table.Column<Guid>(type: "uuid", nullable: false),
+                    ImageId = table.Column<Guid>(type: "uuid", nullable: false),
+                    AltText = table.Column<string>(type: "text", nullable: false),
+                    SortOrder = table.Column<int>(type: "integer", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ProductImages", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_ProductImages_Images_ImageId",
+                        column: x => x.ImageId,
+                        principalTable: "Images",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_ProductImages_Products_ProductId",
+                        column: x => x.ProductId,
+                        principalTable: "Products",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Variants",
                 columns: table => new
                 {
@@ -294,9 +313,24 @@ namespace BFF.ProductCatalogService.Migrations
                 column: "GroupId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_ProductImages_ImageId",
+                table: "ProductImages",
+                column: "ImageId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ProductImages_ProductId",
+                table: "ProductImages",
+                column: "ProductId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Products_BrandId",
                 table: "Products",
                 column: "BrandId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Products_CategoryId",
+                table: "Products",
+                column: "CategoryId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Variants_ProductId",
@@ -308,16 +342,10 @@ namespace BFF.ProductCatalogService.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "Categories");
-
-            migrationBuilder.DropTable(
                 name: "DimensionValues");
 
             migrationBuilder.DropTable(
                 name: "GroupProduct");
-
-            migrationBuilder.DropTable(
-                name: "Images");
 
             migrationBuilder.DropTable(
                 name: "ProductDimentions");
@@ -338,6 +366,9 @@ namespace BFF.ProductCatalogService.Migrations
                 name: "Groups");
 
             migrationBuilder.DropTable(
+                name: "Images");
+
+            migrationBuilder.DropTable(
                 name: "Variants");
 
             migrationBuilder.DropTable(
@@ -345,6 +376,9 @@ namespace BFF.ProductCatalogService.Migrations
 
             migrationBuilder.DropTable(
                 name: "Brands");
+
+            migrationBuilder.DropTable(
+                name: "Categories");
         }
     }
 }

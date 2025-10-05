@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace BFF.ProductCatalogService.Migrations
 {
     [DbContext(typeof(ProductCatalogDbContext))]
-    [Migration("20251005074137_InitialCreated")]
+    [Migration("20251005161414_InitialCreated")]
     partial class InitialCreated
     {
         /// <inheritdoc />
@@ -210,6 +210,8 @@ namespace BFF.ProductCatalogService.Migrations
 
                     b.HasIndex("BrandId");
 
+                    b.HasIndex("CategoryId");
+
                     b.ToTable("Products");
                 });
 
@@ -252,6 +254,10 @@ namespace BFF.ProductCatalogService.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
+                    b.Property<string>("AltText")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.Property<Guid>("ImageId")
                         .HasColumnType("uuid");
 
@@ -262,6 +268,10 @@ namespace BFF.ProductCatalogService.Migrations
                         .HasColumnType("integer");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("ImageId");
+
+                    b.HasIndex("ProductId");
 
                     b.ToTable("ProductImages");
                 });
@@ -368,7 +378,15 @@ namespace BFF.ProductCatalogService.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("BFF.ProductCatalogService.Infrastructure.Entity.Category", "Category")
+                        .WithMany()
+                        .HasForeignKey("CategoryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.Navigation("Brand");
+
+                    b.Navigation("Category");
                 });
 
             modelBuilder.Entity("BFF.ProductCatalogService.Infrastructure.Entity.ProductDimension", b =>
@@ -407,6 +425,23 @@ namespace BFF.ProductCatalogService.Migrations
                     b.Navigation("Group");
 
                     b.Navigation("Product");
+                });
+
+            modelBuilder.Entity("BFF.ProductCatalogService.Infrastructure.Entity.ProductImage", b =>
+                {
+                    b.HasOne("BFF.ProductCatalogService.Infrastructure.Entity.Image", "Image")
+                        .WithMany()
+                        .HasForeignKey("ImageId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("BFF.ProductCatalogService.Infrastructure.Entity.Product", null)
+                        .WithMany("Images")
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Image");
                 });
 
             modelBuilder.Entity("BFF.ProductCatalogService.Infrastructure.Entity.Variant", b =>
@@ -455,6 +490,8 @@ namespace BFF.ProductCatalogService.Migrations
             modelBuilder.Entity("BFF.ProductCatalogService.Infrastructure.Entity.Product", b =>
                 {
                     b.Navigation("Dimensions");
+
+                    b.Navigation("Images");
 
                     b.Navigation("Variants");
                 });

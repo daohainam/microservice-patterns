@@ -23,6 +23,7 @@
 	<ProjectReference Include="..\..\..\MicroservicePatterns.ServiceDefaults\MicroservicePatterns.ServiceDefaults.csproj" />
 	<ProjectReference Include="..\..\..\MicroservicePatterns.Shared\MicroservicePatterns.Shared.csproj" />
 	<ProjectReference Include="..\..\TransactionalOutbox\TransactionalOutbox.Infrastructure\TransactionalOutbox.Infrastructure.csproj" />
+	<ProjectReference Include="..\BFF.ProductCatalog.Events\BFF.ProductCatalog.Events.csproj" />
 </ItemGroup>
 
 	<ItemGroup>
