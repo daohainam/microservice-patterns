@@ -16,6 +16,7 @@ public static class ExternalServiceRegistrationExtentions
         var cache = builder.AddRedis("redis");
         var kafka = builder.AddKafka("kafka");
         var postgres = builder.AddPostgres("postgresql");
+        var elasticsearch = builder.AddElasticsearch("elasticsearch").WithContainerRuntimeArgs("--memory=512m");
         //var debezium = builder.AddDebezium();
 
         if (!builder.Configuration.GetValue("IsTest", false))
@@ -23,6 +24,7 @@ public static class ExternalServiceRegistrationExtentions
             cache = cache.WithLifetime(ContainerLifetime.Persistent).WithDataVolume().WithRedisInsight();
             kafka = kafka.WithLifetime(ContainerLifetime.Persistent).WithDataVolume().WithKafkaUI();
             postgres = postgres.WithLifetime(ContainerLifetime.Persistent).WithDataVolume().WithPgWeb();
+            elasticsearch = elasticsearch.WithLifetime(ContainerLifetime.Persistent).WithDataVolume();
         }
 
         // Grafana and Prometheus supports
