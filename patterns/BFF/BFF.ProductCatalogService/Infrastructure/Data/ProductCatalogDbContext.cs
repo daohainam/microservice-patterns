@@ -14,4 +14,5 @@ public class ProductCatalogDbContext(DbContextOptions<ProductCatalogDbContext> o
     public DbSet<ProductImage> ProductImages { get; internal set; }
     public DbSet<Image> Images { get; internal set; }
     public DbSet<Brand> Brands { get; internal set; }
+    public DbSet<ProductGroup> ProductGroups { get; internal set; }
 }

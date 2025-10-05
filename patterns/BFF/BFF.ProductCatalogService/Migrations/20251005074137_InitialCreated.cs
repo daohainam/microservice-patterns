@@ -199,6 +199,30 @@ namespace BFF.ProductCatalogService.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "ProductGroups",
+                columns: table => new
+                {
+                    ProductId = table.Column<Guid>(type: "uuid", nullable: false),
+                    GroupId = table.Column<Guid>(type: "uuid", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ProductGroups", x => new { x.ProductId, x.GroupId });
+                    table.ForeignKey(
+                        name: "FK_ProductGroups_Groups_GroupId",
+                        column: x => x.GroupId,
+                        principalTable: "Groups",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_ProductGroups_Products_ProductId",
+                        column: x => x.ProductId,
+                        principalTable: "Products",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Variants",
                 columns: table => new
                 {
@@ -265,6 +289,11 @@ namespace BFF.ProductCatalogService.Migrations
                 column: "DimensionId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_ProductGroups_GroupId",
+                table: "ProductGroups",
+                column: "GroupId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Products_BrandId",
                 table: "Products",
                 column: "BrandId");
@@ -294,16 +323,19 @@ namespace BFF.ProductCatalogService.Migrations
                 name: "ProductDimentions");
 
             migrationBuilder.DropTable(
+                name: "ProductGroups");
+
+            migrationBuilder.DropTable(
                 name: "ProductImages");
 
             migrationBuilder.DropTable(
                 name: "VariantDimensionValues");
 
             migrationBuilder.DropTable(
-                name: "Groups");
+                name: "Dimensions");
 
             migrationBuilder.DropTable(
-                name: "Dimensions");
+                name: "Groups");
 
             migrationBuilder.DropTable(
                 name: "Variants");

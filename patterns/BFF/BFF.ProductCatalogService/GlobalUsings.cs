@@ -6,3 +6,4 @@ global using MicroservicePatterns.Shared;
 global using BFF.ProductCatalogService.Apis;
 global using BFF.ProductCatalogService.Bootstraping;
 global using Scalar.AspNetCore;
+global using TransactionalOutbox.Infrastructure;

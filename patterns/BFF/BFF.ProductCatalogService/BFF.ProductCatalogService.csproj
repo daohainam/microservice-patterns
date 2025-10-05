@@ -17,9 +17,12 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	<ProjectReference Include="..\..\..\EventBus.Kafka\EventBus.Kafka.csproj" />
+	<ProjectReference Include="..\..\..\EventBus\EventBus.csproj" />
 	<ProjectReference Include="..\..\..\MicroservicePatterns.DatabaseMigrationHelpers\MicroservicePatterns.DatabaseMigrationHelpers.csproj" />
 	<ProjectReference Include="..\..\..\MicroservicePatterns.ServiceDefaults\MicroservicePatterns.ServiceDefaults.csproj" />
 	<ProjectReference Include="..\..\..\MicroservicePatterns.Shared\MicroservicePatterns.Shared.csproj" />
+	<ProjectReference Include="..\..\TransactionalOutbox\TransactionalOutbox.Infrastructure\TransactionalOutbox.Infrastructure.csproj" />
 </ItemGroup>
 
 	<ItemGroup>

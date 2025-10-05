@@ -52,7 +52,7 @@ public static class ProductCatalogApi
         productApiGroup.MapGet("/", async ([AsParameters] ApiServices services, [FromQuery] int? offset = 0, [FromQuery] int? limit = defaultPageSize) =>
         {
             return await services.DbContext.Products
-            // .Where(p => !p.IsDeleted) // in this in internal API, we return all products exept deleted ones
+            // .Where(p => !p.IsDeleted) // in this in internal API, we return all products except deleted ones
             .Skip(offset!.Value).Take(limit!.Value).ToListAsync();
         });
         productApiGroup.MapGet("/{productId:guid}", async ([AsParameters] ApiServices services, Guid productId) =>
@@ -379,6 +379,7 @@ public static class ProductCatalogApi
                 return TypedResults.BadRequest("Dimension Id can only contain alphanumeric characters and underscores.");
             }
 
+            dimension.DefaultValue ??= "";
             await services.DbContext.Dimensions.AddAsync(dimension);
 
             if (dimension.Values != null && dimension.Values.Count > 0)
@@ -413,7 +414,7 @@ public static class ProductCatalogApi
         return id.All(c => c == '_' || (c >= 'a' && c <= 'z') || (c >= '0' && c <= '9')); // only allow lowercase letters, numbers and underscores
     }
 
-    private static async Task<Results<Ok<Product>, BadRequest>> CreateProduct([AsParameters] ApiServices services, Product product)
+    private static async Task<Results<Ok<Product>, BadRequest, BadRequest<string>>> CreateProduct([AsParameters] ApiServices services, Product product)
     {
         if (product == null)
         {
@@ -423,10 +424,58 @@ public static class ProductCatalogApi
         if (product.Id == Guid.Empty)
             product.Id = Guid.CreateVersion7();
 
+        if (product.Groups != null && product.Groups.Count > 0)
+        {
+            // we do not allow creating new groups via product creation
+            return TypedResults.BadRequest("Only existing groups can be associated with the product.");
+        }
+
         product.CreatedAt = DateTime.UtcNow;
         product.UpdatedAt = DateTime.UtcNow;
+        product.UrlSlug ??= product.Id.ToString();
+
+        if (product.Dimensions != null && product.Dimensions.Count > 0)
+        {
+            foreach (var dimension in product.Dimensions)
+            {
+                if (string.IsNullOrEmpty(dimension.DimensionId))
+                    return TypedResults.BadRequest("Dimension Id is required.");
+            }
+        }
+
+        if (product.Variants != null && product.Variants.Count > 0)
+        {
+            foreach (var variant in product.Variants)
+            {
+                if (variant.Id == Guid.Empty)
+                    variant.Id = Guid.CreateVersion7();
+                variant.ProductId = product.Id;
+                variant.CreatedAt = DateTime.UtcNow;
+                variant.UpdatedAt = DateTime.UtcNow;
+                variant.Description ??= string.Empty;
+                variant.BarCode ??= string.Empty;
+                variant.Sku ??= string.Empty;
+
+                await services.DbContext.Variants.AddAsync(variant);
+
+                if (variant.DimensionValues != null && variant.DimensionValues.Count > 0)
+                {
+                    if (product.Dimensions == null || product.Dimensions.Count != variant.DimensionValues.Count)
+                    {
+                        return TypedResults.BadRequest("All product dimensions must be specified for the variant.");
+                    }
+
+                    foreach (var dimValue in variant.DimensionValues)
+                    {
+                        dimValue.VariantId = variant.Id;
+                    }
+                    //await services.DbContext.VariantDimensionValues.AddRangeAsync(variant.DimensionValues);
+                }
+            }
+        }
 
         await services.DbContext.Products.AddAsync(product);
+
         await services.DbContext.SaveChangesAsync();
 
         return TypedResults.Ok(product);

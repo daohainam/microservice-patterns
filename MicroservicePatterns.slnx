@@ -4,6 +4,7 @@
   </Folder>
   <Folder Name="/patterns/" />
   <Folder Name="/patterns/BFF/">
+    <Project Path="patterns/BFF/BFF.ProductCatalog.Events/BFF.ProductCatalog.Events.csproj" Id="8b5ef3c2-65c4-4fe9-964a-bac1a9ad3f0f" />
     <Project Path="patterns/BFF/BFF.ProductCatalogService/BFF.ProductCatalogService.csproj" />
   </Folder>
   <Folder Name="/patterns/CQRS/">

@@ -51,10 +51,10 @@ public static class ExternalServiceRegistrationExtentions
         #region Backend for Frontend (BFF)
         var productCategoryDb = postgres.AddDefaultDatabase<Projects.BFF_ProductCatalogService>();
         var productCategoryService = builder.AddProjectWithPostfix<Projects.BFF_ProductCatalogService>()
-            // .WithReference(kafka)
+            .WithReference(kafka)
             .WithReference(productCategoryDb, Consts.DefaultDatabase)
             .WaitFor(productCategoryDb)
-            // .WaitFor(kafka)
+            .WaitFor(kafka)
             .WithEnvironment("GRAFANA_URL", grafana.GetEndpoint("http"));
         #endregion
 
