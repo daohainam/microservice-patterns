@@ -1,11 +1,6 @@
-﻿using BFF.ProductCatalogService.Extensions;
-using BFF.ProductCatalogService.Infrastructure.Entity;
-using Confluent.Kafka;
-using Microsoft.AspNetCore.Mvc;
-using System.Globalization;
-using System.Text.Json;
+﻿using BFF.ProductCatalog.Events;
+using BFF.ProductCatalogService.Extensions;
 using TransactionalOutbox.Abstractions;
-using TransactionalOutbox.IntegrationEvents;
 
 namespace BFF.ProductCatalogService.Apis;
 
@@ -496,12 +491,15 @@ public static class ProductCatalogApi
         {
             Id = Guid.NewGuid(),
             CreationDate = DateTime.UtcNow,
-            PayloadType = typeof(AccountOpenedIntegrationEvent).FullName ?? throw new Exception($"Could not get fullname of type {evt.GetType()}"),
+            PayloadType = typeof(ProductCreatedEvent).FullName ?? throw new Exception($"Could not get fullname of type {evt.GetType()}"),
             Payload = JsonSerializer.Serialize(evt),
         });
 
         await services.UnitOfWork.DbContext.Products.AddAsync(product);
+
         await services.UnitOfWork.DbContext.SaveChangesAsync();
+        await services.UnitOfWork.OutboxForLogTailingRepository.SaveChangesAsync();
+        await services.UnitOfWork.CommitTransactionAsync(services.CancellationToken);
 
         return TypedResults.Ok(product);
     }

@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace BFF.ProductCatalogService.Migrations
 {
     [DbContext(typeof(ProductCatalogDbContext))]
-    [Migration("20251005161414_InitialCreated")]
+    [Migration("20251006112429_InitialCreated")]
     partial class InitialCreated
     {
         /// <inheritdoc />
@@ -56,9 +56,6 @@ namespace BFF.ProductCatalogService.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<Guid?>("CategoryId")
-                        .HasColumnType("uuid");
-
                     b.Property<string>("Description")
                         .HasColumnType("text");
 
@@ -66,8 +63,8 @@ namespace BFF.ProductCatalogService.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<string>("ParentCategoryId")
-                        .HasColumnType("text");
+                    b.Property<Guid>("ParentCategoryId")
+                        .HasColumnType("uuid");
 
                     b.Property<int>("SortOrder")
                         .HasColumnType("integer");
@@ -77,8 +74,6 @@ namespace BFF.ProductCatalogService.Migrations
                         .HasColumnType("text");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("CategoryId");
 
                     b.ToTable("Categories");
                 });
@@ -354,13 +349,6 @@ namespace BFF.ProductCatalogService.Migrations
                     b.ToTable("GroupProduct");
                 });
 
-            modelBuilder.Entity("BFF.ProductCatalogService.Infrastructure.Entity.Category", b =>
-                {
-                    b.HasOne("BFF.ProductCatalogService.Infrastructure.Entity.Category", null)
-                        .WithMany("SubCategories")
-                        .HasForeignKey("CategoryId");
-                });
-
             modelBuilder.Entity("BFF.ProductCatalogService.Infrastructure.Entity.DimensionValue", b =>
                 {
                     b.HasOne("BFF.ProductCatalogService.Infrastructure.Entity.Dimension", null)
@@ -475,11 +463,6 @@ namespace BFF.ProductCatalogService.Migrations
                         .HasForeignKey("ProductsId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-                });
-
-            modelBuilder.Entity("BFF.ProductCatalogService.Infrastructure.Entity.Category", b =>
-                {
-                    b.Navigation("SubCategories");
                 });
 
             modelBuilder.Entity("BFF.ProductCatalogService.Infrastructure.Entity.Dimension", b =>

@@ -11,8 +11,50 @@ public static class ApplicationServiceExtensions
     {
         builder.AddServiceDefaults();
         builder.Services.AddOpenApi();
-        builder.AddNpgsqlDbContext<ProductCatalogDbContext>(Consts.DefaultDatabase);
-        builder.AddTransactionalOutbox(Consts.DefaultDatabase);
+        builder.AddNpgsqlDbContext<ProductCatalogDbContext>(Consts.DefaultDatabase, configureDbContextOptions: optionsBuilder =>
+        {
+            // You can add seed root category here if needed
+            //optionsBuilder.UseSeeding((context, _) =>
+            // {
+            //     var rootCategory = context.Set<Category>().FirstOrDefault(c => c.Id == Guid.Empty);
+            //     if (rootCategory == null)
+            //     {
+            //         context.Set<Category>().Add(new Category
+            //         {
+            //             Id = Guid.Empty,
+            //             Name = "Root",
+            //             UrlSlug = "",
+            //             Description = "",
+            //             ParentCategoryId = Guid.Empty,
+            //             SortOrder = 0
+            //         });
+            //         context.SaveChanges();
+            //     }
+            // })
+            //.UseAsyncSeeding(async (context, _, cancellationToken) =>
+            //{
+            //    var rootCategory = await context.Set<Category>().FirstOrDefaultAsync(c => c.Id == Guid.Empty, cancellationToken: cancellationToken);
+            //    if (rootCategory == null)
+            //    {
+            //        context.Set<Category>().Add(new Category
+            //        {
+            //            Id = Guid.Empty,
+            //            Name = "Root",
+            //            UrlSlug = "",
+            //            Description = "",
+            //            ParentCategoryId = Guid.Empty,
+            //            SortOrder = 0
+            //        });
+
+            //        await context.SaveChangesAsync(cancellationToken);
+            //    }
+            //});
+        });
+
+        builder.AddTransactionalOutbox(Consts.DefaultDatabase, options =>
+        {
+            options.PollingEnabled = false;
+        });
 
         if (builder.Configuration.GetConnectionString(Consts.DefaultDatabase) is string connectionString)
         {
