@@ -1,5 +1,4 @@
-﻿using BFF.ProductCatalog.Events;
-using BFF.ProductCatalogService.Extensions;
+﻿using BFF.ProductCatalogService.Extensions;
 using TransactionalOutbox.Abstractions;
 
 namespace BFF.ProductCatalogService.Apis;
@@ -491,7 +490,7 @@ public static class ProductCatalogApi
         {
             Id = Guid.NewGuid(),
             CreationDate = DateTime.UtcNow,
-            PayloadType = typeof(ProductCreatedEvent).FullName ?? throw new Exception($"Could not get fullname of type {evt.GetType()}"),
+            PayloadType = typeof(ProductCatalog.Events.ProductCreatedEvent).FullName ?? throw new Exception($"Could not get fullname of type {evt.GetType()}"),
             Payload = JsonSerializer.Serialize(evt),
         });
 

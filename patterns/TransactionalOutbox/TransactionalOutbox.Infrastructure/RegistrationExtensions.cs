@@ -22,7 +22,7 @@ public static class RegistrationExtensions
         {
             builder.Services.AddSingleton(new TransactionalOutboxLogTailingServiceOptions()
             {
-                PayloadTypeRsolver = (type) => eventAssembly.GetType(type) ?? throw new Exception($"Could not get type {type}"),
+                PayloadTypeRsolver = (type) => (options.PayloadAssembly ?? Assembly.GetExecutingAssembly()).GetType(type) ?? throw new Exception($"Could not get type {type}"),
                 ConnectionString = builder.Configuration.GetConnectionString(connectionStringName) ?? throw new Exception($"Connection string {connectionStringName} not found")
             });
             builder.Services.AddHostedService<TransactionalOutboxLogTailingService>();
@@ -42,4 +42,5 @@ public class TransactionalOutboxOptions
     //public int BatchSize { get; set; } = 20;
     public bool PollingEnabled { get; set; } = true;
     public bool LogTailingEnabled { get; set; } = true;
+    public Assembly? PayloadAssembly { get; set; } = null;
 }

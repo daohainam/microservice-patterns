@@ -7,7 +7,9 @@ public static class ApplicationServiceExtensions
         builder.Services.AddOpenApi();
 
         builder.AddNpgsqlDbContext<AccountDbContext>(Consts.DefaultDatabase);
-        builder.AddTransactionalOutbox(Consts.DefaultDatabase);
+        builder.AddTransactionalOutbox(Consts.DefaultDatabase, options => {
+            options.PayloadAssembly = typeof(AccountOpenedIntegrationEvent).Assembly;
+        });
 
         if (builder.Configuration.GetConnectionString(Consts.DefaultDatabase) is string connectionString)
         {
