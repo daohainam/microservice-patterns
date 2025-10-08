@@ -54,7 +54,7 @@ public static class ApplicationServiceExtensions
         builder.AddTransactionalOutbox(Consts.DefaultDatabase, options =>
         {
             options.PollingEnabled = false;
-            options.PayloadAssembly = typeof(BFF.ProductCatalog.Events.ProductCreatedEvent).Assembly;
+            options.PayloadAssembly = typeof(ProductCatalog.Events.ProductCreatedEvent).Assembly;
         });
 
         if (builder.Configuration.GetConnectionString(Consts.DefaultDatabase) is string connectionString)

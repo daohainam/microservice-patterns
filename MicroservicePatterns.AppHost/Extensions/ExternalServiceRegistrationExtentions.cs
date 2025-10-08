@@ -53,6 +53,7 @@ public static class ExternalServiceRegistrationExtentions
         #region Backend for Frontend (BFF)
         var productCategoryDb = postgres.AddDefaultDatabase<Projects.BFF_ProductCatalogService>();
         var productCategoryService = builder.AddProjectWithPostfix<Projects.BFF_ProductCatalogService>()
+            .WithEnvironment(Consts.Env_EventPublishingTopics, GetTopicName<Projects.BFF_ProductCatalogService>())
             .WithReference(kafka)
             .WithReference(productCategoryDb, Consts.DefaultDatabase)
             .WaitFor(productCategoryDb)

@@ -1,6 +1,8 @@
-﻿namespace BFF.ProductCatalog.Events;
+﻿using EventBus.Events;
 
-public class ProductCreatedEvent
+namespace BFF.ProductCatalog.Events;
+
+public class ProductCreatedEvent: IntegrationEvent
 {
     public Guid ProductId { get; set; }
     public ProductInfo Product { get; set; } = default!;
@@ -12,14 +14,14 @@ public class ProductCreatedEvent
     public List<ProductImageInfo> Images { get; set; } = [];
 }
 
-public class ProductUpdatedEvent
+public class ProductUpdatedEvent: IntegrationEvent
 {
     public Guid ProductId { get; set; }
     public ProductInfo Product { get; set; } = default!;
 }
 
 
-public class ProductDeletedEvent
+public class ProductDeletedEvent: IntegrationEvent
 {
     public Guid ProductId { get; set; }
 }
