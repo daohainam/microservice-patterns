@@ -1,5 +1,4 @@
 ﻿namespace TransactionalOutbox.Infrastructure;
-
 public class PollingOutboxMessageRepository(PollingOutboxMessageRepositoryOptions options, OutboxDbContext dbContext) : IPollingOutboxMessageRepository
 {
     public Task AddAsync(PollingOutboxMessage message)

@@ -1,24 +1,22 @@
-﻿namespace TransactionalOutbox.Infrastructure
+﻿namespace TransactionalOutbox.Infrastructure;
+public class LogTailingOutboxMessageRepository(OutboxDbContext dbContext) : ILogTailingOutboxMessageRepository
 {
-    public class LogTailingOutboxMessageRepository(OutboxDbContext dbContext) : ILogTailingOutboxMessageRepository
+    public Task AddAsync(LogTailingOutboxMessage message)
     {
-        public Task AddAsync(LogTailingOutboxMessage message)
-        {
-            dbContext.LogTailingOutboxMessages.Add(message);
-            return Task.CompletedTask;
-        }
+        dbContext.LogTailingOutboxMessages.Add(message);
+        return Task.CompletedTask;
+    }
 
-        public static Task MarkAsProcessedAsync(PollingOutboxMessage message)
-        {
-            message.ProcessedCount++;
-            message.ProcessedDate = DateTime.UtcNow;
+    public static Task MarkAsProcessedAsync(PollingOutboxMessage message)
+    {
+        message.ProcessedCount++;
+        message.ProcessedDate = DateTime.UtcNow;
 
-            return Task.CompletedTask;
-        }
+        return Task.CompletedTask;
+    }
 
-        public Task SaveChangesAsync()
-        {
-            return dbContext.SaveChangesAsync();
-        }
+    public Task SaveChangesAsync()
+    {
+        return dbContext.SaveChangesAsync();
     }
 }

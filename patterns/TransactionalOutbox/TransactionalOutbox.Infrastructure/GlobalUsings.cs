@@ -5,6 +5,7 @@ global using Microsoft.Extensions.Configuration;
 global using Microsoft.Extensions.DependencyInjection;
 global using Microsoft.Extensions.Hosting;
 global using System.Reflection;
+global using System.Text.Json;
 global using TransactionalOutbox.Abstractions;
 global using TransactionalOutbox.Infrastructure.Data;
 global using TransactionalOutbox.Infrastructure.Service;

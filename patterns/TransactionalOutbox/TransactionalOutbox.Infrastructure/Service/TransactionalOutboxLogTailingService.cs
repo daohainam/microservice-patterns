@@ -1,16 +1,7 @@
 ﻿using EventBus.Abstractions;
 using EventBus.Events;
-using Mediator;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Npgsql;
-using System.Reflection;
-using System.Text.Json;
-using TransactionalOutbox.Abstractions;
-using TransactionalOutbox.Infrastructure.Data;
-using TransactionalOutbox.IntegrationEvents;
-using TransactionalOutbox.Publisher.Polling;
 
 namespace TransactionalOutbox.Infrastructure.Service;
 
@@ -22,8 +13,6 @@ internal class TransactionalOutboxLogTailingService : BackgroundService
     private readonly IEventPublisher eventPublisher;
     private readonly IServiceScopeFactory serviceScopeFactory;
     private readonly ILogger<TransactionalOutboxLogTailingService> logger;
-
-    private static readonly Assembly eventAssembly = typeof(AccountOpenedIntegrationEvent).Assembly; 
 
     public TransactionalOutboxLogTailingService(TransactionalOutboxLogTailingServiceOptions options, IEventPublisher eventPublisher, IServiceScopeFactory serviceScopeFactory, ILoggerFactory loggerFactory)
     {

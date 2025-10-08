@@ -1,11 +1,5 @@
 ﻿using EventBus.Abstractions;
-using Mediator;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using System.Reflection;
-using TransactionalOutbox.Infrastructure.Data;
-using TransactionalOutbox.IntegrationEvents;
 using TransactionalOutbox.Publisher.Polling;
 
 namespace TransactionalOutbox.Infrastructure.Service;
