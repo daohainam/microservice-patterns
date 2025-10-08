@@ -65,7 +65,8 @@ public static class ExternalServiceRegistrationExtentions
             .WithReference(elasticsearch)
             .WithEnvironment(Consts.Env_EventConsumingTopics, GetTopicName<Projects.BFF_ProductCatalogService>())
             .WaitFor(elasticsearch)
-            .WaitFor(kafka);
+            .WaitFor(kafka)
+            .WaitFor(productCategoryService);
 
         productCategoryElasticSyncService.WithParentRelationship(productCategoryService);
         #endregion
