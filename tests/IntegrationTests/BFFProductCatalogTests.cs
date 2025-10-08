@@ -22,7 +22,7 @@ public class BFFProductCatalogTests(AppFixture fixture)
         {
             Id = categoryId,
             Name = "Test Category",
-            ParentCategoryId = null,
+            ParentCategoryId = Guid.Empty,
             Description = "This is a test category",
             UrlSlug = "test-category",
         }, cancellationToken: TestContext.Current.CancellationToken);

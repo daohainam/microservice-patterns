@@ -1,0 +1,25 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Worker">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UserSecretsId>dotnet-BFF.ProductCatalog.ElasticSyncService-d2e40a61-7199-456a-9580-414f88edaed9</UserSecretsId>
+  </PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Confluent.Kafka" Version="2.11.1" />
+		<PackageReference Include="Microsoft.Extensions.Hosting" Version="9.0.9" />
+		<PackageReference Include="Aspire.Elastic.Clients.Elasticsearch" Version="9.5.0" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\..\..\EventBus.Kafka\EventBus.Kafka.csproj" />
+		<ProjectReference Include="..\..\..\EventBus\EventBus.csproj" />
+		<ProjectReference Include="..\..\..\Mediator\Mediator.csproj" />
+    <ProjectReference Include="..\..\..\MicroservicePatterns.ServiceDefaults\MicroservicePatterns.ServiceDefaults.csproj" />
+    <ProjectReference Include="..\..\..\MicroservicePatterns.Shared\MicroservicePatterns.Shared.csproj" />
+    <ProjectReference Include="..\BFF.ProductCatalog.Events\BFF.ProductCatalog.Events.csproj" />
+    <ProjectReference Include="..\BFF.ProductCatalog.Search\BFF.ProductCatalog.Search.csproj" />
+  </ItemGroup>
+</Project>

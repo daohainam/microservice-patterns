@@ -59,6 +59,15 @@ public static class ExternalServiceRegistrationExtentions
             .WaitFor(productCategoryDb)
             .WaitFor(kafka)
             .WithEnvironment("GRAFANA_URL", grafana.GetEndpoint("http"));
+
+        var productCategoryElasticSyncService = builder.AddProjectWithPostfix<Projects.BFF_ProductCatalog_ElasticSyncService>()
+            .WithReference(kafka)
+            .WithReference(elasticsearch)
+            .WithEnvironment(Consts.Env_EventConsumingTopics, GetTopicName<Projects.BFF_ProductCatalogService>())
+            .WaitFor(elasticsearch)
+            .WaitFor(kafka);
+
+        productCategoryElasticSyncService.WithParentRelationship(productCategoryService);
         #endregion
 
         #region CQRS Library
@@ -209,7 +218,8 @@ public static class ExternalServiceRegistrationExtentions
             {
                 Description = "",
                 PrepareRequest = (context) =>
-                {   context.Request.Content = new StringContent(
+                {
+                    context.Request.Content = new StringContent(
                         """
                         {
                           "orderId": "00000000-0000-0000-0000-000000000000",
@@ -606,7 +616,7 @@ public static class ExternalServiceRegistrationExtentions
             yarp.AddRoute("/api/outbox/v1/accounts/{**catch-all}", outboxAccountService);
 
             yarp.AddRoute("/api/idempotent/v1/products/{**catch-all}", idempotentCatalogService);
-            
+
             yarp.AddRoute("/api/webhook/v1/{**catch-all}", webHookDeliveryService);
 
             yarp.AddRoute("/mcp/library/{**catch-all}", mcpLibraryServer);
@@ -678,7 +688,7 @@ public static class ExternalServiceRegistrationExtentions
 
     private static readonly Random random = new();
     private static string GetTopicName<TProject>(string postfix = "") => $"{typeof(TProject).Name.Replace('_', '-')}{(string.IsNullOrEmpty(postfix) ? "" : $"-{postfix}")}";
-    private static string GenerateRandomNumericString(int length) 
+    private static string GenerateRandomNumericString(int length)
     {
         return new string([.. Enumerable.Repeat("0123456789", length).Select(s => s[random.Next(s.Length)])]);
     }

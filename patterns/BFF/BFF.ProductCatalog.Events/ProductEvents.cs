@@ -6,12 +6,6 @@ public class ProductCreatedEvent: IntegrationEvent
 {
     public Guid ProductId { get; set; }
     public ProductInfo Product { get; set; } = default!;
-    public CategoryInfo Category { get; set; } = default!;
-    public BrandInfo Brand { get; set; } = default!;
-    public List<VariantInfo> Variants { get; set; } = [];
-    public List<DimensionInfo> Dimensions { get; set; } = [];
-    public List<GroupInfo> Groups { get; set; } = [];
-    public List<ProductImageInfo> Images { get; set; } = [];
 }
 
 public class ProductUpdatedEvent: IntegrationEvent
@@ -31,11 +25,15 @@ public class ProductInfo
     public string Name { get; set; } = default!;
     public string UrlSlug { get; set; } = default!;
     public string Description { get; set; } = default!;
-    public Guid BrandId { get; set; }
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
     public bool IsActive { get; set; }
-    public Guid CategoryId { get; set; } = default!;
+    public List<CategoryInfo> Path { get; set; } = default!;
+    public BrandInfo Brand { get; set; } = default!;
+    public List<VariantInfo> Variants { get; set; } = [];
+    public List<DimensionInfo> Dimensions { get; set; } = [];
+    public List<GroupInfo> Groups { get; set; } = [];
+    public List<ProductImageInfo> Images { get; set; } = [];
 }
 
 public class BrandInfo
@@ -58,8 +56,14 @@ public class VariantInfo
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
     public bool IsActive { get; set; }
-    public List<DimensionValue> DimensionValues { get; set; } = [];
+    public List<VariantDimensionValueInfo> DimensionValues { get; set; } = [];
 
+}
+
+public class DimensionValueInfo { 
+    public string DimensionId { get; set; } = default!;
+    public string Value { get; set; } = default!;
+    public string DisplayValue { get; set; } = default!;
 }
 
 public class DimensionInfo
@@ -67,7 +71,7 @@ public class DimensionInfo
     public string DimensionId { get; set; } = default!;
     public string Name { get; set; } = default!;
     public string DisplayType { get; set; } = default!; // "dropdown", "color", "text", "image", "choice"
-    public List<string> Values { get; set; } = [];
+    public List<DimensionValueInfo> Values { get; set; } = [];
 }
 
 public class CategoryInfo
@@ -95,9 +99,8 @@ public class ProductImageInfo
     public int SortOrder { get; set; }
 }
 
-public class DimensionValue
+public class VariantDimensionValueInfo
 {
-    public Guid DimensionId { get; set; }
+    public string DimensionId { get; set; } = default!;
     public string Value { get; set; } = default!;
-    public string DisplayValue { get; set; } = default!;
 }
