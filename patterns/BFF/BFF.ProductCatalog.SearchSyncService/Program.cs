@@ -21,14 +21,12 @@ if (!string.IsNullOrEmpty(eventConsumingTopics))
     });
 }
 
-builder.AddElasticsearchClient(connectionName: "elastic",
+builder.AddElasticsearchClient(connectionName: "elasticsearch",
     configureClientSettings: (settings) =>
     {
         settings.DefaultMappingFor<ProductIndexDocument>(m => m.IndexName(nameof(ProductIndexDocument).ToLower()));
     }
 );
-
-//builder.Services.AddHostedService<Worker>();
 
 var host = builder.Build();
 host.Run();
