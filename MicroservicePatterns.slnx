@@ -4,9 +4,9 @@
   </Folder>
   <Folder Name="/patterns/" />
   <Folder Name="/patterns/BFF/">
-    <Project Path="patterns/BFF/BFF.ProductCatalog.ElasticSyncService/BFF.ProductCatalog.ElasticSyncService.csproj" />
     <Project Path="patterns/BFF/BFF.ProductCatalog.Events/BFF.ProductCatalog.Events.csproj" Id="8b5ef3c2-65c4-4fe9-964a-bac1a9ad3f0f" />
     <Project Path="patterns/BFF/BFF.ProductCatalog.Search/BFF.ProductCatalog.Search.csproj" Id="4e704490-3c17-4991-87be-d1145d8f8715" />
+    <Project Path="patterns/BFF/BFF.ProductCatalog.SearchSyncService/BFF.ProductCatalog.SearchSyncService.csproj" />
     <Project Path="patterns/BFF/BFF.ProductCatalogService/BFF.ProductCatalogService.csproj" />
   </Folder>
   <Folder Name="/patterns/CQRS/">

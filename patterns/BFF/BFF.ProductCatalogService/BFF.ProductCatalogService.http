@@ -107,6 +107,33 @@ Content-Type: application/json
   ]
 }
 
+### Create Product with random Id
+POST {{BFF.ProductCatalogService_HostAddress}}/api/bff/v1/products/
+Content-Type: application/json
+
+{
+  "name": "Sample Product with random Id",
+  "description": "A sample product",
+  "isActive": true,
+  "urlSlug": "sample-product-1-random",
+  "categoryId": "00000000-0000-0000-0000-000000000001",
+  "brandId": "00000000-0000-0000-0000-000000000001",
+  "dimensions": [ { "dimensionId": "color" } ],
+  "variants": [
+    {
+      "sku": "SKU-001",
+      "barCode": "1234567890",
+      "price": 19.99,
+      "description": "Red variant",
+      "isActive": true,
+      "isDeleted": false,
+      "dimensionValues": [
+        { "dimensionId": "color", "value": "red" }
+      ]
+    }
+  ]
+}
+
 ### Update Product
 PUT {{BFF.ProductCatalogService_HostAddress}}/api/bff/v1/products/00000000-0000-0000-0000-000000000100
 Content-Type: application/json

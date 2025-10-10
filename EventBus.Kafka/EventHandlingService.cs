@@ -37,6 +37,7 @@ public class EventHandlingService(IConsumer<string, MessageEnvelop> consumer,
                         }
                         else
                         {
+                            logger.LogDebug("No message consumed, waiting...");
                             await Task.Delay(100, stoppingToken);
                         }
                     }

@@ -108,8 +108,10 @@ public static class BorrowingHistoryApi
         {
             return query.OrderByDescending(x => x.BookTitle);
         }
-
-        return query;
+        else
+        {
+            return query.OrderBy(x => x.BorrowedAt);
+        }
     }
 }
 

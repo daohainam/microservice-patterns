@@ -19,6 +19,11 @@ public static class ExternalServiceRegistrationExtentions
         var elasticsearch = builder.AddElasticsearch("elasticsearch").WithContainerRuntimeArgs("--memory=512m");
         //var debezium = builder.AddDebezium();
 
+        builder.Eventing.Subscribe<ResourceReadyEvent>(kafka.Resource, async (@event, ct) =>
+        {
+            await CreateKafkaTopics(@event, kafka.Resource, ct);
+        });
+
         if (!builder.Configuration.GetValue("IsTest", false))
         {
             cache = cache.WithLifetime(ContainerLifetime.Persistent).WithDataVolume().WithRedisInsight();
@@ -60,15 +65,14 @@ public static class ExternalServiceRegistrationExtentions
             .WaitFor(kafka)
             .WithEnvironment("GRAFANA_URL", grafana.GetEndpoint("http"));
 
-        var productCategoryElasticSyncService = builder.AddProjectWithPostfix<Projects.BFF_ProductCatalog_ElasticSyncService>()
+        var productCategorySyncService = builder.AddProjectWithPostfix<Projects.BFF_ProductCatalog_SearchSyncService>()
             .WithReference(kafka)
             .WithReference(elasticsearch)
             .WithEnvironment(Consts.Env_EventConsumingTopics, GetTopicName<Projects.BFF_ProductCatalogService>())
             .WaitFor(elasticsearch)
-            .WaitFor(kafka)
-            .WaitFor(productCategoryService);
+            .WaitFor(kafka);
 
-        productCategoryElasticSyncService.WithParentRelationship(productCategoryService);
+        productCategorySyncService.WithParentRelationship(productCategoryService);
         #endregion
 
         #region CQRS Library
@@ -655,37 +659,42 @@ public static class ExternalServiceRegistrationExtentions
         return new ExecuteCommandResult() { Success = true };
     }
 
-    // Uncomment the following method to create Kafka topics automatically when the Kafka server is ready.
-    //private static async Task CreateKafkaTopics(ResourceReadyEvent @event, KafkaServerResource kafkaResource, CancellationToken ct)
-    //{
-    //    var logger = @event.Services.GetRequiredService<ILogger<Program>>();
+    private static async Task CreateKafkaTopics(ResourceReadyEvent @event, KafkaServerResource kafkaResource, CancellationToken ct)
+    {
+        var logger = @event.Services.GetRequiredService<ILogger<Program>>();
 
-    //    TopicSpecification[] topics = [
-    //        new() { Name = GetTopicName<Projects.CQRS_Library_BookService>(), NumPartitions = 1, ReplicationFactor = 1 },
-    //        new() { Name = GetTopicName<Projects.CQRS_Library_BorrowerService>(), NumPartitions = 1, ReplicationFactor = 1 },
-    //        new() { Name = GetTopicName<Projects.CQRS_Library_BorrowingService>(), NumPartitions = 1, ReplicationFactor = 1 },
-    //        new() { Name = GetTopicName<Projects.Saga_OnlineStore_CatalogService>(), NumPartitions = 1, ReplicationFactor = 1 },
-    //        new() { Name = GetTopicName<Projects.Saga_OnlineStore_PaymentService>(), NumPartitions = 1, ReplicationFactor = 1 },
-    //        new() { Name = GetTopicName<Projects.Saga_OnlineStore_InventoryService>(), NumPartitions = 1, ReplicationFactor = 1 },
-    //        new() { Name = GetTopicName<Projects.Saga_OnlineStore_OrderService>(), NumPartitions = 1, ReplicationFactor = 1 }
-    //    ];
+        TopicSpecification[] topics = [
+            new () { Name = GetTopicName<Projects.BFF_ProductCatalogService>(), NumPartitions = 1, ReplicationFactor = 1 },
+            new() { Name = GetTopicName<Projects.CQRS_Library_BookService>(), NumPartitions = 1, ReplicationFactor = 1 },
+            new() { Name = GetTopicName<Projects.CQRS_Library_BorrowerService>(), NumPartitions = 1, ReplicationFactor = 1 },
+            new() { Name = GetTopicName<Projects.CQRS_Library_BorrowingService>(), NumPartitions = 1, ReplicationFactor = 1 },
+            new() { Name = GetTopicName<Projects.Saga_OnlineStore_CatalogService>(), NumPartitions = 1, ReplicationFactor = 1 },
+            new() { Name = GetTopicName<Projects.Saga_OnlineStore_PaymentService>(), NumPartitions = 1, ReplicationFactor = 1 },
+            new() { Name = GetTopicName<Projects.Saga_OnlineStore_InventoryService>(), NumPartitions = 1, ReplicationFactor = 1 },
+            new() { Name = GetTopicName<Projects.Saga_OnlineStore_OrderService>(), NumPartitions = 1, ReplicationFactor = 1 },
+            new () { Name = GetTopicName<Projects.Saga_TripPlanner_HotelService>(), NumPartitions = 1, ReplicationFactor = 1 },
+            new () { Name = GetTopicName<Projects.Saga_TripPlanner_TicketService>(), NumPartitions = 1, ReplicationFactor = 1 },
+            new () { Name = GetTopicName<Projects.Saga_TripPlanner_PaymentService>(), NumPartitions = 1, ReplicationFactor = 1 },
+            new () { Name = GetTopicName<Projects.Saga_TripPlanner_TripPlanningService>(), NumPartitions = 1, ReplicationFactor = 1 },
+            new () { Name = GetTopicName<Projects.TransactionalOutbox_Banking_AccountService>(), NumPartitions = 1, ReplicationFactor = 1 },
+        ];
 
-    //    logger.LogInformation("Creating topics: {topics} ...", string.Join(", ", topics.Select(t => t.Name).ToArray()));
+        logger.LogInformation("Creating topics: {topics} ...", string.Join(", ", topics.Select(t => t.Name).ToArray()));
 
-    //    var connectionString = await kafkaResource.ConnectionStringExpression.GetValueAsync(ct);
-    //    using var adminClient = new AdminClientBuilder(new AdminClientConfig()
-    //    {
-    //        BootstrapServers = connectionString,
-    //    }).Build();
-    //    try
-    //    {
-    //        await adminClient.CreateTopicsAsync(topics, new CreateTopicsOptions() { });
-    //    }
-    //    catch (CreateTopicsException ex)
-    //    {
-    //        logger.LogError(ex, "An error occurred creating topics");
-    //    }
-    //}
+        var connectionString = await kafkaResource.ConnectionStringExpression.GetValueAsync(ct);
+        using var adminClient = new AdminClientBuilder(new AdminClientConfig()
+        {
+            BootstrapServers = connectionString,
+        }).Build();
+        try
+        {
+            await adminClient.CreateTopicsAsync(topics, new CreateTopicsOptions() { });
+        }
+        catch (CreateTopicsException ex)
+        {
+            logger.LogError(ex, "An error occurred creating topics");
+        }
+    }
 
     private static readonly Random random = new();
     private static string GetTopicName<TProject>(string postfix = "") => $"{typeof(TProject).Name.Replace('_', '-')}{(string.IsNullOrEmpty(postfix) ? "" : $"-{postfix}")}";

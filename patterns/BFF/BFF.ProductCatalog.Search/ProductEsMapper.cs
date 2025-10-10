@@ -101,13 +101,12 @@ public static class ProductEsMapper
             CategorySlug = categorySlug,
             CategoryPath = categoryPath,
 
-            GroupIds = p.Groups.Select(g => g.GroupId).ToList(),
-            GroupNames = p.Groups.Select(g => g.Name).ToList(),
+            GroupIds = [.. p.Groups.Select(g => g.GroupId)],
+            GroupNames = [.. p.Groups.Select(g => g.Name)],
 
-            Images = p.Images
+            Images = [.. p.Images
                 .OrderBy(i => i.SortOrder)
-                .Select(i => new ProductImageDoc { Url = i.ImageUrl, Alt = i.AltText ?? "", SortOrder = i.SortOrder })
-                .ToList(),
+                .Select(i => new ProductImageDoc { Url = i.ImageUrl, Alt = i.AltText ?? "", SortOrder = i.SortOrder })],
 
             PriceMin = priceMin,
             PriceMinInStock = priceMinInStock,
@@ -121,7 +120,7 @@ public static class ProductEsMapper
             CreatedAt = p.CreatedAt,
             UpdatedAt = p.UpdatedAt,
 
-            Suggest = new SimpleCompletion { Input = new[] { p.Name, p.Brand.Name } }
+            Suggest = new SimpleCompletion { Input = [p.Name, p.Brand.Name] }
         };
     }
 

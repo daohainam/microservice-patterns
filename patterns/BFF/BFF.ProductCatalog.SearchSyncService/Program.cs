@@ -1,25 +1,21 @@
-using BFF.ProductCatalog.ElasticSyncService;
-using BFF.ProductCatalog.Events;
-using BFF.ProductCatalog.Search;
-using EventBus;
-using EventBus.Kafka;
-using Mediator;
-using MicroservicePatterns.Shared;
+using BFF.ProductCatalog.SearchSyncService;
 
 var builder = Host.CreateApplicationBuilder(args);
 
 builder.AddServiceDefaults();
 
-builder.Services.AddMediator(cfg => {
+builder.Services.AddMediator(cfg =>
+{
     cfg.ServiceAssemblies.Add(typeof(ProductCreatedEvent).Assembly);
 });
 
 var eventConsumingTopics = builder.Configuration.GetValue<string>(Consts.Env_EventConsumingTopics);
 if (!string.IsNullOrEmpty(eventConsumingTopics))
 {
-    builder.AddKafkaEventConsumer(options => {
-        options.ServiceName = "ProductCatalog_SyncService";
-        options.KafkaGroupId = "bff";
+    builder.AddKafkaEventConsumer(options =>
+    {
+        options.ServiceName = "ProductCatalogSyncService";
+        options.KafkaGroupId = "bff-search";
         options.Topics.AddRange(eventConsumingTopics.Split(','));
         options.IntegrationEventFactory = IntegrationEventFactory<ProductCreatedEvent>.Instance;
     });
@@ -32,7 +28,8 @@ builder.AddElasticsearchClient(connectionName: "elastic",
     }
 );
 
-builder.Services.AddHostedService<MessageConsumingServiceWorker>();
+builder.Services.AddHostedService<Worker>();
 
 var host = builder.Build();
 host.Run();
+
