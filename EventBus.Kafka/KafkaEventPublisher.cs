@@ -11,7 +11,7 @@ public class KafkaEventPublisher(string topic, IProducer<string, MessageEnvelop>
         try
         {
             await producer.ProduceAsync(topic, new Message<string, MessageEnvelop> { Key = @event.GetType().FullName!, 
-                Value = new MessageEnvelop(typeof(TEvent), json) }
+                Value = new MessageEnvelop(@event.GetType(), json) }
             );
 
             logger.LogInformation("Published event {@event}", @event.EventId);

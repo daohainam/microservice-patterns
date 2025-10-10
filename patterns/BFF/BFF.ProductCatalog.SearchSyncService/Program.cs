@@ -6,7 +6,7 @@ builder.AddServiceDefaults();
 
 builder.Services.AddMediator(cfg =>
 {
-    cfg.ServiceAssemblies.Add(typeof(ProductCreatedEvent).Assembly);
+    cfg.ServiceAssemblies.Add(typeof(Program).Assembly);
 });
 
 var eventConsumingTopics = builder.Configuration.GetValue<string>(Consts.Env_EventConsumingTopics);
@@ -28,7 +28,7 @@ builder.AddElasticsearchClient(connectionName: "elastic",
     }
 );
 
-builder.Services.AddHostedService<Worker>();
+//builder.Services.AddHostedService<Worker>();
 
 var host = builder.Build();
 host.Run();
