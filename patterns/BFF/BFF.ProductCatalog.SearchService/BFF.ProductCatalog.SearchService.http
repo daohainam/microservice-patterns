@@ -1,6 +1,6 @@
-@BFF.ProductCatalog.SearchService_HostAddress = http://localhost:5266
+@BFF.ProductCatalog.SearchService_HostAddress = https://localhost:7118
 
-GET {{BFF.ProductCatalog.SearchService_HostAddress}}/weatherforecast/
+GET {{BFF.ProductCatalog.SearchService_HostAddress}}/api/bff/v1/products/search?query=sample&offset=0&limit=10
 Accept: application/json
 
 ###

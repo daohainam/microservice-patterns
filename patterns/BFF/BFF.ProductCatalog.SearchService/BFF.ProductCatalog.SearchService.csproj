@@ -8,6 +8,10 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\..\MicroservicePatterns.ServiceDefaults\MicroservicePatterns.ServiceDefaults.csproj" />
+    <ProjectReference Include="..\BFF.ProductCatalog.Search\BFF.ProductCatalog.Search.csproj" />
   </ItemGroup>
-
+    <ItemGroup>
+	    <PackageReference Include="Aspire.Elastic.Clients.Elasticsearch" Version="9.5.0" />
+	    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.9" />
+    </ItemGroup>
 </Project>
