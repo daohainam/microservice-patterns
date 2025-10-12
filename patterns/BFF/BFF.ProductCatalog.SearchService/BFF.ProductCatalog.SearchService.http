@@ -1,0 +1,6 @@
+@BFF.ProductCatalog.SearchService_HostAddress = http://localhost:5266
+
+GET {{BFF.ProductCatalog.SearchService_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

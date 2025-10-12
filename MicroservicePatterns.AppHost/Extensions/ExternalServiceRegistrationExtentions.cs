@@ -72,6 +72,11 @@ public static class ExternalServiceRegistrationExtentions
             .WaitFor(elasticsearch)
             .WaitFor(kafka);
 
+        var productCatalogSearchService = builder.AddProjectWithPostfix<Projects.BFF_ProductCatalog_SearchService>()
+            .WithReference(elasticsearch)
+            .WaitFor(elasticsearch);
+
+        productCatalogSearchService.WithParentRelationship(productCategoryService);
         productCategorySyncService.WithParentRelationship(productCategoryService);
         #endregion
 
