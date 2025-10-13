@@ -1,0 +1,6 @@
+@BFF.ProductCatalog.BackendForPOS_HostAddress = http://localhost:5248
+
+GET {{BFF.ProductCatalog.BackendForPOS_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

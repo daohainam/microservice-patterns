@@ -76,9 +76,15 @@ public static class ExternalServiceRegistrationExtentions
             .WithReference(elasticsearch)
             .WaitFor(elasticsearch);
 
+        var productCatalogBackendForPOSService = builder.AddProjectWithPostfix<Projects.BFF_ProductCatalog_BackendForPOS>()
+            .WithReference(productCategoryService)
+            .WithReference(productCatalogSearchService)
+            .WaitFor(productCategoryService)
+            .WaitFor(productCatalogSearchService);
+
         productCatalogSearchService.WithParentRelationship(productCategoryService);
         productCategorySyncService.WithParentRelationship(productCategoryService);
-        productCatalogBackendForPOSService.WithParentRelationship(
+        productCatalogBackendForPOSService.WithParentRelationship(productCategoryService);
         #endregion
 
         #region CQRS Library
