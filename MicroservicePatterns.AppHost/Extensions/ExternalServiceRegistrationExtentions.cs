@@ -78,6 +78,7 @@ public static class ExternalServiceRegistrationExtentions
 
         productCatalogSearchService.WithParentRelationship(productCategoryService);
         productCategorySyncService.WithParentRelationship(productCategoryService);
+        productCatalogBackendForPOSService.WithParentRelationship(
         #endregion
 
         #region CQRS Library
