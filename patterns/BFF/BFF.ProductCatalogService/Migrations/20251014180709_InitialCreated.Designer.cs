@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace BFF.ProductCatalogService.Migrations
 {
     [DbContext(typeof(ProductCatalogDbContext))]
-    [Migration("20251006112429_InitialCreated")]
+    [Migration("20251014180709_InitialCreated")]
     partial class InitialCreated
     {
         /// <inheritdoc />
@@ -303,9 +303,6 @@ namespace BFF.ProductCatalogService.Migrations
                     b.Property<string>("Sku")
                         .IsRequired()
                         .HasColumnType("text");
-
-                    b.Property<int>("Stock")
-                        .HasColumnType("integer");
 
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");

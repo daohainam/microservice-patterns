@@ -301,9 +301,6 @@ namespace BFF.ProductCatalogService.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<int>("Stock")
-                        .HasColumnType("integer");
-
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
 
