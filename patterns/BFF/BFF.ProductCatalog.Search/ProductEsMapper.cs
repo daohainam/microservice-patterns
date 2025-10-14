@@ -38,7 +38,6 @@ public static class ProductEsMapper
                 dimsNested.Add(new VariantDimensionDoc
                 {
                     DimensionId = dimId,
-                    Name = name,
                     Value = NormalizeKeyword(dv.Value),
                     DisplayValue = display
                 });
@@ -54,7 +53,6 @@ public static class ProductEsMapper
                 Sku = v.Sku,
                 BarCode = v.BarCode,
                 Price = v.Price,
-                InStock = v.InStock,
                 IsActive = v.IsActive,
                 CreatedAt = v.CreatedAt,
                 UpdatedAt = v.UpdatedAt,
@@ -101,16 +99,22 @@ public static class ProductEsMapper
             CategorySlug = categorySlug,
             CategoryPath = categoryPath,
 
+            Dimensions = [.. dimById.Values.Select(d => new DimensionDoc
+            {
+                DimensionId = d.DimensionId,
+                Name = d.Name,
+                DisplayType = d.DisplayType
+            })],
+
             GroupIds = [.. p.Groups.Select(g => g.GroupId)],
             GroupNames = [.. p.Groups.Select(g => g.Name)],
 
             Images = [.. p.Images
                 .OrderBy(i => i.SortOrder)
-                .Select(i => new ProductImageDoc { Url = i.ImageUrl, Alt = i.AltText ?? "", SortOrder = i.SortOrder })],
+                .Select(i => new ImageDoc { Url = i.ImageUrl, Alt = i.AltText ?? "", SortOrder = i.SortOrder })],
 
             PriceMin = priceMin,
-            PriceMinInStock = priceMinInStock,
-            HasStock = hasStock,
+            InStock = hasStock,
             VariantCount = variants.Count,
 
             Variants = variants,

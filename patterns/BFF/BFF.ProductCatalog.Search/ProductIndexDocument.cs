@@ -20,13 +20,14 @@ public sealed class ProductIndexDocument
     [JsonPropertyName("group_ids")] public List<Guid> GroupIds { get; set; } = [];
     [JsonPropertyName("group_names")] public List<string> GroupNames { get; set; } = [];
 
-    [JsonPropertyName("images")] public List<ProductImageDoc> Images { get; set; } = [];
+    [JsonPropertyName("images")] public List<ImageDoc> Images { get; set; } = [];
 
     // Rollups
     [JsonPropertyName("price_min")] public decimal? PriceMin { get; set; }
-    [JsonPropertyName("price_min_in_stock")] public decimal? PriceMinInStock { get; set; }
-    [JsonPropertyName("has_stock")] public bool HasStock { get; set; }
+    [JsonPropertyName("in_stock")] public bool InStock { get; set; }
     [JsonPropertyName("variant_count")] public int VariantCount { get; set; }
+
+    [JsonPropertyName("dimensions")] public List<DimensionDoc> Dimensions { get; init; } = [];
 
     [JsonPropertyName("variants")] public List<VariantDoc> Variants { get; set; } = [];
 
@@ -45,7 +46,14 @@ public sealed class SimpleCompletion
     [JsonPropertyName("input")] public string[] Input { get; set; } = [];
 }
 
-public sealed class ProductImageDoc
+public sealed class DimensionDoc
+{
+    [JsonPropertyName("dimension_id")] public string DimensionId { get; init; } = default!;
+    [JsonPropertyName("name")] public string Name { get; init; } = default!;
+    [JsonPropertyName("display_type")] public string DisplayType { get; init; } = default!;
+}
+
+public sealed class ImageDoc
 {
     [JsonPropertyName("url")] public string Url { get; init; } = default!;
     [JsonPropertyName("alt")] public string Alt { get; init; } = "";
@@ -66,12 +74,13 @@ public sealed class VariantDoc
 
     [JsonPropertyName("dimensions")] public List<VariantDimensionDoc> Dimensions { get; init; } = [];
     [JsonPropertyName("dims_flat")] public Dictionary<string, string> DimsFlat { get; init; } = new(StringComparer.Ordinal);
+
+    [JsonPropertyName("images")] public List<ImageDoc> Images { get; set; } = [];
 }
 
 public sealed class VariantDimensionDoc
 {
     [JsonPropertyName("dimension_id")] public string DimensionId { get; init; } = default!;
-    [JsonPropertyName("name")] public string Name { get; init; } = default!;
     [JsonPropertyName("value")] public string Value { get; init; } = default!;
     [JsonPropertyName("display_value")] public string DisplayValue { get; init; } = default!;
 }

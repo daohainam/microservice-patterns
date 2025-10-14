@@ -3,33 +3,41 @@
 namespace BFF.ProductCatalog.BackendForPOS.Mappers;
 public class ProductMapper
 {
-    public static Models.Product Map(ProductIndexDocument document)
+    public static IEnumerable<Models.Product> Map(ProductIndexDocument document)
     {
         // For POS, we treat each variant as a separate product
-        // Here we just map the first variant for simplicity
-        var variant = document.Variants.FirstOrDefault();
-        if (variant == null) return null;
-        return new Models.Product
+        
+        var products = new List<Models.Product>();
+
+        foreach (var variant in document.Variants)
         {
-            Id = variant.VariantId,
-            Name = document.Name,
-            Sku = variant.Sku,
-            Price = variant.Price,
-            Description = document.Description,
-            Category = document.Category,
-            StockQuantity = variant.InStock ? 100 : 0, // Simplified stock logic
-            CreatedAt = variant.CreatedAt,
-            UpdatedAt = variant.UpdatedAt,
-            ImageUrl = document.ImageUrls.FirstOrDefault() ?? string.Empty,
-            IsActive = variant.IsActive,
-            Brand = document.Brand,
-            Dimensions = variant.Dimensions.Select(d => new Models.Dimension
+            var image = variant.Images.FirstOrDefault() ?? document.Images.FirstOrDefault();
+
+            products.Add(new Models.Product()
             {
-                DimensionId = d.DimensionId,
-                Name = d.Name,
-                Value = d.Value,
-                DisplayType = "text" // Simplified display type
-            }).ToList()
-        };
+                Id = variant.VariantId,
+                Name = document.Name,
+                Sku = variant.Sku,
+                Price = variant.Price,
+                Description = document.Description,
+                CategoryId = document.CategoryId,
+                CategoryName = document.CategoryName,
+                InStock = variant.InStock, 
+                CreatedAt = variant.CreatedAt,
+                UpdatedAt = variant.UpdatedAt,
+                ImageUrl = image?.Url ?? "",
+                IsActive = variant.IsActive,
+                BrandId = document.BrandId,
+                BrandName = document.BrandName,
+                Dimensions = [.. variant.Dimensions.Select(d => new Models.Dimension
+                {
+                    DimensionId = d.DimensionId,
+                    Value = d.Value,
+                    DisplayType = document.Dimensions.FirstOrDefault(dim => dim.DimensionId == d.DimensionId)?.DisplayType ?? "text"
+                })]
+            });
+        }
+
+        return products;
     }
 }

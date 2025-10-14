@@ -52,7 +52,6 @@ public class VariantInfo
     public string BarCode { get; set; } = default!;
     public decimal Price { get; set; }
     public string Description { get; set; } = default!;
-    public bool InStock { get; set; } // on front end we just need to know if it's in stock or not
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
     public bool IsActive { get; set; }

@@ -39,7 +39,6 @@ public static class EventExtensions
                     BarCode = v.BarCode,
                     Price = v.Price,
                     Description = v.Description,
-                    InStock = v.Stock > 0,
                     CreatedAt = v.CreatedAt,
                     UpdatedAt = v.UpdatedAt
                 }).ToList() ?? [],

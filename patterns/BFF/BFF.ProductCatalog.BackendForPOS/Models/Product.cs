@@ -8,13 +8,15 @@ public class Product
     public string Sku { get; set; } = string.Empty;
     public decimal Price { get; set; }
     public string Description { get; set; } = string.Empty;
-    public string Category { get; set; } = string.Empty;
-    public int StockQuantity { get; set; }
+    public Guid CategoryId { get; set; }
+    public string CategoryName { get; set; } = string.Empty;
+    public bool InStock { get; set; }
     public DateTime CreatedAt { get; set; }
     public DateTime UpdatedAt { get; set; }
     public string ImageUrl { get; set; } = string.Empty;
     public bool IsActive { get; set; }
-    public string Brand { get; set; } = string.Empty;
+    public Guid BrandId { get; set; }
+    public string BrandName { get; set; } = string.Empty;
     public List<Dimension> Dimensions { get; set; } = [];
 }
 
