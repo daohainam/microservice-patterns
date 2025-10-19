@@ -77,9 +77,7 @@ public static class ExternalServiceRegistrationExtentions
             .WaitFor(elasticsearch);
 
         var productCatalogBackendForPOSService = builder.AddProjectWithPostfix<Projects.BFF_ProductCatalog_BackendForPOS>()
-            .WithReference(productCategoryService)
             .WithReference(productCatalogSearchService)
-            .WaitFor(productCategoryService)
             .WaitFor(productCatalogSearchService);
 
         productCatalogSearchService.WithParentRelationship(productCategoryService);
