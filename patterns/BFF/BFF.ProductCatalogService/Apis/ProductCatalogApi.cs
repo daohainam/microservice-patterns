@@ -60,7 +60,7 @@ public static class ProductCatalogApi
         });
         productApiGroup.MapGet("/{productId:guid}/dimensions", async ([AsParameters] ApiServices services, Guid productId) =>
         {
-            var dimensions = from pd in services.DbContext.ProductDimentions
+            var dimensions = from pd in services.DbContext.ProductDimensions
                              join d in services.DbContext.Dimensions on pd.DimensionId equals d.Id
                              where pd.ProductId == productId
                              select d;
@@ -199,7 +199,7 @@ public static class ProductCatalogApi
             return TypedResults.NotFound();
         }
 
-        var dimensions = await services.DbContext.ProductDimentions.Where(pd => pd.ProductId == productId)
+        var dimensions = await services.DbContext.ProductDimensions.Where(pd => pd.ProductId == productId)
                                     .Include(d => d.Dimension).ThenInclude(dv => dv.Values)
                                     .Select(pd => pd.Dimension)
                                     .ToListAsync();
@@ -274,10 +274,10 @@ public static class ProductCatalogApi
             if (string.IsNullOrEmpty(dimension.Id))
                 return TypedResults.BadRequest("Dimension Id is required.");
 
-            var existingDimension = await services.DbContext.ProductDimentions.FindAsync(productId, dimension.Id);
+            var existingDimension = await services.DbContext.ProductDimensions.FindAsync(productId, dimension.Id);
             if (existingDimension == null)
             {
-                await services.DbContext.ProductDimentions.AddAsync(new ProductDimension()
+                await services.DbContext.ProductDimensions.AddAsync(new ProductDimension()
                 {
                     ProductId = productId,
                     DimensionId = dimension.Id
@@ -433,7 +433,8 @@ public static class ProductCatalogApi
 
         var brand = await services.UnitOfWork.DbContext.Brands.FindAsync(product.BrandId) ?? throw new Exception("Brand not found.");
         var category = await services.UnitOfWork.DbContext.Categories.FindAsync(product.CategoryId) ?? throw new Exception("Category not found.");
-        var productDimensions = await services.UnitOfWork.DbContext.ProductDimentions.Where(pd => pd.ProductId == product.Id).ToListAsync();
+        var dimensions = await services.UnitOfWork.DbContext.ProductDimensions
+                                    .ToListAsync();
 
         product.CreatedAt = DateTime.UtcNow;
         product.UpdatedAt = DateTime.UtcNow;
@@ -470,6 +471,11 @@ public static class ProductCatalogApi
                         return TypedResults.BadRequest("All product dimensions must be specified for the variant.");
                     }
 
+                    if (product.Dimensions.Any(d => !variant.DimensionValues.Any(dv => dv.DimensionId == d.DimensionId)))
+                    {
+                        return TypedResults.BadRequest("All product dimensions must be specified for the variant.");
+                    }
+
                     foreach (var dimValue in variant.DimensionValues)
                     {
                         dimValue.VariantId = variant.Id;
@@ -483,7 +489,6 @@ public static class ProductCatalogApi
         // create outbox event
         product.Brand = brand;
         product.Category = category;
-        product.Dimensions = productDimensions;
         var evt = product.ToProductCreatedEvent();
 
         await services.UnitOfWork.OutboxForLogTailingRepository.AddAsync(new LogTailingOutboxMessage()
@@ -495,6 +500,14 @@ public static class ProductCatalogApi
         });
 
         await services.UnitOfWork.DbContext.Products.AddAsync(product);
+        foreach (var dimension in product.Dimensions ?? [])
+        {
+            await services.UnitOfWork.DbContext.ProductDimensions.AddAsync(new ProductDimension()
+            {
+                ProductId = product.Id,
+                DimensionId = dimension.DimensionId
+            });
+        }
 
         await services.UnitOfWork.DbContext.SaveChangesAsync();
         await services.UnitOfWork.OutboxForLogTailingRepository.SaveChangesAsync();

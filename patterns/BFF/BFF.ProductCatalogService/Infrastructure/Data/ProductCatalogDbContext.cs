@@ -2,7 +2,7 @@
 public class ProductCatalogDbContext(DbContextOptions<ProductCatalogDbContext> options) : DbContext(options)
 {
     public DbSet<Product> Products { get; internal set; } = default!;
-    public DbSet<ProductDimension> ProductDimentions { get; internal set; } = default!;
+    public DbSet<ProductDimension> ProductDimensions { get; internal set; } = default!;
     public DbSet<Dimension> Dimensions { get; internal set; }
     public DbSet<DimensionValue> DimensionValues { get; internal set; }
     public DbSet<Category> Categories { get; internal set; }

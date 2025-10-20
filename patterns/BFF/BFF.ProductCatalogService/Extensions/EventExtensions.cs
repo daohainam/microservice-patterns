@@ -40,7 +40,13 @@ public static class EventExtensions
                     Price = v.Price,
                     Description = v.Description,
                     CreatedAt = v.CreatedAt,
-                    UpdatedAt = v.UpdatedAt
+                    UpdatedAt = v.UpdatedAt,
+                    IsActive = v.IsActive,
+                    DimensionValues = v.DimensionValues?.Select(dv => new VariantDimensionValueInfo()
+                    {
+                        DimensionId = dv.DimensionId,
+                        Value = dv.Value
+                    }).ToList() ?? []
                 }).ToList() ?? [],
                 Dimensions = product.Dimensions?.OrderBy(d => d.SortOrder).Select(d => new DimensionInfo
                 {

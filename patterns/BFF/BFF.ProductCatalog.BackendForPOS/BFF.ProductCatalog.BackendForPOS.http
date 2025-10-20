@@ -1,6 +1,5 @@
-@BFF.ProductCatalog.BackendForPOS_HostAddress = http://localhost:5248
+@BFF.ProductCatalog.BackendForPOS_HostAddress = https://localhost:7101
 
-GET {{BFF.ProductCatalog.BackendForPOS_HostAddress}}/weatherforecast/
-Accept: application/json
+GET {{BFF.ProductCatalog.BackendForPOS_HostAddress}}/api/bff/v1/products
 
 ###
