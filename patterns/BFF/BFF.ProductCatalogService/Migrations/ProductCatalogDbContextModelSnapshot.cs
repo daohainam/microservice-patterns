@@ -222,7 +222,7 @@ namespace BFF.ProductCatalogService.Migrations
 
                     b.HasIndex("DimensionId");
 
-                    b.ToTable("ProductDimentions");
+                    b.ToTable("ProductDimensions");
                 });
 
             modelBuilder.Entity("BFF.ProductCatalogService.Infrastructure.Entity.ProductGroup", b =>

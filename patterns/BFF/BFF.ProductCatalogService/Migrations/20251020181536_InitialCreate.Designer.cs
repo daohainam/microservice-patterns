@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace BFF.ProductCatalogService.Migrations
 {
     [DbContext(typeof(ProductCatalogDbContext))]
-    [Migration("20251014180709_InitialCreated")]
-    partial class InitialCreated
+    [Migration("20251020181536_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -225,7 +225,7 @@ namespace BFF.ProductCatalogService.Migrations
 
                     b.HasIndex("DimensionId");
 
-                    b.ToTable("ProductDimentions");
+                    b.ToTable("ProductDimensions");
                 });
 
             modelBuilder.Entity("BFF.ProductCatalogService.Infrastructure.Entity.ProductGroup", b =>

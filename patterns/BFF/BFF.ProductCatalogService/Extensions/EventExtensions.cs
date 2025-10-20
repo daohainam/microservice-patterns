@@ -3,8 +3,11 @@
 namespace BFF.ProductCatalogService.Extensions;
 public static class EventExtensions
 {
-    public static ProductCreatedEvent ToProductCreatedEvent(this Product product)
+    public static ProductCreatedEvent ToProductCreatedEvent(this Product product, ProductCatalogDbContext dbContext)
     {
+        var dimensions = dbContext.Dimensions.Include(d => d.Values)
+            .Where(d => product.Dimensions.Select(pd => pd.DimensionId).Contains(d.Id))
+            .ToList();
         return new ProductCreatedEvent
         {
             ProductId = product.Id,
@@ -48,17 +51,18 @@ public static class EventExtensions
                         Value = dv.Value
                     }).ToList() ?? []
                 }).ToList() ?? [],
-                Dimensions = product.Dimensions?.OrderBy(d => d.SortOrder).Select(d => new DimensionInfo
-                {
-                    DimensionId = d.DimensionId,
-                    Name = d.Dimension?.Name ?? string.Empty,
-                    DisplayType = d.Dimension?.DisplayType ?? string.Empty,
-                    Values = d.Dimension!.Values?.Select(v => new DimensionValueInfo() { 
-                        DimensionId = v.DimensionId, 
-                        Value = v.Value, 
+                Dimensions = [.. dimensions.Select(d => new DimensionInfo()
+                { 
+                    DimensionId = d.Id,
+                    Name = d.Name,
+                    DisplayType = d.DisplayType,
+                    Values = d.Values?.Select(v => new DimensionValueInfo
+                    {
+                        Value = v.Value,
                         DisplayValue = v.DisplayValue ?? ""
                     }).ToList() ?? []
-                }).ToList() ?? [],
+                }
+                )],
                 Groups = product.Groups?.Select(g => new GroupInfo
                 {
                     GroupId = g.Id,

@@ -423,18 +423,27 @@ public static class ProductCatalogApi
         if (product.Id == Guid.Empty)
             product.Id = Guid.CreateVersion7();
 
-        if (product.Groups != null && product.Groups.Count > 0)
-        {
-            // we do not allow creating new groups via product creation
-            return TypedResults.BadRequest("Only existing groups can be associated with the product.");
-        }
-
         await services.UnitOfWork.BeginTransactionAsync(services.CancellationToken);
 
-        var brand = await services.UnitOfWork.DbContext.Brands.FindAsync(product.BrandId) ?? throw new Exception("Brand not found.");
-        var category = await services.UnitOfWork.DbContext.Categories.FindAsync(product.CategoryId) ?? throw new Exception("Category not found.");
-        var dimensions = await services.UnitOfWork.DbContext.ProductDimensions
-                                    .ToListAsync();
+        if (product.Groups != null && product.Groups.Count > 0)
+        {
+            foreach (var group in product.Groups)
+            {
+                if (group.Id == Guid.Empty)
+                    return TypedResults.BadRequest("Group Id is required.");
+
+                await services.UnitOfWork.DbContext.ProductGroups.AddAsync(new ProductGroup()
+                {
+                    ProductId = product.Id,
+                    GroupId = group.Id
+                });
+            }
+
+            product.Groups.Clear();
+        }
+
+        //var brand = await services.UnitOfWork.DbContext.Brands.FindAsync(product.BrandId) ?? throw new Exception("Brand not found.");
+        //var category = await services.UnitOfWork.DbContext.Categories.FindAsync(product.CategoryId) ?? throw new Exception("Category not found.");
 
         product.CreatedAt = DateTime.UtcNow;
         product.UpdatedAt = DateTime.UtcNow;
@@ -487,9 +496,12 @@ public static class ProductCatalogApi
 
 
         // create outbox event
-        product.Brand = brand;
-        product.Category = category;
-        var evt = product.ToProductCreatedEvent();
+        //product.Brand = brand;
+        //product.Category = category;
+
+        await services.UnitOfWork.DbContext.Products.AddAsync(product);
+
+        var evt = product.ToProductCreatedEvent(services.UnitOfWork.DbContext);
 
         await services.UnitOfWork.OutboxForLogTailingRepository.AddAsync(new LogTailingOutboxMessage()
         {
@@ -498,16 +510,6 @@ public static class ProductCatalogApi
             PayloadType = typeof(ProductCatalog.Events.ProductCreatedEvent).FullName ?? throw new Exception($"Could not get fullname of type {evt.GetType()}"),
             Payload = JsonSerializer.Serialize(evt),
         });
-
-        await services.UnitOfWork.DbContext.Products.AddAsync(product);
-        foreach (var dimension in product.Dimensions ?? [])
-        {
-            await services.UnitOfWork.DbContext.ProductDimensions.AddAsync(new ProductDimension()
-            {
-                ProductId = product.Id,
-                DimensionId = dimension.DimensionId
-            });
-        }
 
         await services.UnitOfWork.DbContext.SaveChangesAsync();
         await services.UnitOfWork.OutboxForLogTailingRepository.SaveChangesAsync();

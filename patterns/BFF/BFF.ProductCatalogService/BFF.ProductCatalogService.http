@@ -119,6 +119,7 @@ Content-Type: application/json
   "categoryId": "00000000-0000-0000-0000-000000000001",
   "brandId": "00000000-0000-0000-0000-000000000001",
   "dimensions": [ { "dimensionId": "color" } ],
+  "groups": [ { "id": "00000000-0000-0000-0000-000000000001", "name": "A" } ],
   "variants": [
     {
       "sku": "SKU-001",

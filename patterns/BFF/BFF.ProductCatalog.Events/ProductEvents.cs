@@ -60,7 +60,6 @@ public class VariantInfo
 }
 
 public class DimensionValueInfo { 
-    public string DimensionId { get; set; } = default!;
     public string Value { get; set; } = default!;
     public string DisplayValue { get; set; } = default!;
 }

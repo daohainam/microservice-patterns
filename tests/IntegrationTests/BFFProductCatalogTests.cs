@@ -69,6 +69,8 @@ public class BFFProductCatalogTests(AppFixture fixture)
     [Fact]
     public async Task Create_Product_And_Read_Success()
     {
+        var now = new DateTime(2025, 10, 10, 12, 30, 59, DateTimeKind.Utc);
+
         // Arrange
         var resourceNotificationService = App.Services.GetRequiredService<ResourceNotificationService>();
         await resourceNotificationService.WaitForResourceAsync<Projects.BFF_ProductCatalogService>(KnownResourceStates.Running, cancellationToken: TestContext.Current.CancellationToken).WaitAsync(TimeSpan.FromSeconds(30), TestContext.Current.CancellationToken);
@@ -144,7 +146,8 @@ public class BFFProductCatalogTests(AppFixture fixture)
             ProductId = product.Id,
             Sku = "TEST-SKU-001",
             Price = 19.99m,
-            Stock = 100,
+            CreatedAt = now,
+            UpdatedAt = now,
             BarCode = "1234567890001",
             Description = "This is a test variant",
             IsActive = true,
@@ -161,7 +164,8 @@ public class BFFProductCatalogTests(AppFixture fixture)
             ProductId = product.Id,
             Sku = "TEST-SKU-002",
             Price = 21.99m,
-            Stock = 50,
+            UpdatedAt = now,
+            CreatedAt = now,
             BarCode = "1234567890002",
             Description = "This is another test variant",
             IsActive = true,
@@ -184,6 +188,9 @@ public class BFFProductCatalogTests(AppFixture fixture)
         product = await response.Content.ReadFromJsonAsync<Product>(cancellationToken: TestContext.Current.CancellationToken);
         Assert.NotNull(product);
         Assert.Equal(2, product.Variants.Count);
-        Assert.Contains(product.Variants, v => v.Id == variant1.Id && v.Sku == "TEST-SKU-001" && v.Price == 19.99m && v.Stock == 100 && v.DimensionValues.Any(dv => dv.DimensionId == "color" && dv.Value == "ff0000") && v.DimensionValues.Any(dv => dv.DimensionId == "size" && dv.Value == "M"));
+        Assert.Contains(product.Variants, v => v.Id == variant1.Id && v.Sku == variant1.Sku && v.Price == variant1.Price && v.DimensionValues.Any(dv => dv.DimensionId == "color" && dv.Value == "ff0000") && v.DimensionValues.Any(dv => dv.DimensionId == "size" && dv.Value == "M"));
+        Assert.Contains(product.Variants, v => v.Id == variant2.Id && v.Sku == variant2.Sku && v.Price == variant2.Price && v.DimensionValues.Any(dv => dv.DimensionId == "color" && dv.Value == "00ff00") && v.DimensionValues.Any(dv => dv.DimensionId == "size" && dv.Value == "L"));
+
+        await Task.Delay(1000, cancellationToken: TestContext.Current.CancellationToken);
     }
 }

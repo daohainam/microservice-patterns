@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace BFF.ProductCatalogService.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialCreated : Migration
+    public partial class InitialCreate : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -160,7 +160,7 @@ namespace BFF.ProductCatalogService.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "ProductDimentions",
+                name: "ProductDimensions",
                 columns: table => new
                 {
                     ProductId = table.Column<Guid>(type: "uuid", nullable: false),
@@ -169,15 +169,15 @@ namespace BFF.ProductCatalogService.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_ProductDimentions", x => new { x.ProductId, x.DimensionId });
+                    table.PrimaryKey("PK_ProductDimensions", x => new { x.ProductId, x.DimensionId });
                     table.ForeignKey(
-                        name: "FK_ProductDimentions_Dimensions_DimensionId",
+                        name: "FK_ProductDimensions_Dimensions_DimensionId",
                         column: x => x.DimensionId,
                         principalTable: "Dimensions",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_ProductDimentions_Products_ProductId",
+                        name: "FK_ProductDimensions_Products_ProductId",
                         column: x => x.ProductId,
                         principalTable: "Products",
                         principalColumn: "Id",
@@ -291,8 +291,8 @@ namespace BFF.ProductCatalogService.Migrations
                 column: "ProductsId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_ProductDimentions_DimensionId",
-                table: "ProductDimentions",
+                name: "IX_ProductDimensions_DimensionId",
+                table: "ProductDimensions",
                 column: "DimensionId");
 
             migrationBuilder.CreateIndex(
@@ -336,7 +336,7 @@ namespace BFF.ProductCatalogService.Migrations
                 name: "GroupProduct");
 
             migrationBuilder.DropTable(
-                name: "ProductDimentions");
+                name: "ProductDimensions");
 
             migrationBuilder.DropTable(
                 name: "ProductGroups");
