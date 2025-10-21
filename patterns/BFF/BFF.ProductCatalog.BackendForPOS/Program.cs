@@ -1,3 +1,5 @@
+using BFF.ProductCatalog.BackendForPOS.Apis;
+
 var builder = WebApplication.CreateBuilder(args);
 builder.AddApplicationServices();
 

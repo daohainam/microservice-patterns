@@ -1,7 +1,7 @@
 ﻿namespace BFF.ProductCatalog.BackendForPOS.Models;
 
 // in the POS system, we use a simplified product model, a product is actually a variant in the catalog system
-public class Product
+public class POSProduct
 {
     public Guid Id { get; set; }
     public string Name { get; set; } = string.Empty;
