@@ -139,6 +139,21 @@ namespace BFF.ProductCatalogService.Migrations
                     b.ToTable("Groups");
                 });
 
+            modelBuilder.Entity("BFF.ProductCatalogService.Infrastructure.Entity.GroupProduct", b =>
+                {
+                    b.Property<Guid>("ProductId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("GroupId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("ProductId", "GroupId");
+
+                    b.HasIndex("GroupId");
+
+                    b.ToTable("GroupProducts");
+                });
+
             modelBuilder.Entity("BFF.ProductCatalogService.Infrastructure.Entity.Image", b =>
                 {
                     b.Property<Guid>("Id")
@@ -223,21 +238,6 @@ namespace BFF.ProductCatalogService.Migrations
                     b.HasIndex("DimensionId");
 
                     b.ToTable("ProductDimensions");
-                });
-
-            modelBuilder.Entity("BFF.ProductCatalogService.Infrastructure.Entity.ProductGroup", b =>
-                {
-                    b.Property<Guid>("ProductId")
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid>("GroupId")
-                        .HasColumnType("uuid");
-
-                    b.HasKey("ProductId", "GroupId");
-
-                    b.HasIndex("GroupId");
-
-                    b.ToTable("ProductGroups");
                 });
 
             modelBuilder.Entity("BFF.ProductCatalogService.Infrastructure.Entity.ProductImage", b =>
@@ -328,21 +328,6 @@ namespace BFF.ProductCatalogService.Migrations
                     b.ToTable("VariantDimensionValues");
                 });
 
-            modelBuilder.Entity("GroupProduct", b =>
-                {
-                    b.Property<Guid>("GroupsId")
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid>("ProductsId")
-                        .HasColumnType("uuid");
-
-                    b.HasKey("GroupsId", "ProductsId");
-
-                    b.HasIndex("ProductsId");
-
-                    b.ToTable("GroupProduct");
-                });
-
             modelBuilder.Entity("BFF.ProductCatalogService.Infrastructure.Entity.DimensionValue", b =>
                 {
                     b.HasOne("BFF.ProductCatalogService.Infrastructure.Entity.Dimension", null)
@@ -350,6 +335,25 @@ namespace BFF.ProductCatalogService.Migrations
                         .HasForeignKey("DimensionId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("BFF.ProductCatalogService.Infrastructure.Entity.GroupProduct", b =>
+                {
+                    b.HasOne("BFF.ProductCatalogService.Infrastructure.Entity.Group", "Group")
+                        .WithMany()
+                        .HasForeignKey("GroupId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("BFF.ProductCatalogService.Infrastructure.Entity.Product", "Product")
+                        .WithMany("GroupProducts")
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Group");
+
+                    b.Navigation("Product");
                 });
 
             modelBuilder.Entity("BFF.ProductCatalogService.Infrastructure.Entity.Product", b =>
@@ -390,25 +394,6 @@ namespace BFF.ProductCatalogService.Migrations
                     b.Navigation("Product");
                 });
 
-            modelBuilder.Entity("BFF.ProductCatalogService.Infrastructure.Entity.ProductGroup", b =>
-                {
-                    b.HasOne("BFF.ProductCatalogService.Infrastructure.Entity.Group", "Group")
-                        .WithMany()
-                        .HasForeignKey("GroupId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("BFF.ProductCatalogService.Infrastructure.Entity.Product", "Product")
-                        .WithMany()
-                        .HasForeignKey("ProductId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Group");
-
-                    b.Navigation("Product");
-                });
-
             modelBuilder.Entity("BFF.ProductCatalogService.Infrastructure.Entity.ProductImage", b =>
                 {
                     b.HasOne("BFF.ProductCatalogService.Infrastructure.Entity.Image", "Image")
@@ -444,21 +429,6 @@ namespace BFF.ProductCatalogService.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("GroupProduct", b =>
-                {
-                    b.HasOne("BFF.ProductCatalogService.Infrastructure.Entity.Group", null)
-                        .WithMany()
-                        .HasForeignKey("GroupsId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("BFF.ProductCatalogService.Infrastructure.Entity.Product", null)
-                        .WithMany()
-                        .HasForeignKey("ProductsId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
             modelBuilder.Entity("BFF.ProductCatalogService.Infrastructure.Entity.Dimension", b =>
                 {
                     b.Navigation("Values");
@@ -467,6 +437,8 @@ namespace BFF.ProductCatalogService.Migrations
             modelBuilder.Entity("BFF.ProductCatalogService.Infrastructure.Entity.Product", b =>
                 {
                     b.Navigation("Dimensions");
+
+                    b.Navigation("GroupProducts");
 
                     b.Navigation("Images");
 

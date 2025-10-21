@@ -3,11 +3,16 @@
 namespace BFF.ProductCatalogService.Extensions;
 public static class EventExtensions
 {
-    public static ProductCreatedEvent ToProductCreatedEvent(this Product product, ProductCatalogDbContext dbContext)
+    public async static Task<ProductCreatedEvent> ToProductCreatedEvent(this Product product, ApiServicesWithUnitOfWork services)
     {
-        var dimensions = dbContext.Dimensions.Include(d => d.Values)
-            .Where(d => product.Dimensions.Select(pd => pd.DimensionId).Contains(d.Id))
-            .ToList();
+        var brand = await services.UnitOfWork.DbContext.Brands.Where(b => b.Id == product.BrandId).SingleOrDefaultAsync(services.CancellationToken) ?? throw new Exception("Brand not found");
+        var category = await services.UnitOfWork.DbContext.Categories.Where(c => c.Id == product.CategoryId).SingleOrDefaultAsync(services.CancellationToken) ?? throw new Exception("Category not found");
+
+        var dimensionIds = product.Dimensions.Select(d => d.DimensionId).ToList();
+        var dimensions = await services.UnitOfWork.DbContext.Dimensions.Where(d => dimensionIds.Contains(d.Id))
+            .Include(d => d.Values)
+            .ToListAsync(services.CancellationToken);
+
         return new ProductCreatedEvent
         {
             ProductId = product.Id,
@@ -22,17 +27,17 @@ public static class EventExtensions
 
                 Path = [
                     new() {
-                        CategoryId = product.Category?.Id ?? Guid.Empty,
-                        Name = product.Category?.Name ?? string.Empty,
-                        Description = product.Category?.Description ?? string.Empty
+                        CategoryId = category.Id,
+                        Name = category.Name ?? string.Empty,
+                        Description = category.Description ?? string.Empty
                     }
                 ],
                 Brand = new BrandInfo
                 {
-                    BrandId = product.Brand?.Id ?? Guid.Empty,
-                    Name = product.Brand?.Name ?? string.Empty,
-                    Description = product.Brand?.Description ?? string.Empty,
-                    LogoUrl = product.Brand?.LogoUrl ?? string.Empty
+                    BrandId = brand.Id,
+                    Name = brand.Name ?? string.Empty,
+                    Description = brand.Description ?? string.Empty,
+                    LogoUrl = brand.LogoUrl ?? string.Empty
                 },
                 Variants = product.Variants?.Select(v => new VariantInfo
                 {
@@ -51,24 +56,23 @@ public static class EventExtensions
                         Value = dv.Value
                     }).ToList() ?? []
                 }).ToList() ?? [],
-                Dimensions = [.. dimensions.Select(d => new DimensionInfo()
-                { 
+                Dimensions = dimensions.Select(d => new DimensionInfo
+                {
                     DimensionId = d.Id,
                     Name = d.Name,
                     DisplayType = d.DisplayType,
-                    Values = d.Values?.Select(v => new DimensionValueInfo
+                    Values = [.. d.Values.Select(v => new DimensionValueInfo
                     {
                         Value = v.Value,
-                        DisplayValue = v.DisplayValue ?? ""
-                    }).ToList() ?? []
-                }
-                )],
-                Groups = product.Groups?.Select(g => new GroupInfo
+                        DisplayValue = v.DisplayValue ?? string.Empty
+                    })]
+                }).ToList() ?? [],
+                Groups = product.Groups.Select(g => new GroupInfo
                 {
                     GroupId = g.Id,
                     Name = g.Name
                 }).ToList() ?? [],
-                Images = product.Images?.Select(i => new ProductImageInfo
+                Images = product.Images.Select(i => new ProductImageInfo
                 {
                     ImageId = i.Id,
                     AltText = i.AltText,

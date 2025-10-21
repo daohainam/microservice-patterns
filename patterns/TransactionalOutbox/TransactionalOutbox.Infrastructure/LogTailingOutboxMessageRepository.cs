@@ -15,8 +15,8 @@ public class LogTailingOutboxMessageRepository(OutboxDbContext dbContext) : ILog
         return Task.CompletedTask;
     }
 
-    public Task SaveChangesAsync()
+    public Task SaveChangesAsync(CancellationToken cancellationToken = default)
     {
-        return dbContext.SaveChangesAsync();
+        return dbContext.SaveChangesAsync(cancellationToken);
     }
 }
