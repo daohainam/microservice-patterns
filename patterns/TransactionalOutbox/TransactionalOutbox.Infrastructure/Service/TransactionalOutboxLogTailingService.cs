@@ -80,7 +80,7 @@ internal class TransactionalOutboxLogTailingService : BackgroundService
 
     private IntegrationEvent? RebuildEvent(LogTailingOutboxMessage message)
     {
-        var type = options.PayloadTypeRsolver(message.PayloadType);
+        var type = options.PayloadTypeResolver(message.PayloadType);
 
         if (type == null)
         {
@@ -95,6 +95,6 @@ internal class TransactionalOutboxLogTailingService : BackgroundService
 
 public class TransactionalOutboxLogTailingServiceOptions
 {
-    public Func<string, Type?> PayloadTypeRsolver { get; set; } = Type.GetType; 
+    public Func<string, Type?> PayloadTypeResolver { get; set; } = Type.GetType; 
     public required string ConnectionString { get; set; } 
 }
