@@ -17,6 +17,7 @@ public class Product
     public List<Variant> Variants { get; set; } = [];
     public List<ProductDimension> Dimensions { get; set; } = [];
     public List<Group> Groups { get; set; } = [];
+    public List<GroupProduct> GroupProducts { get; } = [];
     public Brand Brand { get; set; } = default!;
     public List<ProductImage> Images { get; set; } = [];
 }

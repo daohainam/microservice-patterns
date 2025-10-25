@@ -427,23 +427,18 @@ public static class ProductCatalogApi
 
         if (product.Groups != null && product.Groups.Count > 0)
         {
-            foreach (var group in product.Groups)
-            {
-                if (group.Id == Guid.Empty)
-                    return TypedResults.BadRequest("Group Id is required.");
-
-                await services.UnitOfWork.DbContext.ProductGroups.AddAsync(new ProductGroup()
-                {
-                    ProductId = product.Id,
-                    GroupId = group.Id
-                });
-            }
-
-            product.Groups.Clear();
+            return TypedResults.BadRequest("Use ProductGroups to assign groups to product.");
         }
 
-        //var brand = await services.UnitOfWork.DbContext.Brands.FindAsync(product.BrandId) ?? throw new Exception("Brand not found.");
-        //var category = await services.UnitOfWork.DbContext.Categories.FindAsync(product.CategoryId) ?? throw new Exception("Category not found.");
+        if (product.GroupProducts != null && product.GroupProducts.Count > 0)
+            {
+            foreach (var group in product.GroupProducts)
+            {
+                if (group.GroupId == Guid.Empty)
+                    return TypedResults.BadRequest("Group Id is required.");
+                group.ProductId = product.Id;
+            }
+        }
 
         product.CreatedAt = DateTime.UtcNow;
         product.UpdatedAt = DateTime.UtcNow;
@@ -494,14 +489,11 @@ public static class ProductCatalogApi
             }
         }
 
-
         // create outbox event
-        //product.Brand = brand;
-        //product.Category = category;
 
-        await services.UnitOfWork.DbContext.Products.AddAsync(product);
+        await services.UnitOfWork.DbContext.Products.AddAsync(product, services.CancellationToken);
 
-        var evt = product.ToProductCreatedEvent(services.UnitOfWork.DbContext);
+        var evt = await product.ToProductCreatedEvent(services);
 
         await services.UnitOfWork.OutboxForLogTailingRepository.AddAsync(new LogTailingOutboxMessage()
         {
@@ -511,8 +503,8 @@ public static class ProductCatalogApi
             Payload = JsonSerializer.Serialize(evt),
         });
 
-        await services.UnitOfWork.DbContext.SaveChangesAsync();
-        await services.UnitOfWork.OutboxForLogTailingRepository.SaveChangesAsync();
+        await services.UnitOfWork.DbContext.SaveChangesAsync(services.CancellationToken);
+        await services.UnitOfWork.OutboxForLogTailingRepository.SaveChangesAsync(services.CancellationToken);
         await services.UnitOfWork.CommitTransactionAsync(services.CancellationToken);
 
         return TypedResults.Ok(product);

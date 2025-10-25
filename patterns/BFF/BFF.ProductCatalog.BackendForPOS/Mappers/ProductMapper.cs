@@ -3,17 +3,17 @@
 namespace BFF.ProductCatalog.BackendForPOS.Mappers;
 public class ProductMapper
 {
-    public static IEnumerable<Models.Product> Map(ProductIndexDocument document)
+    public static IEnumerable<Models.POSProduct> Map(ProductIndexDocument document)
     {
         // For POS, we treat each variant as a separate product
         
-        var products = new List<Models.Product>();
+        var products = new List<Models.POSProduct>();
 
         foreach (var variant in document.Variants)
         {
             var image = variant.Images.FirstOrDefault() ?? document.Images.FirstOrDefault();
 
-            products.Add(new Models.Product()
+            products.Add(new Models.POSProduct()
             {
                 Id = variant.VariantId,
                 Name = document.Name,

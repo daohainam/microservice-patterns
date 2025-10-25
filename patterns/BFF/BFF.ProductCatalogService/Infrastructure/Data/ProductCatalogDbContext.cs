@@ -1,4 +1,6 @@
-﻿namespace BFF.ProductCatalogService.Infrastructure.Data;
+﻿using Microsoft.Extensions.Hosting;
+
+namespace BFF.ProductCatalogService.Infrastructure.Data;
 public class ProductCatalogDbContext(DbContextOptions<ProductCatalogDbContext> options) : DbContext(options)
 {
     public DbSet<Product> Products { get; internal set; } = default!;
@@ -12,5 +14,13 @@ public class ProductCatalogDbContext(DbContextOptions<ProductCatalogDbContext> o
     public DbSet<ProductImage> ProductImages { get; internal set; }
     public DbSet<Image> Images { get; internal set; }
     public DbSet<Brand> Brands { get; internal set; }
-    public DbSet<ProductGroup> ProductGroups { get; internal set; }   
+    public DbSet<GroupProduct> GroupProducts { get; internal set; }
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<Product>()
+            .HasMany(e => e.Groups)
+            .WithMany(e => e.Products)
+            .UsingEntity<GroupProduct>();
+    }
 }

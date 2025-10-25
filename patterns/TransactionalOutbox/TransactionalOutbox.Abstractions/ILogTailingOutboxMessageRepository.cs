@@ -2,5 +2,5 @@
 public interface ILogTailingOutboxMessageRepository
 {
     Task AddAsync(LogTailingOutboxMessage message);
-    Task SaveChangesAsync();
+    Task SaveChangesAsync(CancellationToken cancellationToken = default);
 }

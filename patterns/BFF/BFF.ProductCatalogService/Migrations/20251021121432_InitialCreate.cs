@@ -136,24 +136,24 @@ namespace BFF.ProductCatalogService.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "GroupProduct",
+                name: "GroupProducts",
                 columns: table => new
                 {
-                    GroupsId = table.Column<Guid>(type: "uuid", nullable: false),
-                    ProductsId = table.Column<Guid>(type: "uuid", nullable: false)
+                    ProductId = table.Column<Guid>(type: "uuid", nullable: false),
+                    GroupId = table.Column<Guid>(type: "uuid", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_GroupProduct", x => new { x.GroupsId, x.ProductsId });
+                    table.PrimaryKey("PK_GroupProducts", x => new { x.ProductId, x.GroupId });
                     table.ForeignKey(
-                        name: "FK_GroupProduct_Groups_GroupsId",
-                        column: x => x.GroupsId,
+                        name: "FK_GroupProducts_Groups_GroupId",
+                        column: x => x.GroupId,
                         principalTable: "Groups",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_GroupProduct_Products_ProductsId",
-                        column: x => x.ProductsId,
+                        name: "FK_GroupProducts_Products_ProductId",
+                        column: x => x.ProductId,
                         principalTable: "Products",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
@@ -178,30 +178,6 @@ namespace BFF.ProductCatalogService.Migrations
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_ProductDimensions_Products_ProductId",
-                        column: x => x.ProductId,
-                        principalTable: "Products",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "ProductGroups",
-                columns: table => new
-                {
-                    ProductId = table.Column<Guid>(type: "uuid", nullable: false),
-                    GroupId = table.Column<Guid>(type: "uuid", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_ProductGroups", x => new { x.ProductId, x.GroupId });
-                    table.ForeignKey(
-                        name: "FK_ProductGroups_Groups_GroupId",
-                        column: x => x.GroupId,
-                        principalTable: "Groups",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_ProductGroups_Products_ProductId",
                         column: x => x.ProductId,
                         principalTable: "Products",
                         principalColumn: "Id",
@@ -286,19 +262,14 @@ namespace BFF.ProductCatalogService.Migrations
                 column: "DimensionId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_GroupProduct_ProductsId",
-                table: "GroupProduct",
-                column: "ProductsId");
+                name: "IX_GroupProducts_GroupId",
+                table: "GroupProducts",
+                column: "GroupId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_ProductDimensions_DimensionId",
                 table: "ProductDimensions",
                 column: "DimensionId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_ProductGroups_GroupId",
-                table: "ProductGroups",
-                column: "GroupId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_ProductImages_ImageId",
@@ -333,13 +304,10 @@ namespace BFF.ProductCatalogService.Migrations
                 name: "DimensionValues");
 
             migrationBuilder.DropTable(
-                name: "GroupProduct");
+                name: "GroupProducts");
 
             migrationBuilder.DropTable(
                 name: "ProductDimensions");
-
-            migrationBuilder.DropTable(
-                name: "ProductGroups");
 
             migrationBuilder.DropTable(
                 name: "ProductImages");
@@ -348,10 +316,10 @@ namespace BFF.ProductCatalogService.Migrations
                 name: "VariantDimensionValues");
 
             migrationBuilder.DropTable(
-                name: "Dimensions");
+                name: "Groups");
 
             migrationBuilder.DropTable(
-                name: "Groups");
+                name: "Dimensions");
 
             migrationBuilder.DropTable(
                 name: "Images");

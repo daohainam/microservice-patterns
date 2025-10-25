@@ -1,11 +1,10 @@
-﻿using BFF.ProductCatalog.BackendForPOS;
-using BFF.ProductCatalog.BackendForPOS.Mappers;
+﻿using BFF.ProductCatalog.BackendForPOS.Mappers;
 using BFF.ProductCatalog.BackendForPOS.Models;
 using BFF.ProductCatalog.Search;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 
-namespace BFF.ProductCatalog.SearchService.Apis;
+namespace BFF.ProductCatalog.BackendForPOS.Apis;
 public static class ProductSearchApi
 {
     private const int defaultPageSize = 10;
@@ -27,7 +26,7 @@ public static class ProductSearchApi
         return group;
     }
 
-    private static async Task<Results<Ok<List<Product>>, BadRequest, BadRequest<string>>> SearchProducts([AsParameters] ApiServices apiServices, 
+    private static async Task<Results<Ok<List<POSProduct>>, BadRequest, BadRequest<string>>> SearchProducts([AsParameters] ApiServices apiServices, 
         [FromQuery] string? query, [FromQuery(Name = "catId")] Guid? categoryId, [FromQuery(Name = "brandId")] Guid? brandId,
         [FromQuery] int page = 1, [FromQuery] int pageSize = defaultPageSize)
     {
