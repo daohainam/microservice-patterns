@@ -6,8 +6,8 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 	<ItemGroup>
-		<PackageReference Include="Aspire.Hosting.AppHost" Version="9.5.2" />
-		<PackageReference Include="Aspire.Hosting.Kafka" Version="9.5.2" />
+		<PackageReference Include="Aspire.Hosting.AppHost" Version="13.0.0" />
+		<PackageReference Include="Aspire.Hosting.Kafka" Version="13.0.0" />
 	</ItemGroup>
 
 </Project>
