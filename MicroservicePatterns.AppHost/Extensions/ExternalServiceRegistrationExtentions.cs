@@ -55,41 +55,6 @@ public static class ExternalServiceRegistrationExtentions
         //    await CreateKafkaTopics(@event, kafka.Resource, ct);
         //});
 
-        #region Backend for Frontend (BFF)
-        var productCategoryDb = postgres.AddDefaultDatabase<Projects.BFF_ProductCatalogService>();
-        var productCategoryService = builder.AddProjectWithPostfix<Projects.BFF_ProductCatalogService>()
-            .WithEnvironment(Consts.Env_EventPublishingTopics, GetTopicName<Projects.BFF_ProductCatalogService>())
-            .WithReference(kafka)
-            .WithReference(productCategoryDb, Consts.DefaultDatabase)
-            .WaitFor(productCategoryDb)
-            .WaitFor(kafka)
-            .WithEnvironment("GRAFANA_URL", grafana.GetEndpoint("http"));
-
-        var productCategorySyncService = builder.AddProjectWithPostfix<Projects.BFF_ProductCatalog_SearchSyncService>()
-            .WithReference(kafka)
-            .WithReference(elasticsearch)
-            .WithEnvironment(Consts.Env_EventConsumingTopics, GetTopicName<Projects.BFF_ProductCatalogService>())
-            .WaitFor(elasticsearch)
-            .WaitFor(kafka);
-
-        var productCatalogSearchService = builder.AddProjectWithPostfix<Projects.BFF_ProductCatalog_SearchService>()
-            .WithReference(elasticsearch)
-            .WaitFor(elasticsearch);
-
-        var productCatalogBackendForPOSService = builder.AddProjectWithPostfix<Projects.BFF_ProductCatalog_BackendForPOS>()
-            .WithReference(elasticsearch)
-            .WaitFor(elasticsearch);
-
-        var productCatalogBackendForMobileService = builder.AddProjectWithPostfix<Projects.BFF_ProductCatalog_BackendForPOS>()
-            .WithReference(elasticsearch)
-            .WaitFor(elasticsearch);
-
-        productCatalogSearchService.WithParentRelationship(productCategoryService);
-        productCategorySyncService.WithParentRelationship(productCategoryService);
-        productCatalogBackendForPOSService.WithParentRelationship(productCategoryService);
-        productCatalogBackendForMobileService.WithParentRelationship(productCategoryService);
-        #endregion
-
         #region CQRS Library
         var bookDb = postgres.AddDefaultDatabase<Projects.CQRS_Library_BookService>();
         var bookService = builder.AddProjectWithPostfix<Projects.CQRS_Library_BookService>()
@@ -679,7 +644,6 @@ public static class ExternalServiceRegistrationExtentions
         var logger = @event.Services.GetRequiredService<ILogger<Program>>();
 
         TopicSpecification[] topics = [
-            new () { Name = GetTopicName<Projects.BFF_ProductCatalogService>(), NumPartitions = 1, ReplicationFactor = 1 },
             new() { Name = GetTopicName<Projects.CQRS_Library_BookService>(), NumPartitions = 1, ReplicationFactor = 1 },
             new() { Name = GetTopicName<Projects.CQRS_Library_BorrowerService>(), NumPartitions = 1, ReplicationFactor = 1 },
             new() { Name = GetTopicName<Projects.CQRS_Library_BorrowingService>(), NumPartitions = 1, ReplicationFactor = 1 },
