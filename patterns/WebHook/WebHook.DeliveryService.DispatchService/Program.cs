@@ -1,5 +1,4 @@
 using MicroservicePatterns.Shared;
-using Microsoft.EntityFrameworkCore;
 using WebHook.DeliveryService.DispatchService;
 using WebHook.DeliveryService.Infrastructure.Data;
 

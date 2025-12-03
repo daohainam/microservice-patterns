@@ -3,7 +3,6 @@ using CloudNative.CloudEvents.Http;
 using CloudNative.CloudEvents.SystemTextJson;
 using Microsoft.EntityFrameworkCore;
 using System.Net.Mime;
-using System.Text;
 using WebHook.DeliveryService.Infrastructure.Data;
 using WebHook.DeliveryService.Infrastructure.Entity;
 
