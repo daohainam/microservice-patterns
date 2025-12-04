@@ -7,7 +7,7 @@ The goal is simple:
 > Strip away domain noise and framework boilerplate so you can clearly see  
 > **what each pattern does, why you need it, and how to implement it.**
 
-If you care about **high-quality microservice architecture** on .NET, this repo is for you.
+If you care about high-quality microservice architecture on .NET, this repo is for you.
 
 ---
 
@@ -25,7 +25,7 @@ This project takes a different approach:
 - **Aspire-native**: Uses .NET Aspire to bootstrap and orchestrate services.
 - **Teachable**: Designed to be read, explored, and modified.
 
-Use it as a **learning lab**, a **reference implementation**, or a **starting point** for your own experiments.
+Use it as a learning lab, a reference implementation, or a starting point for your own experiments.
 
 ---
 
@@ -178,8 +178,7 @@ You can browse the `patterns/` folder and open the pattern you’re interested i
 - **.NET SDK** (latest version that supports .NET Aspire)  
 - **.NET Aspire** workloads and toolings installed  
   (follow the official .NET Aspire documentation for your platform).
-- Optionally: **Docker** and/or **Kafka**, if you want to run the Kafka-based demos locally.
-
+  
 ### Run the solution
 
 1. Clone the repo:
@@ -187,3 +186,58 @@ You can browse the `patterns/` folder and open the pattern you’re interested i
    ```bash
    git clone https://github.com/daohainam/microservice-patterns.git
    cd microservice-patterns
+   ```
+
+2. Restore and build:
+
+   ```bash
+   dotnet restore
+   dotnet build
+   ```
+
+4. Start the Aspire app host:
+
+   ```bash
+   dotnet run --project MicroservicePatterns.AppHost
+   ```
+
+6. Open the Aspire dashboard (if enabled) and explore the running services and patterns.
+
+From there, pick a pattern, follow the comments in the code, and run through typical scenarios (success paths, failures, compensations, etc.).
+
+---
+
+## Learn with the videos
+
+This repository is designed to be used together with detailed video explanations:
+
+Pattern deep dives (CQRS, Event Sourcing, Saga, Outbox, Webhook, etc.)
+Playlist:
+https://www.youtube.com/playlist?list=PLRLJQuuRRcFlOIjMY9w5aoCf6e368oxez
+
+Getting started with .NET Aspire via a Core Banking (fake) exercise
+A practical intro to building on Aspire, which helps when navigating this repo:
+https://youtu.be/QVPYhhp-Nkg
+
+Watch a video, then jump into the corresponding pattern in this repo and step through the code.
+
+---
+
+## Who is this for?
+
+.NET developers who want to go beyond basic Web APIs and understand real microservice patterns.
+
+Architects and tech leads evaluating .NET Aspire for microservice platforms.
+
+Learners and teachers looking for clean, focused examples to explain advanced patterns.
+
+If you use this repo in a talk, workshop, or course, feel free to link back and share how you’re using it.
+
+---
+
+## Status & contributions
+
+This project is deliberately opinionated and minimal, not a full production system.
+It’s meant as a reference and teaching tool.
+
+If you find bugs, have questions, or want to propose improvements to the demos, contributions and discussions are very welcome via issues and pull requests.
