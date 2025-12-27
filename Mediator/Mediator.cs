@@ -14,7 +14,7 @@ internal class Mediator(MediatorRegistrationContainer container, IServiceProvide
                 using var scope = serviceProvider.CreateScope();
                 var handler = ActivatorUtilities.CreateInstance(scope.ServiceProvider, handlerType);
 
-                if (handler == null)
+                if (handler is null)
                 {
                     logger.LogWarning("Handler of type {HandlerType} could not be created for notification of type {NotificationType}.",
                         handlerType.Name, typeof(TNotification).Name);
@@ -23,7 +23,7 @@ internal class Mediator(MediatorRegistrationContainer container, IServiceProvide
 
                 var handleMethod = handlerType.GetMethod("Handle", [notification.GetType(), typeof(CancellationToken)]);
 
-                if (handleMethod != null)
+                if (handleMethod is not null)
                 {
                     try
                     {
@@ -42,7 +42,11 @@ internal class Mediator(MediatorRegistrationContainer container, IServiceProvide
                     }
                     finally
                     {
-                        if (handler is IDisposable disposableHandler)
+                        if (handler is IAsyncDisposable asyncDisposableHandler)
+                        {
+                            await asyncDisposableHandler.DisposeAsync();
+                        }
+                        else if (handler is IDisposable disposableHandler)
                         {
                             disposableHandler.Dispose();
                         }

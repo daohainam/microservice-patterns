@@ -20,7 +20,7 @@ public static class RegistrationExtensions
     {
         var container = new MediatorRegistrationContainer();
         var assemblies = new List<Assembly>() { Assembly.GetExecutingAssembly() };
-        if (serviceAssemblies != null)
+        if (serviceAssemblies is not null)
         {
             assemblies.AddRange(serviceAssemblies);
         }

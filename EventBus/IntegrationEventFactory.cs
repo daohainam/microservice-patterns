@@ -8,7 +8,7 @@ public class IntegrationEventFactory : IIntegrationEventFactory
 {
     public IntegrationEvent? CreateEvent(string typeName, string value)
     {
-        var t = GetEventType(typeName) ?? throw new ArgumentException($"Type {typeName} not found");
+        var t = GetEventType(typeName) ?? throw new ArgumentException($"Type {typeName} not found", nameof(typeName));
 
         return JsonSerializer.Deserialize(value, t) as IntegrationEvent;
     }
@@ -32,7 +32,7 @@ public class IntegrationEventFactory<TEvent> : IIntegrationEventFactory
 
     public IntegrationEvent? CreateEvent(string typeName, string value)
     {
-        var t = GetEventType(typeName) ?? throw new ArgumentException($"Type {typeName} not found");
+        var t = GetEventType(typeName) ?? throw new ArgumentException($"Type {typeName} not found", nameof(typeName));
 
         return JsonSerializer.Deserialize(value, t) as IntegrationEvent;
     }

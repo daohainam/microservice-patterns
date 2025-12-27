@@ -1,6 +1,6 @@
 ﻿using Aspire.Hosting;
 using Aspire.Hosting.ApplicationModel;
-using System.Xml.Linq;
+using Aspire.Hosting.Eventing;
 
 namespace TransactionalOutbox.Aspire.Debezium;
 
@@ -42,7 +42,7 @@ public static class DebeziumBuilderExtensions
                 .WithEnvironment("CONNECT_REST_ADVERTISED_HOST_NAME", "connect")
                 .WithEnvironment("CONNECT_PLUGIN_PATH", "/kafka/connect,/usr/share/java");
 
-            builder.Eventing.Subscribe<AfterEndpointsAllocatedEvent>((e, ct) =>
+            builder.Eventing.Subscribe<ResourceEndpointsAllocatedEvent>((e, ct) =>
             {
                 var kafkaResources = builder.Resources.OfType<KafkaServerResource>();
 
