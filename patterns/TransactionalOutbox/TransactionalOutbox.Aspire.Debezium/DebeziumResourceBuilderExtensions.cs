@@ -42,21 +42,17 @@ public static class DebeziumBuilderExtensions
                 .WithEnvironment("CONNECT_REST_ADVERTISED_HOST_NAME", "connect")
                 .WithEnvironment("CONNECT_PLUGIN_PATH", "/kafka/connect,/usr/share/java");
 
-            builder.Eventing.Subscribe<AfterEndpointsAllocatedEvent>((e, ct) =>
+            builder.Eventing.Subscribe<ResourceEndpointsAllocatedEvent>((e, ct) =>
             {
-                var kafkaResources = builder.Resources.OfType<KafkaServerResource>();
-
-                int i = 0;
-                foreach (var kafkaResource in kafkaResources)
+                // Only process Kafka resources
+                if (e.Resource is not KafkaServerResource kafkaResource)
                 {
-                    if (kafkaResource.InternalEndpoint.IsAllocated)
-                    {
-                        var endpoint = kafkaResource.InternalEndpoint;
-                        int index = i;
-                        debeziumBuilder.WithEnvironment("BOOTSTRAP_SERVERS", kafkaResource.InternalEndpoint);
-                    }
+                    return Task.CompletedTask;
+                }
 
-                    i++;
+                if (kafkaResource.InternalEndpoint.IsAllocated)
+                {
+                    debeziumBuilder.WithEnvironment("BOOTSTRAP_SERVERS", kafkaResource.InternalEndpoint);
                 }
 
                 return Task.CompletedTask;
