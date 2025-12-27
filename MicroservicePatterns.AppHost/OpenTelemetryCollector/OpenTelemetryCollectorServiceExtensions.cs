@@ -5,6 +5,9 @@ namespace MicroservicePatterns.AppHost.OpenTelemetryCollector;
 
 internal static class OpenTelemetryCollectorServiceExtensions
 {
+    private const string LoggerCategory = "MicroservicePatterns.AppHost.OpenTelemetryCollector";
+    private const string OtelExporterOtlpEndpoint = "OTEL_EXPORTER_OTLP_ENDPOINT";
+
     public static IDistributedApplicationBuilder AddOpenTelemetryCollectorInfrastructure(this IDistributedApplicationBuilder builder)
     {
         builder.Eventing.Subscribe<ResourceEndpointsAllocatedEvent>((e, ct) =>
@@ -19,7 +22,7 @@ internal static class OpenTelemetryCollectorServiceExtensions
                 }
 
                 var logger = e.Services.GetRequiredService<ILoggerFactory>()
-                    .CreateLogger("MicroservicePatterns.AppHost.OpenTelemetryCollector");
+                    .CreateLogger(LoggerCategory);
 
                 // Configure all resources to use this collector
                 // We need to iterate through resources from the builder since ResourceEndpointsAllocatedEvent doesn't expose the model
@@ -27,11 +30,11 @@ internal static class OpenTelemetryCollectorServiceExtensions
                 {
                     resource.Annotations.Add(new EnvironmentCallbackAnnotation((context) =>
                     {
-                        if (context.EnvironmentVariables.ContainsKey("OTEL_EXPORTER_OTLP_ENDPOINT"))
+                        if (context.EnvironmentVariables.ContainsKey(OtelExporterOtlpEndpoint))
                         {
                             logger.LogDebug("Forwarding telemetry for {ResourceName} to the collector ({url}).", resource.Name, endpoint.Url);
 
-                            context.EnvironmentVariables["OTEL_EXPORTER_OTLP_ENDPOINT"] = endpoint;
+                            context.EnvironmentVariables[OtelExporterOtlpEndpoint] = endpoint;
                         }
                     }));
                 }
