@@ -29,7 +29,7 @@ public class EventHandlingService(IConsumer<string, MessageEnvelop> consumer,
                     {
                         var consumeResult = consumer.Consume(100);
 
-                        if (consumeResult != null)
+                        if (consumeResult is not null)
                         {
                             using IServiceScope scope = serviceScopeFactory.CreateScope();
                             var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
