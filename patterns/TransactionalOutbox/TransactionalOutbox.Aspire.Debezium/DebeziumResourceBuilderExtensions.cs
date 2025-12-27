@@ -7,6 +7,7 @@ namespace TransactionalOutbox.Aspire.Debezium;
 public static class DebeziumBuilderExtensions
 {
     private const int DebeziumConnectPort = 8083;
+    private const string BootstrapServersEnvironmentVariable = "BOOTSTRAP_SERVERS";
 
     public static IResourceBuilder<DebeziumContainerResource> AddDebezium(this IDistributedApplicationBuilder builder,
         Action<IResourceBuilder<DebeziumContainerResource>>? configureContainer = null,
@@ -52,7 +53,7 @@ public static class DebeziumBuilderExtensions
 
                 if (kafkaResource.InternalEndpoint.IsAllocated)
                 {
-                    debeziumBuilder.WithEnvironment("BOOTSTRAP_SERVERS", kafkaResource.InternalEndpoint);
+                    debeziumBuilder.WithEnvironment(BootstrapServersEnvironmentVariable, kafkaResource.InternalEndpoint);
                 }
 
                 return Task.CompletedTask;

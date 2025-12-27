@@ -18,7 +18,8 @@ internal static class OpenTelemetryCollectorServiceExtensions
                     return Task.CompletedTask;
                 }
 
-                var logger = e.Services.GetRequiredService<ILogger>();
+                var logger = e.Services.GetRequiredService<ILoggerFactory>()
+                    .CreateLogger("MicroservicePatterns.AppHost.OpenTelemetryCollector");
 
                 // Configure all resources to use this collector
                 // We need to iterate through resources from the builder since ResourceEndpointsAllocatedEvent doesn't expose the model
