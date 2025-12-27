@@ -42,7 +42,11 @@ internal class Mediator(MediatorRegistrationContainer container, IServiceProvide
                     }
                     finally
                     {
-                        if (handler is IDisposable disposableHandler)
+                        if (handler is IAsyncDisposable asyncDisposableHandler)
+                        {
+                            await asyncDisposableHandler.DisposeAsync();
+                        }
+                        else if (handler is IDisposable disposableHandler)
                         {
                             disposableHandler.Dispose();
                         }
