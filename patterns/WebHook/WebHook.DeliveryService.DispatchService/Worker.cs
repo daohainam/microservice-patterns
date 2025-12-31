@@ -8,16 +8,14 @@ using WebHook.DeliveryService.Infrastructure.Entity;
 
 namespace WebHook.DeliveryService.DispatchService;
 
-public class Worker(IServiceProvider serviceProvider, ILogger<Worker> logger) : BackgroundService
+public class Worker(IServiceProvider serviceProvider, IHttpClientFactory httpClientFactory, ILogger<Worker> logger) : BackgroundService
 {
-    private static readonly HttpClient httpClient = new(new HttpClientHandler
-    {
-        // ServerCertificateCustomValidationCallback = (message, cert, chain, errors) => true
-    });
+    private HttpClient? _httpClient;
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        httpClient.DefaultRequestHeaders.Add("X-Delivery-Service", "Microservice-Patterns-DeliveryService");
+        _httpClient = httpClientFactory.CreateClient();
+        _httpClient.DefaultRequestHeaders.Add("X-Delivery-Service", "Microservice-Patterns-DeliveryService");
 
         while (!stoppingToken.IsCancellationRequested)
         {
@@ -41,7 +39,7 @@ public class Worker(IServiceProvider serviceProvider, ILogger<Worker> logger) : 
 
                     logger.LogInformation("Processing item with ID: {id}", item.Id);
 
-                    var result = await CallWebHookAsync(item, stoppingToken);
+                    var result = await CallWebHookAsync(_httpClient!, item, stoppingToken);
 
                     if (result.IsSuccess)
                     {
@@ -73,7 +71,7 @@ public class Worker(IServiceProvider serviceProvider, ILogger<Worker> logger) : 
         }
     }
 
-    private async Task<CallWebHookResult> CallWebHookAsync(DeliveryEventQueueItem item, CancellationToken cancellationToken)
+    private async Task<CallWebHookResult> CallWebHookAsync(HttpClient httpClient, DeliveryEventQueueItem item, CancellationToken cancellationToken)
     {
         var url = item.WebHookSubscription.Url;
         logger.LogInformation("Calling webhook at {url} with message: {message}", url, item.Message);

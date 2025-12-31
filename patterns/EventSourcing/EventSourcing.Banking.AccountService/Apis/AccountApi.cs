@@ -22,20 +22,43 @@ public static class AccountApiExetensions
 }
 public class AccountApi
 {
-    public static async Task<Results<Ok, BadRequest>> OpenAccount([AsParameters] ApiServices services, OpenAccountRequest request)
+    public static async Task<Results<Ok, BadRequest<string>>> OpenAccount([AsParameters] ApiServices services, OpenAccountRequest request)
     {
-        if (request == null) {
-            return TypedResults.BadRequest();
+        if (request is null)
+        {
+            return TypedResults.BadRequest("Request cannot be null");
+        }
+
+        if (string.IsNullOrWhiteSpace(request.AccountNumber))
+        {
+            return TypedResults.BadRequest("Account number is required");
+        }
+
+        if (string.IsNullOrWhiteSpace(request.Currency))
+        {
+            return TypedResults.BadRequest("Currency is required");
+        }
+
+        if (request.Balance < 0)
+        {
+            return TypedResults.BadRequest("Initial balance cannot be negative");
+        }
+
+        if (request.CreditLimit < 0)
+        {
+            return TypedResults.BadRequest("Credit limit cannot be negative");
         }
 
         if (request.Id == Guid.Empty)
+        {
             request.Id = Guid.CreateVersion7();
+        }
 
         var account = Account.Create(request.Id, request.AccountNumber, request.Currency, request.Balance, request.CreditLimit);
 
         await services.EventStore.AppendAsync(account, StreamStates.New, cancellationToken: services.CancellationToken);
 
-        services.Logger.LogInformation("Account opened: {Id}", account.Id);
+        services.Logger.LogInformation("Account opened: {AccountId}", account.Id);
 
         return TypedResults.Ok();
     }
@@ -57,42 +80,66 @@ public class AccountApi
         return TypedResults.Ok(account);
     }
 
-    internal static async Task<Results<BadRequest, NotFound, Ok>> Deposit([AsParameters] ApiServices services, Guid id, DepositRequest deposit)
+    internal static async Task<Results<BadRequest<string>, NotFound, Ok>> Deposit([AsParameters] ApiServices services, Guid id, DepositRequest deposit)
     {
-        if (deposit == null || id == Guid.Empty)
+        if (deposit is null)
         {
-            return TypedResults.BadRequest();
+            return TypedResults.BadRequest("Request cannot be null");
+        }
+
+        if (id == Guid.Empty)
+        {
+            return TypedResults.BadRequest("Invalid account ID");
+        }
+
+        if (deposit.Amount <= 0)
+        {
+            return TypedResults.BadRequest("Deposit amount must be positive");
         }
 
         var account = await services.EventStore.FindAsync<Account>(id,
             typeResolver: TypeResolver,
             cancellationToken: services.CancellationToken);
 
-        if (account == null)
+        if (account is null)
+        {
             return TypedResults.NotFound();
+        }
 
         account.Deposit(deposit.Amount);
 
         await services.EventStore.AppendAsync(account, cancellationToken: services.CancellationToken);
 
-        services.Logger.LogInformation("Account deposited: {Id}, amount: {amount}", account.Id, deposit.Amount);
+        services.Logger.LogInformation("Account deposited: {AccountId}, amount: {Amount}", account.Id, deposit.Amount);
 
         return TypedResults.Ok();
     }
 
-    internal static async Task<Results<BadRequest, NotFound, Ok>> Withdraw([AsParameters] ApiServices services, Guid id, WithdrawRequest withdraw)
+    internal static async Task<Results<BadRequest<string>, NotFound, Ok>> Withdraw([AsParameters] ApiServices services, Guid id, WithdrawRequest withdraw)
     {
-        if (withdraw == null || id == Guid.Empty)
+        if (withdraw is null)
         {
-            return TypedResults.BadRequest();
+            return TypedResults.BadRequest("Request cannot be null");
+        }
+
+        if (id == Guid.Empty)
+        {
+            return TypedResults.BadRequest("Invalid account ID");
+        }
+
+        if (withdraw.Amount <= 0)
+        {
+            return TypedResults.BadRequest("Withdraw amount must be positive");
         }
 
         var account = await services.EventStore.FindAsync<Account>(id,
             typeResolver: TypeResolver,
             cancellationToken: services.CancellationToken);
 
-        if (account == null)
+        if (account is null)
+        {
             return TypedResults.NotFound();
+        }
 
         try
         {
@@ -100,14 +147,14 @@ public class AccountApi
         }
         catch (InvalidOperationException ex)
         {
-            services.Logger.LogError(ex, "Account withdraw failed: {Id}, amount: {amount}", account.Id, withdraw.Amount);
+            services.Logger.LogWarning(ex, "Account withdraw failed: {AccountId}, amount: {Amount}", account.Id, withdraw.Amount);
          
-            return TypedResults.BadRequest();
+            return TypedResults.BadRequest(ex.Message);
         }
 
         await services.EventStore.AppendAsync(account, cancellationToken: services.CancellationToken);
 
-        services.Logger.LogInformation("Account withdrawed: {Id}, amount: {amount}", account.Id, withdraw.Amount);
+        services.Logger.LogInformation("Account withdrawed: {AccountId}, amount: {Amount}", account.Id, withdraw.Amount);
 
         return TypedResults.Ok();
     }
