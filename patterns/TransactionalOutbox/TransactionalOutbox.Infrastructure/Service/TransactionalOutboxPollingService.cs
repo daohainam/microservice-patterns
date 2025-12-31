@@ -33,7 +33,7 @@ internal class TransactionalOutboxPollingService : BackgroundService
             this.eventPublisher,
             new PollingOutboxMessageRepository(new PollingOutboxMessageRepositoryOptions(), dbContext),
             publisherLogger,
-            options => options.PayloadTypeRsolver = (type) => eventAssembly.GetType(type) ?? throw new Exception($"Could not get type {type}")
+            options => options.PayloadTypeRsolver = (type) => eventAssembly.GetType(type) ?? throw new InvalidOperationException($"Could not get type {type}")
         );
 
         while (!stoppingToken.IsCancellationRequested)

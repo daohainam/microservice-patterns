@@ -51,7 +51,7 @@ public class Worker : BackgroundService
 
                 while (!stoppingToken.IsCancellationRequested)
                 {
-                    conn.Wait();
+                    await conn.WaitAsync(stoppingToken);
                 }
 
                 conn.Close();

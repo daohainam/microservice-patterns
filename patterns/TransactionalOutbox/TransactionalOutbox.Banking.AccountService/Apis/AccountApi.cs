@@ -60,7 +60,7 @@ public class AccountApi
         var message = new Abstractions.PollingOutboxMessage()
         {
             CreationDate = DateTime.UtcNow,
-            PayloadType = typeof(AccountOpenedIntegrationEvent).FullName ?? throw new Exception($"Could not get fullname of type {evt.GetType()}"),
+            PayloadType = typeof(AccountOpenedIntegrationEvent).FullName ?? throw new InvalidOperationException($"Could not get full name of type {evt.GetType()}"),
             Payload = JsonSerializer.Serialize(evt),
             ProcessedDate = null,
         };
@@ -143,7 +143,7 @@ public class AccountApi
         await services.UnitOfWork.OutboxForPollingRepository.AddAsync(new Abstractions.PollingOutboxMessage()
         {
             CreationDate = DateTime.UtcNow,
-            PayloadType = typeof(BalanceChangedIntegrationEvent).FullName ?? throw new Exception($"Could not get fullname of type {evt.GetType()}"),
+            PayloadType = typeof(BalanceChangedIntegrationEvent).FullName ?? throw new InvalidOperationException($"Could not get full name of type {evt.GetType()}"),
             Payload = JsonSerializer.Serialize(evt),
             ProcessedDate = null,
         });
@@ -209,7 +209,7 @@ public class AccountApi
         await services.UnitOfWork.OutboxForPollingRepository.AddAsync(new Abstractions.PollingOutboxMessage()
         {
             CreationDate = DateTime.UtcNow,
-            PayloadType = typeof(BalanceChangedIntegrationEvent).FullName ?? throw new Exception($"Could not get fullname of type {evt.GetType()}"),
+            PayloadType = typeof(BalanceChangedIntegrationEvent).FullName ?? throw new InvalidOperationException($"Could not get full name of type {evt.GetType()}"),
             Payload = JsonSerializer.Serialize(evt),
             ProcessedDate = null,
         });

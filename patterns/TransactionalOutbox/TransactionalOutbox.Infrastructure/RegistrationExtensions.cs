@@ -22,8 +22,8 @@ public static class RegistrationExtensions
         {
             builder.Services.AddSingleton(new TransactionalOutboxLogTailingServiceOptions()
             {
-                PayloadTypeRsolver = (type) => (options.PayloadAssembly ?? Assembly.GetExecutingAssembly()).GetType(type) ?? throw new Exception($"Could not get type {type}"),
-                ConnectionString = builder.Configuration.GetConnectionString(connectionStringName) ?? throw new Exception($"Connection string {connectionStringName} not found")
+                PayloadTypeRsolver = (type) => (options.PayloadAssembly ?? Assembly.GetExecutingAssembly()).GetType(type) ?? throw new InvalidOperationException($"Could not get type {type}"),
+                ConnectionString = builder.Configuration.GetConnectionString(connectionStringName) ?? throw new InvalidOperationException($"Connection string {connectionStringName} not found")
             });
             builder.Services.AddHostedService<TransactionalOutboxLogTailingService>();
         }

@@ -8,12 +8,12 @@ using TransactionalOutbox.Infrastructure;
 using TransactionalOutbox.Infrastructure.Data;
 
 namespace TransactionalOutbox.Banking.AccountService;
-public class UnitOfWork : IUnitOfWork, IDisposable
+public class UnitOfWork : IUnitOfWork, IAsyncDisposable
 {
-    public AccountDbContext AccountDbContext => accountDbContext ?? throw new Exception("AccountDbContext is not initialized.");
+    public AccountDbContext AccountDbContext => accountDbContext ?? throw new InvalidOperationException("AccountDbContext is not initialized.");
 
-    public IPollingOutboxMessageRepository OutboxForPollingRepository => outboxForPollingRepository ?? throw new Exception("OutboxForPollingRepository is not initialized.");
-    public ILogTailingOutboxMessageRepository OutboxForLogTailingRepository => outboxForLogTailingRepository ?? throw new Exception("OutboxForLogTailingRepository is not initialized.");
+    public IPollingOutboxMessageRepository OutboxForPollingRepository => outboxForPollingRepository ?? throw new InvalidOperationException("OutboxForPollingRepository is not initialized.");
+    public ILogTailingOutboxMessageRepository OutboxForLogTailingRepository => outboxForLogTailingRepository ?? throw new InvalidOperationException("OutboxForLogTailingRepository is not initialized.");
 
     private readonly NpgsqlConnection connection;
 
@@ -105,6 +105,41 @@ public class UnitOfWork : IUnitOfWork, IDisposable
     public void Dispose()
     {
         Dispose(disposing: true);
+        GC.SuppressFinalize(this);
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        if (!disposedValue)
+        {
+            if (connection.State == ConnectionState.Open)
+            {
+                await connection.CloseAsync();
+            }
+
+            if (transaction is not null)
+            {
+                await transaction.DisposeAsync();
+            }
+
+            if (connection is not null)
+            {
+                await connection.DisposeAsync();
+            }
+
+            if (accountDbContext is not null)
+            {
+                await accountDbContext.DisposeAsync();
+            }
+
+            if (outboxDbContext is not null)
+            {
+                await outboxDbContext.DisposeAsync();
+            }
+
+            disposedValue = true;
+        }
+
         GC.SuppressFinalize(this);
     }
 }

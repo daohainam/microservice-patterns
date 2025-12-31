@@ -55,7 +55,7 @@ public static class EventStoreExtensions
                 Id = evt.EventId,
                 StreamId = aggregate.Id,
                 Data = JsonSerializer.Serialize(evt, evt.GetType()),
-                Type = evt.GetType().FullName ?? throw new Exception($"Could not get fullname of type {evt.GetType()}"),
+                Type = evt.GetType().FullName ?? throw new InvalidOperationException($"Could not get full name of type {evt.GetType()}"),
                 CreatedAtUtc = evt.TimestampUtc
             });
         }
