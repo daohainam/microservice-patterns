@@ -112,11 +112,6 @@ public class UnitOfWork : IUnitOfWork, IAsyncDisposable
     {
         if (!disposedValue)
         {
-            if (connection.State == ConnectionState.Open)
-            {
-                await connection.CloseAsync();
-            }
-
             if (transaction is not null)
             {
                 await transaction.DisposeAsync();

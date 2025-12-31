@@ -10,10 +10,12 @@ namespace WebHook.DeliveryService.DispatchService;
 
 public class Worker(IServiceProvider serviceProvider, IHttpClientFactory httpClientFactory, ILogger<Worker> logger) : BackgroundService
 {
+    private HttpClient? _httpClient;
+
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        using var httpClient = httpClientFactory.CreateClient();
-        httpClient.DefaultRequestHeaders.Add("X-Delivery-Service", "Microservice-Patterns-DeliveryService");
+        _httpClient = httpClientFactory.CreateClient();
+        _httpClient.DefaultRequestHeaders.Add("X-Delivery-Service", "Microservice-Patterns-DeliveryService");
 
         while (!stoppingToken.IsCancellationRequested)
         {
@@ -37,7 +39,7 @@ public class Worker(IServiceProvider serviceProvider, IHttpClientFactory httpCli
 
                     logger.LogInformation("Processing item with ID: {id}", item.Id);
 
-                    var result = await CallWebHookAsync(httpClient, item, stoppingToken);
+                    var result = await CallWebHookAsync(_httpClient!, item, stoppingToken);
 
                     if (result.IsSuccess)
                     {
