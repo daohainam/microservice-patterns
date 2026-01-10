@@ -59,4 +59,46 @@ public class LibraryService(HttpClient bookHttpClient, HttpClient borrowerHttpCl
         var bookResponse = await borrowingHistoryHttpClient.GetFromJsonAsync<IEnumerable<BorrowingHistoryItem>>($"/api/cqrs/v1/history/items?{queryString}", cancellationToken: cancellationToken) ?? throw new InvalidOperationException("Failed to retrieve borrowing history from the borrowing history service.");
         return bookResponse;
     }
+
+    public async Task<Book> CreateBook(Book book, CancellationToken cancellationToken = default)
+    {
+        var response = await bookHttpClient.PostAsJsonAsync("/api/cqrs/v1/books", book, cancellationToken: cancellationToken);
+        response.EnsureSuccessStatusCode();
+        var createdBook = await response.Content.ReadFromJsonAsync<Book>(cancellationToken: cancellationToken) ?? throw new InvalidOperationException("Failed to create book.");
+        return createdBook;
+    }
+
+    public async Task UpdateBook(Guid bookId, Book book, CancellationToken cancellationToken = default)
+    {
+        var response = await bookHttpClient.PutAsJsonAsync($"/api/cqrs/v1/books/{bookId}", book, cancellationToken: cancellationToken);
+        response.EnsureSuccessStatusCode();
+    }
+
+    public async Task<Borrower> CreateBorrower(Borrower borrower, CancellationToken cancellationToken = default)
+    {
+        var response = await borrowerHttpClient.PostAsJsonAsync("/api/cqrs/v1/borrowers", borrower, cancellationToken: cancellationToken);
+        response.EnsureSuccessStatusCode();
+        var createdBorrower = await response.Content.ReadFromJsonAsync<Borrower>(cancellationToken: cancellationToken) ?? throw new InvalidOperationException("Failed to create borrower.");
+        return createdBorrower;
+    }
+
+    public async Task UpdateBorrower(Guid borrowerId, Borrower borrower, CancellationToken cancellationToken = default)
+    {
+        var response = await borrowerHttpClient.PutAsJsonAsync($"/api/cqrs/v1/borrowers/{borrowerId}", borrower, cancellationToken: cancellationToken);
+        response.EnsureSuccessStatusCode();
+    }
+
+    public async Task<Borrowing> CreateBorrowing(Borrowing borrowing, CancellationToken cancellationToken = default)
+    {
+        var response = await borrowingHttpClient.PostAsJsonAsync("/api/cqrs/v1/borrowings", borrowing, cancellationToken: cancellationToken);
+        response.EnsureSuccessStatusCode();
+        var createdBorrowing = await response.Content.ReadFromJsonAsync<Borrowing>(cancellationToken: cancellationToken) ?? throw new InvalidOperationException("Failed to create borrowing.");
+        return createdBorrowing;
+    }
+
+    public async Task ReturnBook(Guid borrowingId, CancellationToken cancellationToken = default)
+    {
+        var response = await borrowingHttpClient.PutAsync($"/api/cqrs/v1/borrowings/{borrowingId}/return", null, cancellationToken: cancellationToken);
+        response.EnsureSuccessStatusCode();
+    }
 }
