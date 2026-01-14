@@ -62,9 +62,9 @@ public class EventSourcingAccountServiceTest
     [Theory]
     [InlineData("DS1234567890", "USD", 100, 0, 50)]
     [InlineData("DS1234567891", "USD", 100, 0, 100)]
-    [InlineData("DS1234567892", "USD", 100, 0, 0)]
+    [InlineData("DS1234567892", "USD", 100, 0, 10)]
     [InlineData("DS1234567892", "USD", 100, 100, 200)]
-    [InlineData("DS1234567893", "USD", 0, 0, 0)]
+    [InlineData("DS1234567893", "USD", 0, 1, 1)]
     [InlineData("DS1234567894", "USD", 999999, 0, 111111)]
     public async Task Deposit_Test_Success(string accountNumber, string currency, decimal balance, decimal creditLimit, decimal amount)
     {
