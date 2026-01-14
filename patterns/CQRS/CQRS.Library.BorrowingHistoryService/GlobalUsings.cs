@@ -1,4 +1,5 @@
-﻿global using CQRS.Library.BorrowingHistoryService.Apis;
+global using System.ComponentModel.DataAnnotations;
+global using CQRS.Library.BorrowingHistoryService.Apis;
 global using CQRS.Library.BorrowingHistoryService.Bootstraping;
 global using CQRS.Library.BorrowingHistoryService.Infrastructure.Data;
 global using CQRS.Library.BorrowingHistoryService.Infrastructure.Entity;

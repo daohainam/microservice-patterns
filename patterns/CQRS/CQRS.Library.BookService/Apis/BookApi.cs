@@ -1,4 +1,4 @@
-﻿namespace CQRS.Library.BookService.Apis;
+namespace CQRS.Library.BookService.Apis;
 public static class BookApi
 {
     public static IEndpointRouteBuilder MapBookApi(this IEndpointRouteBuilder builder)
@@ -29,12 +29,8 @@ public static class BookApi
         return group;
     }
 
-    private static async Task<Results<Ok<Book>, BadRequest>> CreateBook([AsParameters] ApiServices services, Book book)
+    private static async Task<Results<Ok<Book>, BadRequest>> CreateBook([AsParameters] ApiServices services, [Required] Book book)
     {
-        if (book == null) {
-            return TypedResults.BadRequest();
-        }
-
         if (book.Id == Guid.Empty)
             book.Id = Guid.CreateVersion7();
 

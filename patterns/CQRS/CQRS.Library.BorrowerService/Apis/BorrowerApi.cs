@@ -1,4 +1,4 @@
-﻿using CQRS.Library.BorrowerService;
+using CQRS.Library.BorrowerService;
 using CQRS.Library.BorrowerService.Infrastructure.Entity;
 using Microsoft.AspNetCore.Http.HttpResults;
 
@@ -33,12 +33,8 @@ public static class BorrowerApi
         return group;
     }
 
-    private static async Task<Results<Ok<Borrower>, BadRequest>> CreateBorrower([AsParameters] ApiServices services, Borrower borrower)
+    private static async Task<Results<Ok<Borrower>, BadRequest>> CreateBorrower([AsParameters] ApiServices services, [Required] Borrower borrower)
     {
-        if (borrower == null) {
-            return TypedResults.BadRequest();
-        }
-
         if (borrower.Id == Guid.Empty)
             borrower.Id = Guid.CreateVersion7();
 

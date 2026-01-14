@@ -1,4 +1,4 @@
-﻿using EventBus.Abstractions;
+using EventBus.Abstractions;
 using EventBus;
 
 namespace CQRS.Library.BookService.Bootstraping;

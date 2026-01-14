@@ -1,4 +1,4 @@
-﻿namespace CQRS.Library.BorrowingService.Apis;
+namespace CQRS.Library.BorrowingService.Apis;
 public static class BorrowingApi
 {
     public static IEndpointRouteBuilder MapBorrowingApi(this IEndpointRouteBuilder builder)
@@ -18,7 +18,7 @@ public static class BorrowingApi
         return group;
     }
 
-    private static async Task<Results<Ok<Borrowing>, BadRequest<string>>> BorrowBook([AsParameters] ApiServices services, Borrowing borrowing)
+    private static async Task<Results<Ok<Borrowing>, BadRequest<string>>> BorrowBook([AsParameters] ApiServices services, [Required] Borrowing borrowing)
     {
         if (borrowing.BorrowerId == Guid.Empty)
         {

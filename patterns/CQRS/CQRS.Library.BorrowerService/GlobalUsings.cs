@@ -1,4 +1,5 @@
-﻿global using CQRS.Library.BorrowerService.Apis;
+global using System.ComponentModel.DataAnnotations;
+global using CQRS.Library.BorrowerService.Apis;
 global using CQRS.Library.BorrowerService.Bootstraping;
 global using CQRS.Library.BorrowerService.Infrastructure.Data;
 global using CQRS.Library.BorrowerService.Infrastructure.Entity;

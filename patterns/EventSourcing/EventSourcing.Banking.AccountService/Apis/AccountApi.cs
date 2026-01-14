@@ -1,4 +1,6 @@
-﻿namespace EventSourcing.Banking.AccountService.Apis;
+using EventSourcing.Banking.AccountService.Validators;
+
+namespace EventSourcing.Banking.AccountService.Apis;
 public static class AccountApiExetensions
 {
     public static IEndpointRouteBuilder MapAccountApi(this IEndpointRouteBuilder builder)
@@ -22,33 +24,8 @@ public static class AccountApiExetensions
 }
 public class AccountApi
 {
-    public static async Task<Results<Ok, BadRequest<string>>> OpenAccount([AsParameters] ApiServices services, OpenAccountRequest request)
+    public static async Task<Results<Ok, BadRequest<string>>> OpenAccount([AsParameters] ApiServices services, [OpenAccountRequestValidation] OpenAccountRequest request)
     {
-        if (request is null)
-        {
-            return TypedResults.BadRequest("Request cannot be null");
-        }
-
-        if (string.IsNullOrWhiteSpace(request.AccountNumber))
-        {
-            return TypedResults.BadRequest("Account number is required");
-        }
-
-        if (string.IsNullOrWhiteSpace(request.Currency))
-        {
-            return TypedResults.BadRequest("Currency is required");
-        }
-
-        if (request.Balance < 0)
-        {
-            return TypedResults.BadRequest("Initial balance cannot be negative");
-        }
-
-        if (request.CreditLimit < 0)
-        {
-            return TypedResults.BadRequest("Credit limit cannot be negative");
-        }
-
         if (request.Id == Guid.Empty)
         {
             request.Id = Guid.CreateVersion7();

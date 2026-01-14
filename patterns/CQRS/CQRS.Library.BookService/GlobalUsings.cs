@@ -1,4 +1,5 @@
-﻿global using CQRS.Library.BookService.Apis;
+global using System.ComponentModel.DataAnnotations;
+global using CQRS.Library.BookService.Apis;
 global using CQRS.Library.BookService.Bootstraping;
 global using CQRS.Library.BookService.Infrastructure.Data;
 global using CQRS.Library.BookService.Infrastructure.Entity;

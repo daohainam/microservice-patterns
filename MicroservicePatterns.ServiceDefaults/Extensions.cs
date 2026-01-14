@@ -20,6 +20,8 @@ public static class Extensions
 
         builder.AddDefaultHealthChecks();
 
+        builder.Services.AddValidation();
+
         builder.Services.AddServiceDiscovery();
 
         builder.Services.ConfigureHttpClientDefaults(http =>
