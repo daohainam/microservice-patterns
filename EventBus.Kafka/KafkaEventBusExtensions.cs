@@ -88,7 +88,7 @@ internal class MessageEnvelopDeserializer : IDeserializer<MessageEnvelop>
 {
     public MessageEnvelop Deserialize(ReadOnlySpan<byte> data, bool isNull, SerializationContext context)
     {
-        return JsonSerializer.Deserialize<MessageEnvelop>(data) ?? throw new Exception("Error deserialize data");
+        return JsonSerializer.Deserialize<MessageEnvelop>(data) ?? throw new InvalidOperationException("Failed to deserialize message envelope: result is null");
     }
 }
 

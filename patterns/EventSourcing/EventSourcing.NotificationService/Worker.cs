@@ -25,7 +25,7 @@ public class Worker : BackgroundService
             {
                 logger.LogInformation("Waiting for events...");
 
-                var conn = new NpgsqlConnection(options.ConnectionString);
+                using var conn = new NpgsqlConnection(options.ConnectionString);
 
                 await conn.OpenAsync(stoppingToken);
                 conn.Notification += (c, e) => {
@@ -53,8 +53,6 @@ public class Worker : BackgroundService
                 {
                     await conn.WaitAsync(stoppingToken);
                 }
-
-                conn.Close();
             }
             catch (Exception ex)
             {

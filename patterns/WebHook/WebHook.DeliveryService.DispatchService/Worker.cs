@@ -56,6 +56,11 @@ public class Worker(IServiceProvider serviceProvider, IHttpClientFactory httpCli
                     }
 
                     dbContext.QueueItems.Update(item);
+                }
+
+                // Save all changes in a single transaction
+                if (queueItems.Count > 0)
+                {
                     await dbContext.SaveChangesAsync(stoppingToken);
                 }
             }

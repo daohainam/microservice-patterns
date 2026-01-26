@@ -27,14 +27,11 @@ internal class TransactionalOutboxLogTailingService : BackgroundService
     {
         logger.LogInformation("Starting TransactionOutbox log tailing service...");
 
-        using IServiceScope scope = serviceScopeFactory.CreateScope();
-        var dbContext = scope.ServiceProvider.GetRequiredService<OutboxDbContext>();
-
         while (!stoppingToken.IsCancellationRequested)
         {
             try
             {
-                var conn = new NpgsqlConnection(options.ConnectionString);
+                using var conn = new NpgsqlConnection(options.ConnectionString);
 
                 await conn.OpenAsync(stoppingToken);
                 conn.Notification += async (c, e) => {
@@ -66,10 +63,8 @@ internal class TransactionalOutboxLogTailingService : BackgroundService
 
                 while (!stoppingToken.IsCancellationRequested)
                 {
-                    conn.Wait(); 
+                    await conn.WaitAsync(stoppingToken);
                 }
-
-                conn.Close();
             }
             catch (Exception ex)
             {

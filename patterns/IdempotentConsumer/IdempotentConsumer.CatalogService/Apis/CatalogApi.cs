@@ -37,28 +37,38 @@ public class CatalogApi
             return TypedResults.BadRequest();
         }
 
-        if (services.DbContext.ProcessedMessages.Any(x => x.Id == callId))
+        // Check if already processed (optimization to avoid unnecessary database operations)
+        if (await services.DbContext.ProcessedMessages.AnyAsync(x => x.Id == callId))
         {
             services.Logger.LogInformation("Request with callId {CallId} already processed", callId);
             return TypedResults.Ok(product);
         }
-
-        services.DbContext.ProcessedMessages.Add(new ProcessedMessage() { Id = callId, ProcessedAtUtc = DateTime.UtcNow });
 
         if (product.Id == Guid.Empty)
         {
             product.Id = Guid.CreateVersion7();
         }
 
-        await services.DbContext.Products.AddAsync(product);
-        await services.DbContext.SaveChangesAsync();
+        try
+        {
+            services.DbContext.ProcessedMessages.Add(new ProcessedMessage() { Id = callId, ProcessedAtUtc = DateTime.UtcNow });
+            await services.DbContext.Products.AddAsync(product);
+            await services.DbContext.SaveChangesAsync();
 
-        return TypedResults.Ok(product);
+            return TypedResults.Ok(product);
+        }
+        catch (DbUpdateException ex) when (ex.InnerException is Npgsql.PostgresException pgEx && pgEx.SqlState == "23505")
+        {
+            // Duplicate key violation - request was already processed by a concurrent call
+            services.Logger.LogInformation("Request with callId {CallId} already processed (concurrent)", callId);
+            return TypedResults.Ok(product);
+        }
     }
 
     internal static async Task<Results<NotFound, Ok>> UpdateProduct([AsParameters] ApiServices services, [FromHeader] Guid callId, Guid id, Product product)
     {
-        if (services.DbContext.ProcessedMessages.Any(x => x.Id == callId))
+        // Check if already processed (optimization to avoid unnecessary database operations)
+        if (await services.DbContext.ProcessedMessages.AnyAsync(x => x.Id == callId))
         {
             return TypedResults.Ok();
         }
@@ -69,15 +79,23 @@ public class CatalogApi
             return TypedResults.NotFound();
         }
 
-        services.DbContext.ProcessedMessages.Add(new ProcessedMessage() { Id = callId, ProcessedAtUtc = DateTime.UtcNow });
+        try
+        {
+            services.DbContext.ProcessedMessages.Add(new ProcessedMessage() { Id = callId, ProcessedAtUtc = DateTime.UtcNow });
 
-        existingProduct.Name = product.Name;
-        existingProduct.Description = product.Description;
-        existingProduct.Price = product.Price;
-        services.DbContext.Products.Update(existingProduct);
+            existingProduct.Name = product.Name;
+            existingProduct.Description = product.Description;
+            existingProduct.Price = product.Price;
+            services.DbContext.Products.Update(existingProduct);
 
-        await services.DbContext.SaveChangesAsync();
+            await services.DbContext.SaveChangesAsync();
 
-        return TypedResults.Ok();
+            return TypedResults.Ok();
+        }
+        catch (DbUpdateException ex) when (ex.InnerException is Npgsql.PostgresException pgEx && pgEx.SqlState == "23505")
+        {
+            // Duplicate key violation - request was already processed by a concurrent call
+            return TypedResults.Ok();
+        }
     }
 }
