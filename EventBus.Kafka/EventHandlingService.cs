@@ -17,12 +17,12 @@ public class EventHandlingService(IConsumer<string, MessageEnvelop> consumer,
     {
         logger.LogInformation("Subcribing to topics [{topics}]...", string.Join(',', options.Topics));
 
+        consumer.Subscribe(options.Topics);
+
         while (!stoppingToken.IsCancellationRequested)
         {
             try
             {
-                consumer.Subscribe(options.Topics);
-
                 while (!stoppingToken.IsCancellationRequested)
                 {
                     try
@@ -49,7 +49,7 @@ public class EventHandlingService(IConsumer<string, MessageEnvelop> consumer,
             }
             catch (Exception ex)
             {
-                logger.LogError(ex, "Error subscribing to topics");
+                logger.LogError(ex, "Error in event handling loop");
             }
 
             await Task.Delay(1000, stoppingToken);

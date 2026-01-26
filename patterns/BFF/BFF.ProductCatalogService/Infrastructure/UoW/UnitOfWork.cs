@@ -4,7 +4,8 @@ using TransactionalOutbox.Abstractions;
 using TransactionalOutbox.Infrastructure.Data;
 
 namespace BFF.ProductCatalogService.Infrastructure.UoW;
-public class UnitOfWork : IUnitOfWork, IDisposable
+
+public class UnitOfWork : IUnitOfWork, IDisposable, IAsyncDisposable
 {
     public ProductCatalogDbContext DbContext => productCatalogDbContext ?? throw new Exception("ProductCatalogDbContext is not initialized.");
 
@@ -89,6 +90,7 @@ public class UnitOfWork : IUnitOfWork, IDisposable
                 transaction?.Dispose();
                 connection?.Dispose();
                 productCatalogDbContext?.Dispose();
+                outboxDbContext?.Dispose();
             }
 
             disposedValue = true;
@@ -98,6 +100,36 @@ public class UnitOfWork : IUnitOfWork, IDisposable
     public void Dispose()
     {
         Dispose(disposing: true);
+        GC.SuppressFinalize(this);
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        if (!disposedValue)
+        {
+            if (transaction is not null)
+            {
+                await transaction.DisposeAsync();
+            }
+
+            if (productCatalogDbContext is not null)
+            {
+                await productCatalogDbContext.DisposeAsync();
+            }
+
+            if (outboxDbContext is not null)
+            {
+                await outboxDbContext.DisposeAsync();
+            }
+
+            if (connection is not null)
+            {
+                await connection.DisposeAsync();
+            }
+
+            disposedValue = true;
+        }
+
         GC.SuppressFinalize(this);
     }
 }

@@ -42,13 +42,11 @@ internal class PostgresqlEventStore : IEventStore
             stream = await dbContext.EventStreams.FindAsync([streamId], cancellationToken: cancellationToken) ?? throw new InvalidOperationException($"Stream '{streamId}' not found.");
         }
 
-        var lastId = Guid.Empty;
-
         foreach (var evt in events)
         {
             var @event = new Event
             {
-                Id = lastId,
+                Id = Guid.CreateVersion7(),
                 StreamId = streamId,
                 Data = evt.Data,
                 Type = evt.Type,

@@ -26,20 +26,20 @@ internal class TransactionalOutboxPollingService : BackgroundService
     {
         logger.LogInformation("Starting TransactionOutbox polling service...");
 
-        using IServiceScope scope = serviceScopeFactory.CreateScope();
-        var dbContext = scope.ServiceProvider.GetRequiredService<OutboxDbContext>();
-
-        var publisher = new PollingPublisher(
-            this.eventPublisher,
-            new PollingOutboxMessageRepository(new PollingOutboxMessageRepositoryOptions(), dbContext),
-            publisherLogger,
-            options => options.PayloadTypeRsolver = (type) => eventAssembly.GetType(type) ?? throw new InvalidOperationException($"Could not get type {type}")
-        );
-
         while (!stoppingToken.IsCancellationRequested)
         {
             try
             {
+                using IServiceScope scope = serviceScopeFactory.CreateScope();
+                var dbContext = scope.ServiceProvider.GetRequiredService<OutboxDbContext>();
+
+                var publisher = new PollingPublisher(
+                    this.eventPublisher,
+                    new PollingOutboxMessageRepository(new PollingOutboxMessageRepositoryOptions(), dbContext),
+                    publisherLogger,
+                    options => options.PayloadTypeRsolver = (type) => eventAssembly.GetType(type) ?? throw new InvalidOperationException($"Could not get type {type}")
+                );
+
                 await publisher.ProcessOutboxMessagesAsync(stoppingToken);
             }
             catch (Exception ex)
