@@ -8,8 +8,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-	  <PackageReference Include="Aspire.Npgsql.EntityFrameworkCore.PostgreSQL" Version="13.1.0" />
-	  <PackageReference Include="Microsoft.Extensions.Hosting" Version="10.0.1" />
+	  <PackageReference Include="Aspire.Npgsql.EntityFrameworkCore.PostgreSQL" Version="13.1.2" />
+	  <PackageReference Include="Microsoft.Extensions.Hosting" Version="10.0.5" />
   </ItemGroup>
 
   <ItemGroup>
