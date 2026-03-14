@@ -1,0 +1,168 @@
+@page "/history"
+@rendermode InteractiveServer
+@inject IHttpClientFactory HttpClientFactory
+@inject ISnackbar Snackbar
+@using CQRS.Library.Frontend.Models
+
+<PageTitle>Borrow History</PageTitle>
+
+<MudText Typo="Typo.h4" GutterBottom="true">Borrow History</MudText>
+<MudText Typo="Typo.body1" Class="mb-4">View and search the borrowing history.</MudText>
+
+<MudPaper Class="pa-4 mb-4" Elevation="1">
+    <MudGrid>
+        <MudItem xs="12" sm="5">
+            <MudTextField @bind-Value="_query" Label="Search" Placeholder="Borrower name or book title"
+                          Immediate="true" Adornment="Adornment.Start"
+                          AdornmentIcon="@Icons.Material.Filled.Search"
+                          Variant="Variant.Outlined" Clearable="true"
+                          OnKeyUp="OnSearchKeyUp" />
+        </MudItem>
+        <MudItem xs="12" sm="4">
+            <MudSelect T="string" @bind-Value="_validityStatus" Label="Status"
+                       Variant="Variant.Outlined" AnchorOrigin="Origin.BottomLeft">
+                <MudSelectItem Value="@("all")">All</MudSelectItem>
+                <MudSelectItem Value="@("valid")">Valid (not yet expired)</MudSelectItem>
+                <MudSelectItem Value="@("expired")">Expired</MudSelectItem>
+            </MudSelect>
+        </MudItem>
+        <MudItem xs="12" sm="3" Class="d-flex align-center">
+            <MudCheckBox @bind-Value="_borrowingOnly" Label="Active borrowings only" Color="Color.Primary" />
+        </MudItem>
+        <MudItem xs="12">
+            <MudButton Variant="Variant.Filled" Color="Color.Primary"
+                       StartIcon="@Icons.Material.Filled.Search"
+                       OnClick="SearchAsync">
+                Search
+            </MudButton>
+        </MudItem>
+    </MudGrid>
+</MudPaper>
+
+@if (_loading)
+{
+    <MudProgressLinear Color="Color.Primary" Indeterminate="true" Class="my-4" />
+}
+else if (_error is not null)
+{
+    <MudAlert Severity="Severity.Error" Class="mb-4">@_error</MudAlert>
+}
+else
+{
+    <MudTable Items="_items" Hover="true" Striped="true" Dense="false"
+              CurrentPage="_pageIndex" RowsPerPage="_pageSize">
+        <HeaderContent>
+            <MudTh>Borrower</MudTh>
+            <MudTh>Book</MudTh>
+            <MudTh>Author</MudTh>
+            <MudTh>Borrowed At</MudTh>
+            <MudTh>Valid Until</MudTh>
+            <MudTh>Returned</MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd DataLabel="Borrower">@context.BorrowerName</MudTd>
+            <MudTd DataLabel="Book">@context.BookTitle</MudTd>
+            <MudTd DataLabel="Author">@context.BookAuthor</MudTd>
+            <MudTd DataLabel="Borrowed At">@context.BorrowedAt.ToLocalTime().ToString("yyyy-MM-dd")</MudTd>
+            <MudTd DataLabel="Valid Until">
+                <MudText Color="@(IsOverdue(context) ? Color.Error : Color.Default)">
+                    @context.ValidUntil.ToLocalTime().ToString("yyyy-MM-dd")
+                </MudText>
+            </MudTd>
+            <MudTd DataLabel="Returned">
+                @if (context.HasReturned)
+                {
+                    <MudChip T="string" Color="Color.Success" Size="Size.Small" Icon="@Icons.Material.Filled.CheckCircle">
+                        @context.ReturnedAt?.ToLocalTime().ToString("yyyy-MM-dd")
+                    </MudChip>
+                }
+                else
+                {
+                    <MudChip T="string" Color="Color.Warning" Size="Size.Small" Icon="@Icons.Material.Filled.HourglassEmpty">
+                        Not returned
+                    </MudChip>
+                }
+            </MudTd>
+        </RowTemplate>
+        <NoRecordsContent>
+            <MudText>No borrowing history found.</MudText>
+        </NoRecordsContent>
+    </MudTable>
+
+    <MudPagination Class="mt-4" Count="_totalPages" Selected="_currentPage"
+                   SelectedChanged="OnPageChangedAsync"
+                   ShowFirstButton="true" ShowLastButton="true" />
+}
+
+@code {
+    private List<BorrowingHistoryItem> _items = [];
+    private bool _loading = true;
+    private string? _error;
+    private string _query = string.Empty;
+    private string _validityStatus = "all";
+    private bool _borrowingOnly;
+    private int _pageIndex;
+    private int _pageSize = 20;
+    private long _totalCount;
+    private int _totalPages = 1;
+    private int _currentPage = 1;
+
+    protected override async Task OnInitializedAsync() => await LoadHistoryAsync();
+
+    private async Task OnSearchKeyUp(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter")
+        {
+            await SearchAsync();
+        }
+    }
+
+    private async Task SearchAsync()
+    {
+        _pageIndex = 0;
+        _currentPage = 1;
+        await LoadHistoryAsync();
+    }
+
+    private async Task OnPageChangedAsync(int page)
+    {
+        _currentPage = page;
+        _pageIndex = page - 1;
+        await LoadHistoryAsync();
+    }
+
+    private async Task LoadHistoryAsync()
+    {
+        _loading = true;
+        _error = null;
+        try
+        {
+            var client = HttpClientFactory.CreateClient("borrowingHistoryService");
+            var url = $"/api/cqrs/v1/history/items?query={Uri.EscapeDataString(_query)}" +
+                      $"&validityStatus={_validityStatus}" +
+                      $"&borrowingOnly={_borrowingOnly}" +
+                      $"&pageIndex={_pageIndex}" +
+                      $"&pageSize={_pageSize}";
+
+            var result = await client.GetFromJsonAsync<PaginatedResult<BorrowingHistoryItem>>(url);
+            if (result is not null)
+            {
+                _items = result.Items.ToList();
+                _totalCount = result.Count;
+                _totalPages = (int)Math.Ceiling((double)_totalCount / _pageSize);
+                if (_totalPages < 1) _totalPages = 1;
+            }
+        }
+        catch (Exception ex)
+        {
+            _error = $"Failed to load history: {ex.Message}";
+        }
+        finally
+        {
+            _loading = false;
+        }
+    }
+
+    private static bool IsOverdue(BorrowingHistoryItem item) =>
+        item.ValidUntil < DateTime.UtcNow && !item.HasReturned;
+}
