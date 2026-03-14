@@ -176,6 +176,17 @@ public static class ExternalServiceRegistrationExtentions
         bookService.WithParentRelationship(borrowingHistoryService);
         borrowerService.WithParentRelationship(borrowingHistoryService);
         borrowingService.WithParentRelationship(borrowingHistoryService);
+
+        var libraryFrontend = builder.AddProjectWithPostfix<Projects.CQRS_Library_Frontend>()
+            .WithReference(bookService)
+            .WithReference(borrowerService)
+            .WithReference(borrowingService)
+            .WithReference(borrowingHistoryService)
+            .WaitFor(bookService)
+            .WaitFor(borrowerService)
+            .WaitFor(borrowingService);
+
+        libraryFrontend.WithParentRelationship(borrowingHistoryService);
         #endregion CQRS Library
 
         #region Saga Online Store - Choreography

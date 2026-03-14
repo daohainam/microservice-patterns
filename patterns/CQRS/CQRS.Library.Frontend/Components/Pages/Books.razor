@@ -1,0 +1,120 @@
+@page "/books"
+@rendermode InteractiveServer
+@inject IHttpClientFactory HttpClientFactory
+@inject ISnackbar Snackbar
+@inject IDialogService DialogService
+
+<PageTitle>Books</PageTitle>
+
+<MudText Typo="Typo.h4" GutterBottom="true">Books</MudText>
+
+<MudButton Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Add"
+           OnClick="OpenAddDialog" Class="mb-4">
+    Add Book
+</MudButton>
+
+@if (_loading)
+{
+    <MudProgressLinear Color="Color.Primary" Indeterminate="true" Class="my-4" />
+}
+else if (_error is not null)
+{
+    <MudAlert Severity="Severity.Error" Class="mb-4">@_error</MudAlert>
+}
+else
+{
+    <MudTable Items="_books" Hover="true" Striped="true" Dense="false">
+        <HeaderContent>
+            <MudTh>Title</MudTh>
+            <MudTh>Author</MudTh>
+            <MudTh Style="width:120px">Actions</MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd DataLabel="Title">@context.Title</MudTd>
+            <MudTd DataLabel="Author">@context.Author</MudTd>
+            <MudTd>
+                <MudIconButton Icon="@Icons.Material.Filled.Edit" Color="Color.Primary"
+                               Size="Size.Small" OnClick="() => OpenEditDialog(context)" />
+            </MudTd>
+        </RowTemplate>
+        <NoRecordsContent>
+            <MudText>No books found.</MudText>
+        </NoRecordsContent>
+    </MudTable>
+}
+
+@code {
+    private List<Book> _books = [];
+    private bool _loading = true;
+    private string? _error;
+
+    protected override async Task OnInitializedAsync() => await LoadBooksAsync();
+
+    private async Task LoadBooksAsync()
+    {
+        _loading = true;
+        _error = null;
+        try
+        {
+            var client = HttpClientFactory.CreateClient("bookService");
+            _books = await client.GetFromJsonAsync<List<Book>>("/api/cqrs/v1/books") ?? [];
+        }
+        catch (Exception ex)
+        {
+            _error = $"Failed to load books: {ex.Message}";
+        }
+        finally
+        {
+            _loading = false;
+        }
+    }
+
+    private async Task OpenAddDialog()
+    {
+        var parameters = new DialogParameters<BookDialog> { { x => x.Book, new BookRequest() } };
+        var dialog = await DialogService.ShowAsync<BookDialog>("Add Book", parameters,
+            new DialogOptions { MaxWidth = MaxWidth.Small, FullWidth = true });
+        var result = await dialog.Result;
+        if (result is { Canceled: false, Data: BookRequest request })
+        {
+            await SaveBookAsync(null, request);
+        }
+    }
+
+    private async Task OpenEditDialog(Book book)
+    {
+        var request = new BookRequest { Title = book.Title, Author = book.Author };
+        var parameters = new DialogParameters<BookDialog> { { x => x.Book, request } };
+        var dialog = await DialogService.ShowAsync<BookDialog>("Edit Book", parameters,
+            new DialogOptions { MaxWidth = MaxWidth.Small, FullWidth = true });
+        var result = await dialog.Result;
+        if (result is { Canceled: false, Data: BookRequest updated })
+        {
+            await SaveBookAsync(book.Id, updated);
+        }
+    }
+
+    private async Task SaveBookAsync(Guid? id, BookRequest request)
+    {
+        try
+        {
+            var client = HttpClientFactory.CreateClient("bookService");
+            HttpResponseMessage response;
+            if (id is null)
+            {
+                response = await client.PostAsJsonAsync("/api/cqrs/v1/books", request);
+            }
+            else
+            {
+                response = await client.PutAsJsonAsync($"/api/cqrs/v1/books/{id}", request);
+            }
+            response.EnsureSuccessStatusCode();
+            Snackbar.Add(id is null ? "Book added successfully." : "Book updated successfully.", Severity.Success);
+            await LoadBooksAsync();
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Error saving book: {ex.Message}", Severity.Error);
+        }
+    }
+}

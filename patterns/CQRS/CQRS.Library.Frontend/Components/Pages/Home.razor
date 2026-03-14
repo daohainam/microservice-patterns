@@ -1,0 +1,67 @@
+﻿@page "/"
+@rendermode InteractiveServer
+
+<PageTitle>CQRS Library</PageTitle>
+
+<MudText Typo="Typo.h4" GutterBottom="true">Welcome to the CQRS Library Demo</MudText>
+<MudText Typo="Typo.body1" Class="mb-4">
+    This application demonstrates the <strong>CQRS (Command Query Responsibility Segregation)</strong> pattern
+    using a library management system.
+</MudText>
+
+<MudGrid>
+    <MudItem xs="12" sm="4">
+        <MudCard>
+            <MudCardHeader>
+                <CardHeaderAvatar>
+                    <MudAvatar Color="Color.Primary"><MudIcon Icon="@Icons.Material.Filled.MenuBook" /></MudAvatar>
+                </CardHeaderAvatar>
+                <CardHeaderContent>
+                    <MudText Typo="Typo.h6">Books</MudText>
+                </CardHeaderContent>
+            </MudCardHeader>
+            <MudCardContent>
+                <MudText>Browse the library catalog, add new books, or update existing ones.</MudText>
+            </MudCardContent>
+            <MudCardActions>
+                <MudButton Variant="Variant.Text" Color="Color.Primary" Href="/books">Go to Books</MudButton>
+            </MudCardActions>
+        </MudCard>
+    </MudItem>
+    <MudItem xs="12" sm="4">
+        <MudCard>
+            <MudCardHeader>
+                <CardHeaderAvatar>
+                    <MudAvatar Color="Color.Secondary"><MudIcon Icon="@Icons.Material.Filled.People" /></MudAvatar>
+                </CardHeaderAvatar>
+                <CardHeaderContent>
+                    <MudText Typo="Typo.h6">Borrowers</MudText>
+                </CardHeaderContent>
+            </MudCardHeader>
+            <MudCardContent>
+                <MudText>Manage library members — add new borrowers or update their details.</MudText>
+            </MudCardContent>
+            <MudCardActions>
+                <MudButton Variant="Variant.Text" Color="Color.Secondary" Href="/borrowers">Go to Borrowers</MudButton>
+            </MudCardActions>
+        </MudCard>
+    </MudItem>
+    <MudItem xs="12" sm="4">
+        <MudCard>
+            <MudCardHeader>
+                <CardHeaderAvatar>
+                    <MudAvatar Color="Color.Tertiary"><MudIcon Icon="@Icons.Material.Filled.SwapHoriz" /></MudAvatar>
+                </CardHeaderAvatar>
+                <CardHeaderContent>
+                    <MudText Typo="Typo.h6">Borrow a Book</MudText>
+                </CardHeaderContent>
+            </MudCardHeader>
+            <MudCardContent>
+                <MudText>Create a new borrowing — select a borrower, choose a book, and set the due date.</MudText>
+            </MudCardContent>
+            <MudCardActions>
+                <MudButton Variant="Variant.Text" Color="Color.Tertiary" Href="/borrow">Borrow a Book</MudButton>
+            </MudCardActions>
+        </MudCard>
+    </MudItem>
+</MudGrid>

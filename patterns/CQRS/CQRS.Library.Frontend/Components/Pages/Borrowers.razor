@@ -1,0 +1,130 @@
+@page "/borrowers"
+@rendermode InteractiveServer
+@inject IHttpClientFactory HttpClientFactory
+@inject ISnackbar Snackbar
+@inject IDialogService DialogService
+
+<PageTitle>Borrowers</PageTitle>
+
+<MudText Typo="Typo.h4" GutterBottom="true">Borrowers</MudText>
+
+<MudButton Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.PersonAdd"
+           OnClick="OpenAddDialog" Class="mb-4">
+    Add Borrower
+</MudButton>
+
+@if (_loading)
+{
+    <MudProgressLinear Color="Color.Primary" Indeterminate="true" Class="my-4" />
+}
+else if (_error is not null)
+{
+    <MudAlert Severity="Severity.Error" Class="mb-4">@_error</MudAlert>
+}
+else
+{
+    <MudTable Items="_borrowers" Hover="true" Striped="true" Dense="false">
+        <HeaderContent>
+            <MudTh>Name</MudTh>
+            <MudTh>Email</MudTh>
+            <MudTh>Phone</MudTh>
+            <MudTh>Address</MudTh>
+            <MudTh Style="width:120px">Actions</MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd DataLabel="Name">@context.Name</MudTd>
+            <MudTd DataLabel="Email">@context.Email</MudTd>
+            <MudTd DataLabel="Phone">@context.PhoneNumber</MudTd>
+            <MudTd DataLabel="Address">@context.Address</MudTd>
+            <MudTd>
+                <MudIconButton Icon="@Icons.Material.Filled.Edit" Color="Color.Primary"
+                               Size="Size.Small" OnClick="() => OpenEditDialog(context)" />
+            </MudTd>
+        </RowTemplate>
+        <NoRecordsContent>
+            <MudText>No borrowers found.</MudText>
+        </NoRecordsContent>
+    </MudTable>
+}
+
+@code {
+    private List<Borrower> _borrowers = [];
+    private bool _loading = true;
+    private string? _error;
+
+    protected override async Task OnInitializedAsync() => await LoadBorrowersAsync();
+
+    private async Task LoadBorrowersAsync()
+    {
+        _loading = true;
+        _error = null;
+        try
+        {
+            var client = HttpClientFactory.CreateClient("borrowerService");
+            _borrowers = await client.GetFromJsonAsync<List<Borrower>>("/api/cqrs/v1/borrowers") ?? [];
+        }
+        catch (Exception ex)
+        {
+            _error = $"Failed to load borrowers: {ex.Message}";
+        }
+        finally
+        {
+            _loading = false;
+        }
+    }
+
+    private async Task OpenAddDialog()
+    {
+        var parameters = new DialogParameters<BorrowerDialog> { { x => x.Borrower, new BorrowerRequest() } };
+        var dialog = await DialogService.ShowAsync<BorrowerDialog>("Add Borrower", parameters,
+            new DialogOptions { MaxWidth = MaxWidth.Small, FullWidth = true });
+        var result = await dialog.Result;
+        if (result is { Canceled: false, Data: BorrowerRequest request })
+        {
+            await SaveBorrowerAsync(null, request);
+        }
+    }
+
+    private async Task OpenEditDialog(Borrower borrower)
+    {
+        var request = new BorrowerRequest
+        {
+            Name = borrower.Name,
+            Address = borrower.Address,
+            PhoneNumber = borrower.PhoneNumber,
+            Email = borrower.Email
+        };
+        var parameters = new DialogParameters<BorrowerDialog> { { x => x.Borrower, request } };
+        var dialog = await DialogService.ShowAsync<BorrowerDialog>("Edit Borrower", parameters,
+            new DialogOptions { MaxWidth = MaxWidth.Small, FullWidth = true });
+        var result = await dialog.Result;
+        if (result is { Canceled: false, Data: BorrowerRequest updated })
+        {
+            await SaveBorrowerAsync(borrower.Id, updated);
+        }
+    }
+
+    private async Task SaveBorrowerAsync(Guid? id, BorrowerRequest request)
+    {
+        try
+        {
+            var client = HttpClientFactory.CreateClient("borrowerService");
+            HttpResponseMessage response;
+            if (id is null)
+            {
+                response = await client.PostAsJsonAsync("/api/cqrs/v1/borrowers", request);
+            }
+            else
+            {
+                response = await client.PutAsJsonAsync($"/api/cqrs/v1/borrowers/{id}", request);
+            }
+            response.EnsureSuccessStatusCode();
+            Snackbar.Add(id is null ? "Borrower added successfully." : "Borrower updated successfully.", Severity.Success);
+            await LoadBorrowersAsync();
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Error saving borrower: {ex.Message}", Severity.Error);
+        }
+    }
+}
