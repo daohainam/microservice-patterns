@@ -1,0 +1,36 @@
+<MudDialog>
+    <TitleContent>
+        <MudText Typo="Typo.h6">@MudDialog.Title</MudText>
+    </TitleContent>
+    <DialogContent>
+        <MudForm @ref="_form" @bind-IsValid="_isValid">
+            <MudTextField @bind-Value="Book.Title" Label="Title" Required="true"
+                          RequiredError="Title is required." Class="mb-3" />
+            <MudTextField @bind-Value="Book.Author" Label="Author" Required="true"
+                          RequiredError="Author is required." />
+        </MudForm>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel">Cancel</MudButton>
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="Submit" Disabled="!_isValid">Save</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter] IMudDialogInstance MudDialog { get; set; } = default!;
+    [Parameter] public BookRequest Book { get; set; } = new();
+
+    private MudForm _form = default!;
+    private bool _isValid;
+
+    private async Task Submit()
+    {
+        await _form.ValidateAsync();
+        if (_isValid)
+        {
+            MudDialog.Close(DialogResult.Ok(Book));
+        }
+    }
+
+    private void Cancel() => MudDialog.Cancel();
+}

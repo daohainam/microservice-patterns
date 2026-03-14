@@ -1,0 +1,39 @@
+<MudDialog>
+    <TitleContent>
+        <MudText Typo="Typo.h6">@MudDialog.Title</MudText>
+    </TitleContent>
+    <DialogContent>
+        <MudForm @ref="_form" @bind-IsValid="_isValid">
+            <MudTextField @bind-Value="Borrower.Name" Label="Name" Required="true"
+                          RequiredError="Name is required." Class="mb-3" />
+            <MudTextField @bind-Value="Borrower.Email" Label="Email" Required="true"
+                          RequiredError="Email is required." Class="mb-3"
+                          InputType="InputType.Email" />
+            <MudTextField @bind-Value="Borrower.PhoneNumber" Label="Phone Number" Class="mb-3" />
+            <MudTextField @bind-Value="Borrower.Address" Label="Address" Lines="2" />
+        </MudForm>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel">Cancel</MudButton>
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="Submit" Disabled="!_isValid">Save</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter] IMudDialogInstance MudDialog { get; set; } = default!;
+    [Parameter] public BorrowerRequest Borrower { get; set; } = new();
+
+    private MudForm _form = default!;
+    private bool _isValid;
+
+    private async Task Submit()
+    {
+        await _form.ValidateAsync();
+        if (_isValid)
+        {
+            MudDialog.Close(DialogResult.Ok(Borrower));
+        }
+    }
+
+    private void Cancel() => MudDialog.Cancel();
+}

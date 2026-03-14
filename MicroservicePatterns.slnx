@@ -8,6 +8,7 @@
     <Project Path="patterns/CQRS/CQRS.Library.BorrowerService/CQRS.Library.BorrowerService.csproj" />
     <Project Path="patterns/CQRS/CQRS.Library.BorrowingHistoryService/CQRS.Library.BorrowingHistoryService.csproj" />
     <Project Path="patterns/CQRS/CQRS.Library.BorrowingService/CQRS.Library.BorrowingService.csproj" />
+    <Project Path="patterns/CQRS/CQRS.Library.Frontend/CQRS.Library.Frontend.csproj" />
     <Project Path="patterns/CQRS/CQRS.Library.IntegrationEvents/CQRS.Library.IntegrationEvents.csproj" />
   </Folder>
   <Folder Name="/patterns/EventSourcing/">
