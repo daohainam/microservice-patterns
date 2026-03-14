@@ -502,6 +502,13 @@ public static class ExternalServiceRegistrationExtentions
             .WaitFor(idempotentCatalogDb);
         #endregion
 
+        #region Identity Service
+        var identityServiceDb = postgres.AddDefaultDatabase<Projects.Identity_IdentityService>();
+        var identityService = builder.AddProjectWithPostfix<Projects.Identity_IdentityService>()
+            .WithReference(identityServiceDb, Consts.DefaultDatabase)
+            .WaitFor(identityServiceDb);
+        #endregion
+
         #region WebHook 
         var webhookDeliveryServiceDb = postgres.AddDefaultDatabase<Projects.WebHook_DeliveryService>();
 
@@ -599,6 +606,9 @@ public static class ExternalServiceRegistrationExtentions
             yarp.AddRoute("/api/idempotent/v1/products/{**catch-all}", idempotentCatalogService);
 
             yarp.AddRoute("/api/webhook/v1/{**catch-all}", webHookDeliveryService);
+
+            yarp.AddRoute("/api/identity/v1/{**catch-all}", identityService);
+            yarp.AddRoute("/connect/{**catch-all}", identityService);
 
             yarp.AddRoute("/mcp/library/{**catch-all}", mcpLibraryServer);
 

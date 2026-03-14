@@ -16,6 +16,9 @@
     <Project Path="patterns/EventSourcing/EventSourcing.NotificationService/EventSourcing.NotificationService.csproj" />
     <Project Path="patterns/EventSourcing/EventSourcing.SeedWork/EventSourcing.SeedWork.csproj" Id="b87a26d6-d1a5-4903-b8f3-d90c1fc48c56" />
   </Folder>
+  <Folder Name="/patterns/Identity/">
+    <Project Path="patterns/Identity/Identity.IdentityService/Identity.IdentityService.csproj" />
+  </Folder>
   <Folder Name="/patterns/IdempotentConsumer/" Id="b10270f0-be94-41a4-8e3e-19b8524c3336">
     <Project Path="patterns/IdempotentConsumer/IdempotentConsumer.CatalogService/IdempotentConsumer.CatalogService.csproj" />
   </Folder>
