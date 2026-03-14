@@ -1,0 +1,17 @@
+global using System.Security.Claims;
+global using Identity.IdentityService.Apis;
+global using Identity.IdentityService.Bootstraping;
+global using Identity.IdentityService.Infrastructure.Data;
+global using Identity.IdentityService.Infrastructure.Entity;
+global using Identity.IdentityService.Workers;
+global using Microsoft.AspNetCore;
+global using Microsoft.AspNetCore.Authentication;
+global using Microsoft.AspNetCore.Http.HttpResults;
+global using Microsoft.AspNetCore.Identity;
+global using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+global using Microsoft.EntityFrameworkCore;
+global using MicroservicePatterns.DatabaseMigrationHelpers;
+global using MicroservicePatterns.Shared;
+global using OpenIddict.Abstractions;
+global using OpenIddict.Server.AspNetCore;
+global using static OpenIddict.Abstractions.OpenIddictConstants;
