@@ -1,4 +1,4 @@
-﻿using Aspire.Hosting.Yarp;
+using Aspire.Hosting.Yarp;
 using MicroservicePatterns.AppHost.OpenTelemetryCollector;
 using MicroservicePatterns.Shared;
 using Microsoft.Extensions.Configuration;
@@ -618,8 +618,10 @@ public static class ExternalServiceRegistrationExtentions
 
             yarp.AddRoute("/api/webhook/v1/{**catch-all}", webHookDeliveryService);
 
-            yarp.AddRoute("/api/identity/v1/{**catch-all}", identityService);
-            yarp.AddRoute("/connect/{**catch-all}", identityService);
+            //yarp.AddRoute("/api/identity/v1/{**catch-all}", identityService);
+            //yarp.AddRoute("/connect/{**catch-all}", identityService);
+
+            yarp.AddRoute(identityService).WithMatchPath("/api/identity/v1/{**catch-all}").WithMatchPath("/connect/{**catch-all}");
 
             yarp.AddRoute("/mcp/library/{**catch-all}", mcpLibraryServer);
 

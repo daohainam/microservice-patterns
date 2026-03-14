@@ -10,6 +10,7 @@ public static class ApplicationServiceExtensions
     {
         builder.AddServiceDefaults();
         builder.Services.AddOpenApi();
+        builder.Services.AddAuthorization();
 
         // ── Database ──────────────────────────────────────────────────────────
         // Aspire wires up the connection string from the resource named "DefaultDatabase".
