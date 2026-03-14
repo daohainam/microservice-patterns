@@ -60,7 +60,7 @@ else
         _error = null;
         try
         {
-            var client = HttpClientFactory.CreateClient("gateway");
+            var client = HttpClientFactory.CreateClient("borrowerService");
             _borrowers = await client.GetFromJsonAsync<List<Borrower>>("/api/cqrs/v1/borrowers") ?? [];
         }
         catch (Exception ex)
@@ -108,7 +108,7 @@ else
     {
         try
         {
-            var client = HttpClientFactory.CreateClient("gateway");
+            var client = HttpClientFactory.CreateClient("borrowerService");
             HttpResponseMessage response;
             if (id is null)
             {

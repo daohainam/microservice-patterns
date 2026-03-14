@@ -23,7 +23,7 @@ else if (_error is not null)
 }
 else
 {
-    <MudTable Items="_books" Hover="true" Striped="true" Dense="false" Loading="_loading">
+    <MudTable Items="_books" Hover="true" Striped="true" Dense="false">
         <HeaderContent>
             <MudTh>Title</MudTh>
             <MudTh>Author</MudTh>
@@ -56,7 +56,7 @@ else
         _error = null;
         try
         {
-            var client = HttpClientFactory.CreateClient("gateway");
+            var client = HttpClientFactory.CreateClient("bookService");
             _books = await client.GetFromJsonAsync<List<Book>>("/api/cqrs/v1/books") ?? [];
         }
         catch (Exception ex)
@@ -98,7 +98,7 @@ else
     {
         try
         {
-            var client = HttpClientFactory.CreateClient("gateway");
+            var client = HttpClientFactory.CreateClient("bookService");
             HttpResponseMessage response;
             if (id is null)
             {

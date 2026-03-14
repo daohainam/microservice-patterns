@@ -65,9 +65,10 @@ else
     {
         try
         {
-            var client = HttpClientFactory.CreateClient("gateway");
-            var borrowersTask = client.GetFromJsonAsync<List<Borrower>>("/api/cqrs/v1/borrowers");
-            var booksTask = client.GetFromJsonAsync<List<Book>>("/api/cqrs/v1/books");
+            var borrowerClient = HttpClientFactory.CreateClient("borrowerService");
+            var bookClient = HttpClientFactory.CreateClient("bookService");
+            var borrowersTask = borrowerClient.GetFromJsonAsync<List<Borrower>>("/api/cqrs/v1/borrowers");
+            var booksTask = bookClient.GetFromJsonAsync<List<Book>>("/api/cqrs/v1/books");
             _borrowers = await borrowersTask ?? [];
             _books = await booksTask ?? [];
         }
@@ -103,7 +104,7 @@ else
         _submitting = true;
         try
         {
-            var client = HttpClientFactory.CreateClient("gateway");
+            var client = HttpClientFactory.CreateClient("borrowingService");
             var response = await client.PostAsJsonAsync("/api/cqrs/v1/borrowings", _request);
             response.EnsureSuccessStatusCode();
             Snackbar.Add("Borrowing created successfully!", Severity.Success);

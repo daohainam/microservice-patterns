@@ -9,11 +9,20 @@ builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 builder.Services.AddMudServices();
 
-var apiBaseUrl = builder.Configuration["ApiBaseUrl"] ?? "https://localhost:9999";
-builder.Services.AddHttpClient("gateway", client =>
+builder.Services.AddHttpClient("bookService", client =>
 {
-    client.BaseAddress = new Uri(apiBaseUrl);
-});
+    client.BaseAddress = new Uri("https+http://CQRS-Library-BookService");
+}).AddServiceDiscovery();
+
+builder.Services.AddHttpClient("borrowerService", client =>
+{
+    client.BaseAddress = new Uri("https+http://CQRS-Library-BorrowerService");
+}).AddServiceDiscovery();
+
+builder.Services.AddHttpClient("borrowingService", client =>
+{
+    client.BaseAddress = new Uri("https+http://CQRS-Library-BorrowingService");
+}).AddServiceDiscovery();
 
 var app = builder.Build();
 
