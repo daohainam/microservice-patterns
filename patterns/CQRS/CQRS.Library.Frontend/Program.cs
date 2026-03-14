@@ -24,6 +24,11 @@ builder.Services.AddHttpClient("borrowingService", client =>
     client.BaseAddress = new Uri("https+http://CQRS-Library-BorrowingService");
 }).AddServiceDiscovery();
 
+builder.Services.AddHttpClient("borrowingHistoryService", client =>
+{
+    client.BaseAddress = new Uri("https+http://CQRS-Library-BorrowingHistoryService");
+}).AddServiceDiscovery();
+
 var app = builder.Build();
 
 if (!app.Environment.IsDevelopment())

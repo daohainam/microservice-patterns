@@ -2,94 +2,125 @@
 @rendermode InteractiveServer
 @inject IHttpClientFactory HttpClientFactory
 @inject ISnackbar Snackbar
+@using CQRS.Library.Frontend.Models
 
 <PageTitle>Borrow a Book</PageTitle>
 
 <MudText Typo="Typo.h4" GutterBottom="true">Borrow a Book</MudText>
-<MudText Typo="Typo.body1" Class="mb-4">Select a borrower, choose a book, and set the due date.</MudText>
+<MudText Typo="Typo.body1" Class="mb-4">Search for a borrower and a book, then set the due date.</MudText>
 
-@if (_loading)
-{
-    <MudProgressLinear Color="Color.Primary" Indeterminate="true" Class="my-4" />
-}
-else
-{
-    <MudCard Style="max-width:600px">
-        <MudCardContent>
-            <MudSelect T="Guid" @bind-Value="_request.BorrowerId" Label="Borrower" Required="true"
-                       Variant="Variant.Outlined" Class="mb-4"
-                       AnchorOrigin="Origin.BottomLeft">
-                @foreach (var b in _borrowers)
-                {
-                    <MudSelectItem Value="@b.Id">@b.Name</MudSelectItem>
-                }
-            </MudSelect>
+<MudCard Style="max-width:600px">
+    <MudCardContent>
+        <MudAutocomplete T="Borrower" Label="Borrower" Required="true"
+                         @bind-Value="_selectedBorrower"
+                         SearchFunc="SearchBorrowersAsync"
+                         ToStringFunc="@(b => b?.Name ?? string.Empty)"
+                         Variant="Variant.Outlined" Class="mb-4"
+                         AdornmentIcon="@Icons.Material.Filled.PersonSearch"
+                         Adornment="Adornment.Start"
+                         Clearable="true"
+                         ResetValueOnEmptyText="true"
+                         MinCharacters="0"
+                         ShowProgressIndicator="true"
+                         Placeholder="Type to search borrowers…" />
 
-            <MudSelect T="Guid" @bind-Value="_request.BookId" Label="Book" Required="true"
-                       Variant="Variant.Outlined" Class="mb-4"
-                       AnchorOrigin="Origin.BottomLeft">
-                @foreach (var b in _books)
-                {
-                    <MudSelectItem Value="@b.Id">@b.Title — @b.Author</MudSelectItem>
-                }
-            </MudSelect>
+        <MudAutocomplete T="Book" Label="Book" Required="true"
+                         @bind-Value="_selectedBook"
+                         SearchFunc="SearchBooksAsync"
+                         ToStringFunc="@(b => b is null ? string.Empty : $"{b.Title} — {b.Author}")"
+                         Variant="Variant.Outlined" Class="mb-4"
+                         AdornmentIcon="@Icons.Material.Filled.Search"
+                         Adornment="Adornment.Start"
+                         Clearable="true"
+                         ResetValueOnEmptyText="true"
+                         MinCharacters="0"
+                         ShowProgressIndicator="true"
+                         Placeholder="Type to search books…" />
 
-            <MudDatePicker Label="Valid Until" @bind-Date="_validUntil"
-                           MinDate="DateTime.Today.AddDays(1)"
-                           Variant="Variant.Outlined" Class="mb-4" />
-        </MudCardContent>
-        <MudCardActions Class="px-4 pb-4">
-            <MudButton Variant="Variant.Filled" Color="Color.Primary"
-                       StartIcon="@Icons.Material.Filled.SwapHoriz"
-                       OnClick="SubmitBorrowingAsync"
-                       Disabled="_submitting">
-                @if (_submitting)
-                {
-                    <MudProgressCircular Size="Size.Small" Indeterminate="true" Class="mr-2" />
-                }
-                Confirm Borrowing
-            </MudButton>
-        </MudCardActions>
-    </MudCard>
-}
+        <MudDatePicker Label="Valid Until" @bind-Date="_validUntil"
+                       MinDate="DateTime.Today.AddDays(1)"
+                       Variant="Variant.Outlined" Class="mb-4" />
+    </MudCardContent>
+    <MudCardActions Class="px-4 pb-4">
+        <MudButton Variant="Variant.Filled" Color="Color.Primary"
+                   StartIcon="@Icons.Material.Filled.SwapHoriz"
+                   OnClick="SubmitBorrowingAsync"
+                   Disabled="_submitting">
+            @if (_submitting)
+            {
+                <MudProgressCircular Size="Size.Small" Indeterminate="true" Class="mr-2" />
+            }
+            Confirm Borrowing
+        </MudButton>
+    </MudCardActions>
+</MudCard>
 
 @code {
-    private List<Borrower> _borrowers = [];
-    private List<Book> _books = [];
-    private BorrowingRequest _request = new() { ValidUntil = DateTime.Today.AddDays(14) };
+    private Borrower? _selectedBorrower;
+    private Book? _selectedBook;
     private DateTime? _validUntil = DateTime.Today.AddDays(14);
-    private bool _loading = true;
     private bool _submitting;
+
+    private List<Borrower> _allBorrowers = [];
+    private List<Book> _allBooks = [];
+    private bool _dataLoaded;
 
     protected override async Task OnInitializedAsync()
     {
+        await EnsureDataLoadedAsync();
+    }
+
+    private async Task EnsureDataLoadedAsync(CancellationToken cancellationToken = default)
+    {
+        if (_dataLoaded) return;
         try
         {
             var borrowerClient = HttpClientFactory.CreateClient("borrowerService");
             var bookClient = HttpClientFactory.CreateClient("bookService");
-            var borrowersTask = borrowerClient.GetFromJsonAsync<List<Borrower>>("/api/cqrs/v1/borrowers");
-            var booksTask = bookClient.GetFromJsonAsync<List<Book>>("/api/cqrs/v1/books");
-            _borrowers = await borrowersTask ?? [];
-            _books = await booksTask ?? [];
+            var borrowersTask = borrowerClient.GetFromJsonAsync<List<Borrower>>("/api/cqrs/v1/borrowers", cancellationToken);
+            var booksTask = bookClient.GetFromJsonAsync<List<Book>>("/api/cqrs/v1/books", cancellationToken);
+            _allBorrowers = await borrowersTask ?? [];
+            _allBooks = await booksTask ?? [];
+            _dataLoaded = true;
         }
         catch (Exception ex)
         {
             Snackbar.Add($"Failed to load data: {ex.Message}", Severity.Error);
         }
-        finally
+    }
+
+    private async Task<IEnumerable<Borrower>> SearchBorrowersAsync(string value, CancellationToken cancellationToken)
+    {
+        await EnsureDataLoadedAsync(cancellationToken);
+        if (string.IsNullOrWhiteSpace(value))
         {
-            _loading = false;
+            return _allBorrowers;
         }
+        return _allBorrowers.Where(b =>
+            b.Name.Contains(value, StringComparison.OrdinalIgnoreCase) ||
+            b.Email.Contains(value, StringComparison.OrdinalIgnoreCase));
+    }
+
+    private async Task<IEnumerable<Book>> SearchBooksAsync(string value, CancellationToken cancellationToken)
+    {
+        await EnsureDataLoadedAsync(cancellationToken);
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            return _allBooks;
+        }
+        return _allBooks.Where(b =>
+            b.Title.Contains(value, StringComparison.OrdinalIgnoreCase) ||
+            b.Author.Contains(value, StringComparison.OrdinalIgnoreCase));
     }
 
     private async Task SubmitBorrowingAsync()
     {
-        if (_request.BorrowerId == Guid.Empty)
+        if (_selectedBorrower is null)
         {
             Snackbar.Add("Please select a borrower.", Severity.Warning);
             return;
         }
-        if (_request.BookId == Guid.Empty)
+        if (_selectedBook is null)
         {
             Snackbar.Add("Please select a book.", Severity.Warning);
             return;
@@ -100,15 +131,22 @@ else
             return;
         }
 
-        _request.ValidUntil = _validUntil.Value;
+        var request = new BorrowingRequest
+        {
+            BorrowerId = _selectedBorrower.Id,
+            BookId = _selectedBook.Id,
+            ValidUntil = _validUntil.Value
+        };
+
         _submitting = true;
         try
         {
             var client = HttpClientFactory.CreateClient("borrowingService");
-            var response = await client.PostAsJsonAsync("/api/cqrs/v1/borrowings", _request);
+            var response = await client.PostAsJsonAsync("/api/cqrs/v1/borrowings", request);
             response.EnsureSuccessStatusCode();
             Snackbar.Add("Borrowing created successfully!", Severity.Success);
-            _request = new BorrowingRequest { ValidUntil = DateTime.Today.AddDays(14) };
+            _selectedBorrower = null;
+            _selectedBook = null;
             _validUntil = DateTime.Today.AddDays(14);
         }
         catch (Exception ex)
