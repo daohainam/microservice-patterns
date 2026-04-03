@@ -38,6 +38,12 @@ namespace IdempotentConsumer.CatalogService.Migrations
                 });
 
             migrationBuilder.CreateIndex(
+                name: "IX_ProcessedMessages_Id",
+                table: "ProcessedMessages",
+                column: "Id",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
                 name: "IX_ProcessedMessages_ProcessedAtUtc",
                 table: "ProcessedMessages",
                 column: "ProcessedAtUtc");
